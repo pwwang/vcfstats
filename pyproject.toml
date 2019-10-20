@@ -1,0 +1,27 @@
+[build-system]
+requires = [ "poetry>=0.12",]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "vcfstats"
+version = "0.0.1"
+description = "Powerful VCF statistics"
+authors = [ "pwwang <pwwang@pwwang.com>",]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/pwwang/vcfstats"
+repository = "https://github.com/pwwang/vcfstats"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+cyvcf2 = "0.*"
+toml = "0.*"
+pyparam = "*"
+cmdy = "*"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pytest-cov = "*"
+
+[tool.poetry.scripts]
+vcfstats = "vcfstats:main"
