@@ -202,7 +202,7 @@ vcfstats --vcf examples/sample.vcf \
 ```shell
 vcfstats --vcf examples/sample.vcf \
 	--outdir examples/ \
-	--formula 'DEPTH{0} ~ DEPTH{1}' \
+	--formula 'DEPTHs{0} ~ DEPTHs{1}' \
 	--title 'Depths between sample 1 and 2' \
 	--config examples/config.toml
 ```
