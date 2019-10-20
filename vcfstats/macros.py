@@ -79,6 +79,11 @@ def NALT(variant):
 	return len(variant.ALT)
 
 @continuous
+def GQs(variant):
+	"""get the GQ for each sample as a numpy array."""
+	return variant.gt_quals
+
+@continuous
 def QUAL(variant):
 	"""Variant quality from QUAL field."""
 	return variant.QUAL

@@ -12,9 +12,8 @@ TARGETS :=  examples/Number_of_variants_on_each_chromosome.col.png \
 			examples/Types_of_variants_on_each_chromosome.col.png \
 			examples/Types_of_variants_on_each_chromosome_1.pie.png \
 			examples/Types_of_variants_on_whole_genome.pie.png \
-			examples/Allele_frequency_vs_depth_(sample_1).scatter.png \
 			examples/Mutant_genotypes_on_each_chromosome_(sample_1).col.png \
-			examples/Allele_frequency_vs_depth_(sample_1).scatter.png \
+			examples/GQ_vs_depth_(sample_1).scatter.png \
 			examples/Depths_between_sample_1_and_2.scatter.png
 
 
@@ -114,10 +113,10 @@ examples/Types_of_variants_on_whole_genome.pie.png: $(DEPENDS)
 	$(VCFSTATS) --title '$(call FILETOTITLE,$@)' --figtype $(call FIGTYPE,$@) \
 	--formula 'COUNT(1, group=VARTYPE) ~ 1'
 
-examples/Allele_frequency_vs_depth_(sample_1).scatter.png: $(DEPENDS)
+examples/GQ_vs_depth_(sample_1).scatter.png: $(DEPENDS)
 	@$(call LOGGER,$@)
 	$(VCFSTATS) --title '$(call FILETOTITLE,$@)' --figtype $(call FIGTYPE,$@) \
-	--formula 'MEAN(AFs{0}) ~ MEAN(DEPTHs{0}, group=CHROM)'
+	--formula 'MEAN(GQs{0}) ~ MEAN(DEPTHs{0}, group=CHROM)'
 
 examples/Mutant_genotypes_on_each_chromosome_(sample_1).col.png: $(DEPENDS)
 	@$(call LOGGER,$@)
