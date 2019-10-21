@@ -10,6 +10,8 @@ There are a couple of tools that can plot some statistics of VCF files, includin
 2. customize the plots
 3. focus on variants with certain filters
 
+R package [`vcfR`][19] can do some of the above. However, it has to load entire VCF into memory, which is not friendly to large VCF files.
+
 ## Installation
 `vcfstats` also requires [`R`][16] with [`ggplot2`][17] to be installed. \
 If you are doing `pie` chart, [`ggrepel`][18] is also required.
@@ -232,3 +234,4 @@ vcfstats --vcf examples/sample.vcf \
 [16]: https://www.r-project.org/
 [17]: https://ggplot2.tidyverse.org/
 [18]: https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html
+[19]: https://knausb.github.io/vcfR_documentation/visualization_1.html
