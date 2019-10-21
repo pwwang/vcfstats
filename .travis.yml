@@ -7,7 +7,7 @@ matrix:
 before_install:
   - pip install poetry
   - sudo apt-get update
-  - sudo apt-get install r-base libcurl4-openssl-dev libssl-dev
+  - sudo apt-get install r-base libcurl4-openssl-dev libssl-dev tabix
   - echo "R_LIBS=~/R" > ~/.Renviron
   - echo "export R_LIBS=~/R" >> ~/.environ
   - source ~/.environ
