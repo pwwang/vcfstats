@@ -5,14 +5,14 @@
 [Documentation][13] | [CHANGELOG][12]
 
 ## Motivation
-There are a couple of tools that can plot some statistics of VCF files, include `bcftools` and `jvarkit`. However, none of them could:
+There are a couple of tools that can plot some statistics of VCF files, including [`bcftools`][14] and [`jvarkit`][15]. However, none of them could:
 1. plot specific metrics
 2. customize the plots
 3. focus on variants with certain filters
 
 ## Installation
-`vcfstats` also requires R with ggplot2 to be installed.
-If you are doing `pie` chart, `ggrepel` is also required.
+`vcfstats` also requires [`R`][16] with [`ggplot2`][17] to be installed. \
+If you are doing `pie` chart, [`ggrepel`][18] is also required.
 ```shell
 pip install vcfstats
 ```
@@ -227,3 +227,8 @@ vcfstats --vcf examples/sample.vcf \
 [11]: https://img.shields.io/codacy/coverage/76b84a4cba794f1d925ba98913203c05?style=flat-square
 [12]: https://vcfstats.readthedocs.io/en/latest/CHANGELOG/
 [13]: https://vcfstats.readthedocs.io/en/latest/
+[14]: https://samtools.github.io/bcftools/bcftools.html#stats
+[15]: http://lindenb.github.io/jvarkit/VcfStatsJfx.html
+[16]: https://www.r-project.org/
+[17]: https://ggplot2.tidyverse.org/
+[18]: https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html
