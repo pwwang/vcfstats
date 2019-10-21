@@ -8,8 +8,11 @@ before_install:
   - pip install poetry
   - sudo apt-get update
   - sudo apt-get install r-base
-  - sudo Rscript -e 'remotes::install_cran("ggplot2")'
-  - sudo Rscript -e 'remotes::install_cran("ggrepel")'
+  - echo "R_LIBS=~/R" > ~/.Renviron
+  - echo "export R_LIBS=~/R" >> ~/.environ
+  - source ~/.environ
+  - mkdir -p ~/R
+  - R -e "install.packages('ggplot2', repos = 'http://cran.us.r-project.org', lib='~/R')"
 install:
   - poetry install -v
 script:
