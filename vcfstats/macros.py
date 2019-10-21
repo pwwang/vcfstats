@@ -5,9 +5,10 @@ def categorical(func = None, alias = None, _name = None):
 	if alias:
 		return partial(categorical, _name = alias)
 	funcname = func.__name__
-	MACROS.setdefault(funcname, {})
-	MACROS[funcname]['func'] = MACROS[funcname].get('func', func)
-	MACROS[funcname]['type'] = 'categorical'
+	if funcname not in MACROS:
+		MACROS[funcname] = {}
+		MACROS[funcname]['func'] = MACROS[funcname].get('func', func)
+		MACROS[funcname]['type'] = 'categorical'
 	if _name:
 		MACROS[_name] = MACROS[funcname]
 	return MACROS[funcname]['func']
@@ -16,9 +17,10 @@ def continuous(func = None, alias = None, _name = None):
 	if alias:
 		return partial(continuous, _name = alias)
 	funcname = func.__name__
-	MACROS.setdefault(funcname, {})
-	MACROS[funcname]['func'] = MACROS[funcname].get('func', func)
-	MACROS[funcname]['type'] = 'continuous'
+	if funcname not in MACROS:
+		MACROS[funcname] = {}
+		MACROS[funcname]['func'] = MACROS[funcname].get('func', func)
+		MACROS[funcname]['type'] = 'continuous'
 	if _name:
 		MACROS[_name] = MACROS[funcname]
 	return MACROS[funcname]['func']
@@ -27,9 +29,10 @@ def aggregation(func = None, alias = None, _name = None):
 	if alias:
 		return partial(aggregation, _name = alias)
 	funcname = func.__name__
-	MACROS.setdefault(funcname, {})
-	MACROS[funcname]['func'] = MACROS[funcname].get('func', func)
-	MACROS[funcname]['aggr'] = True
+	if funcname not in MACROS:
+		MACROS[funcname] = {}
+		MACROS[funcname]['func'] = MACROS[funcname].get('func', func)
+		MACROS[funcname]['aggr'] = True
 	if _name:
 		MACROS[_name] = MACROS[funcname]
 	return MACROS[funcname]['func']
@@ -66,7 +69,7 @@ def GTTYPEs(variant):
 @categorical
 def FILTER(variant):
 	"""Get the FILTER of a variant."""
-	return variant.FILTER
+	return variant.FILTER or 'PASS'
 
 @categorical
 def SUBST(variant):
@@ -88,7 +91,7 @@ def QUAL(variant):
 	"""Variant quality from QUAL field."""
 	return variant.QUAL
 
-@continuous
+@continuous(alias = 'DPs')
 def DEPTHs(variant):
 	"""Get the read-depth for each sample as a numpy array."""
 	return [sum(dp) for dp in variant.format('DP')]
@@ -121,4 +124,6 @@ def SUM(entries):
 @aggregation(alias = 'AVG')
 def MEAN(entries):
 	"""Get the mean of the values"""
+	if not entries:
+		return 0.0
 	return sum(entries) / len(entries)

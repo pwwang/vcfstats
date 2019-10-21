@@ -41,11 +41,13 @@ params.l          = False
 params.l.desc     = 'List all available macros.'
 params.macro.desc = 'User-defined macro file.'
 params.list       = params.l
-params.f          = []
+params.f.type     = list
+params.f.required = True
 params.f.desc     = ['The formulas for plotting in format of [Y] ~ [X],',
 					 'where [Y] or [X] should be an entry or an aggregation']
 params.formula      = params.f
-params.t            = []
+params.t.type       = list
+params.t.required   = True
 params.t.desc       = 'The title of each figure, will be used to name the output files.'
 params.title        = params.t
 params.ggs          = []
@@ -57,19 +59,22 @@ params.c.desc = ['A configuration file defining how to plot in TOML format.',
 				 'If this is provided, CLI arguments will be overwritten if defined in this file.']
 params.config = params.c
 
-params.f.callback = lambda opt: 'formula is required' if not opt.value else None
+params.l.callback = lambda opt, pms: pms.vcf.setValue('vcf') \
+	and pms.outdir.setValue('outdir') \
+	and pms.f.setValue(['f']) \
+	and pms.t.setValue(['t']) if opt.value else None
 
-params.t.callback = lambda opt, pms: 'title is required' \
-	if not opt.value else 'Wrong length of title (expect {}, got {})'.format(len(pms.f.value), len(opt.value)) \
-	if len(opt.value) != len(pms.f.value) else None
+params.t.callback = lambda opt, pms: \
+	'Wrong length of title (expect {}, got {})'.format(len(pms.f.value or []), len(opt.value or [])) \
+	if len(opt.value or []) != len(pms.f.value or []) else None
 
 params.ggs.callback = lambda opt, pms: 'Wrong length of ggs' \
-	if len(opt.value) > 1 and len(opt.value) != len(pms.f.value) else None
+	if len(opt.value or []) > 1 and len(opt.value or []) != len(pms.f.value or []) else None
 
 def get_vcf_by_regions(vcffile, regions):
 	"""Compile all the regions provided by use together, and return a chained iterator."""
 	LOGGER.info("Getting vcf handler by given regions ...")
-	vcf = VCF(vcffile, gts012=True)
+	vcf = VCF(str(vcffile), gts012=True)
 	samples = vcf.samples
 	if regions:
 		if len(regions) == 1:
@@ -132,6 +137,7 @@ def list_macros():
 
 def load_macrofile(macrofile):
 	"""Load the macros from a python file"""
+	macrofile = str(macrofile)
 	if not macrofile.endswith('.py'):
 		macrofile = macrofile + '.py'
 	if not path.isfile(macrofile):
@@ -141,6 +147,8 @@ def load_macrofile(macrofile):
 
 def load_config(config, opts):
 	"""Load the configurations from file"""
+	if not path.isfile(config):
+		raise OSError("Config file does not exist: {}".format(config))
 	configs = Params()
 	configs._loadFile(config)
 	configs = configs._asDict()
@@ -155,7 +163,7 @@ def load_config(config, opts):
 	opts['ggs'].extend([None] * (N - len(opts['ggs'])))
 	if isinstance(opts['devpars'], list):
 		default_devpars = opts['devpars'][0]
-		opts['devpars'].extend([None] * (N - len(opts['devpars'])))
+		opts['devpars'].extend([default_devpars] * (N - len(opts['devpars'])))
 	else:
 		default_devpars = opts['devpars']
 		opts['devpars'] = [opts['devpars']] * N
@@ -189,7 +197,7 @@ def main():
 		for one in ones:
 			# save entries, cache aggr
 			one.iterate(variant)
-		if i % 10000 == 0:
+		if i % 10000 == 0: # pragma: no cover
 			LOGGER.debug("- {} variants read.".format(i))
 	LOGGER.info('{} variants read.'.format(i))
 	for i, one in enumerate(ones):

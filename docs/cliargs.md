@@ -5,11 +5,14 @@ Description:
   vcfstats v0.0.1: Powerful VCF statistics.
 
 Usage:
-  vcfstats <--vcf AUTO> <--outdir AUTO> [OPTIONS]
+  vcfstats <--vcf AUTO> <--outdir AUTO> <-f LIST> <-t LIST> [OPTIONS]
 
 Required options:
   -v, --vcf <AUTO>         - The VCF file
   -o, --outdir <AUTO>      - The output directory.
+  -f, --formula <LIST>     - The formulas for plotting in format of [Y] ~ [X],
+                             where [Y] or [X] should be an entry or an aggregation
+  -t, --title <LIST>       - The title of each figure, will be used to name the output files.
 
 Optional options:
   --loglevel <STR>         - The logging level. Default: 'INFO'
@@ -29,11 +32,6 @@ Optional options:
                              Default: False
   --macro <AUTO>           - User-defined macro file.
                              Default: None
-  -f, --formula <LIST>     - The formulas for plotting in format of [Y] ~ [X],
-                             where [Y] or [X] should be an entry or an aggregation
-                             Default: []
-  -t, --title <LIST>       - The title of each figure, will be used to name the output files.
-                             Default: []
   --ggs <LIST>             - Extra ggplot2 expression for each plot
                              Default: []
   --devpars <DICT>         - The device parameters for plots.

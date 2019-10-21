@@ -16,7 +16,8 @@ We are using `cyvcf2` to get variant information, please refer to its [API docum
 
 !!! note
 
-	`vcf` is initialized with `gts012 = True`, which is not the default value of `cyvcf2`
+	`vcf` is initialized with `gts012 = True`, which is not the default value of `cyvcf2`. \
+	`gts012 = True` indicates that genotype 2 as `HOM_ALT` and 3 as `UNKNOWN`.
 
 
 ## Shortcuts for macro decorators
@@ -78,6 +79,7 @@ While when you use it, you can specify macros as filter and group for it. For ex
 ## Built-in macros
 ```python
 
+
 @categorical
 def VARTYPE(variant):
 	"""Variant type, one of deletion, indel, snp or sv"""
@@ -106,7 +108,7 @@ def GTTYPEs(variant):
 @categorical
 def FILTER(variant):
 	"""Get the FILTER of a variant."""
-	return variant.FILTER
+	return variant.FILTER or 'PASS'
 
 @categorical
 def SUBST(variant):
@@ -128,7 +130,7 @@ def QUAL(variant):
 	"""Variant quality from QUAL field."""
 	return variant.QUAL
 
-@continuous
+@continuous(alias = 'DPs')
 def DEPTHs(variant):
 	"""Get the read-depth for each sample as a numpy array."""
 	return [sum(dp) for dp in variant.format('DP')]
@@ -161,6 +163,8 @@ def SUM(entries):
 @aggregation(alias = 'AVG')
 def MEAN(entries):
 	"""Get the mean of the values"""
+	if not entries:
+		return 0.0
 	return sum(entries) / len(entries)
 ```
 

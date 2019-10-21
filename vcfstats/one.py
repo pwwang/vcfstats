@@ -26,14 +26,14 @@ def get_plot_type(formula, figtype):
 	if formula.Y.term['type'] == 'continuous' and formula.X.term['type'] == 'categorical':
 		if figtype in ('', None, 'violin', 'boxplot', 'histogram', 'density', 'freqpoly'):
 			return figtype or 'violin'
-		raise TypeError("Don't know how to plot CONTINUOUS ~ CATEGORICAL using plots other than violin or boxplot")
+		raise TypeError("Don't know how to plot CONTINUOUS ~ CATEGORICAL using plots other than violin/boxplot/histogram/density/freqpoly")
 	if formula.Y.term['type'] == 'categorical' and formula.X.term['type'] == 'continuous':
 		raise TypeError("If you want to plot CATEGORICAL ~ CONTINUOUS, transpose CONTINUOUS ~ CATEGORICAL")
 	if formula.Y.term['type'] == 'continuous' and formula.X.term['type'] == 'continuous':
 		if formula.X.term['func'].__name__ == '_ONE':
 			if figtype in ('', None, 'histogram', 'freqpoly', 'density'):
 				return figtype or 'histogram'
-			raise TypeError("Don't know how to plot distribution using plots other than histogram or density")
+			raise TypeError("Don't know how to plot distribution using plots other than histogram/freqpoly/density")
 		if figtype in ('', None, 'scatter'):
 			return figtype or 'scatter'
 		raise TypeError("Don't know how to plot CONTINUOUS ~ CONTINUOUS using plots other than scatter")
@@ -62,6 +62,10 @@ class One:
 		LOGGER.debug("[{}] ggs: {}".format(self.title, self.ggs))
 		LOGGER.debug("[{}] devpars: {}".format(self.title, self.devpars))
 
+	def __del__(self):
+		if self.datafile:
+			self.datafile.close()
+
 	def iterate(self, variant):
 		# Y
 		self.formula.run(variant, self.datafile)
@@ -75,6 +79,7 @@ class One:
 		LOGGER.info("[{}] Composing R code ...".format(self.title))
 		rcode = """
 			require('ggplot2')
+			set.seed(8525)
 			figtype = {figtype!r}
 
 			plotdata = read.table(	paste0({outprefix!r}, '.txt'),
@@ -152,7 +157,7 @@ class One:
 		LOGGER.info("[{}] Data will be saved to: {}".format(self.title, self.outprefix + '.txt'))
 		LOGGER.info("[{}] Plot will be saved to: {}".format(
 			self.title, self.outprefix + '.' + self.figtype + '.png'))
-		cmd = cmdy.Rscript(self.outprefix + '.plot.R', _exe = Rscript)
+		cmd = cmdy.Rscript(self.outprefix + '.plot.R', _exe = Rscript, _raise = False)
 		if cmd.rc != 0:
 			for line in cmd.stderr.splitlines():
 				LOGGER.error("[{}] {}".format(self.title, line))

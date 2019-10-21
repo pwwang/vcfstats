@@ -21,6 +21,57 @@ def parse_subsets(subsets):
 			ret.append(subset)
 	return ret
 
+def safe_split (string, delimter, trim = True):
+	"""
+	Split a string using a single-character delimter
+	@params:
+		`string`: the string
+		`delimter`: the single-character delimter
+		`trim`: whether to trim each part. Default: True
+	@examples:
+		```python
+		ret = split("'a,b',c", ",")
+		# ret == ["'a,b'", "c"]
+		# ',' inside quotes will be recognized.
+		```
+	@returns:
+		The list of substrings
+	"""
+	ret   = []
+	special1 = ['(', ')', '[', ']', '{', '}']
+	special2 = ['\'', '"', '`']
+	special3 = '\\'
+	flags1   = [0, 0, 0]
+	flags2   = [False, False, False]
+	flags3   = False
+	start = 0
+	for i, char in enumerate(string):
+		if char == special3:
+			flags3 = not flags3
+		elif not flags3:
+			if char in special1:
+				index = special1.index(char)
+				if index % 2 == 0:
+					flags1[int(index/2)] += 1
+				else:
+					flags1[int(index/2)] -= 1
+			elif char in special2:
+				index = special2.index(char)
+				flags2[index] = not flags2[index]
+			elif char == delimter and not any(flags1) and not any(flags2):
+				rest = string[start:i]
+				if trim:
+					rest = rest.strip()
+				ret.append(rest)
+				start = i + 1
+		else:
+			flags3 = False
+	rest = string[start:]
+	if trim:
+		rest = rest.strip()
+	ret.append(rest)
+	return ret
+
 class Term:
 
 	def __init__(self, term, samples):
@@ -84,7 +135,7 @@ class Term:
 				self.subsets[1] = float(self.subsets[1])
 
 	def __repr__(self):
-		return '<Term {!r}(subsets={!r}, samples={!r})>'.format(self.name, self.subsets, self.samples)
+		return '<Term {}(subsets={}, samples={})>'.format(self.name, self.subsets, self.samples)
 
 	def __eq__(self, other):
 		if not isinstance(other, Term):
@@ -120,6 +171,8 @@ class Aggr:
 
 	def __init__(self, aggr, terms):
 		self.cache = OrderedDict() # cache data for aggregation
+		if '(' not in aggr:
+			raise ValueError("Expect an Aggregation in format of 'AGGR(...)'")
 		aggr, remaining = aggr.split('(', 1)
 		aggr = aggr.strip()
 		if aggr not in MACROS or not MACROS[aggr].get('aggr'):
@@ -133,21 +186,24 @@ class Aggr:
 		if ',' not in remaining:
 			term, remaining = remaining, ''
 		else:
-			term, remaining = remaining.split(',', 1)
+			parts = safe_split(remaining, ',')
+			term, remaining =  parts[0], ','.join(parts[1:])
 
 		term = term.strip()
 		remaining = remaining.strip()
 		self.term = terms[term]
 		self.filter = None
 		self.group = None
-		for term in remaining.split(','):
+		for term in safe_split(remaining, ','):
 			term = term.strip()
 			if not term:
 				continue
 			if '=' not in term:
-				kw, name = 'filter', term
+				kw, name = 'filter' if not self.filter else 'group', term
 			else:
 				kw, name = term.split('=')
+				kw = kw.strip()
+				name = name.strip()
 			if kw == 'filter':
 				self.filter = terms[name]
 			else:
@@ -163,7 +219,7 @@ class Aggr:
 		self.xgroup = None
 
 	def __repr__(self):
-		return '<Aggr {!r}({!r}, filter={!r}, group={!r})>'.format(
+		return '<Aggr {}({}, filter={}, group={})>'.format(
 			self.aggr['func'].__name__, self.term, self.filter, self.group)
 
 	def hasFILTER(self):
@@ -185,7 +241,7 @@ class Aggr:
 		if group is False:
 			return
 		if len(group) > 1:
-			raise ValueError("Cannot aggregate on more than one group.")
+			raise ValueError("Cannot aggregate on more than one group, make sure you specified sample for sample data.")
 		group = group[0]
 
 		xgroup = False
@@ -194,7 +250,7 @@ class Aggr:
 			if xgroup is False:
 				return
 			if len(xgroup) > 1:
-				raise ValueError("Cannot aggregate on more than one xgroup.")
+				raise ValueError("Cannot aggregate on more than one level of xgroup.")
 			xgroup = xgroup[0]
 
 		value = self.term.run(variant, passed)
@@ -213,7 +269,7 @@ class Aggr:
 				ret[key] = [(self.aggr['func'](val), grup) for grup, val in value.items()]
 			else:
 				ret[key] = self.aggr['func'](value)
-		del self.cache
+		self.cache.clear()
 		return ret
 
 class Formula:
@@ -229,8 +285,17 @@ class Formula:
 		LOGGER.debug('[{}] - Y:{!r}, X:{!r}'.format(title, parts[0], parts[1]))
 		self.Y = self._parse_part(parts[0].strip(), samples)
 		self.X = self._parse_part(parts[1].strip(), samples)
+
 		if isinstance(self.Y, Aggr) and isinstance(self.X, Term):
 			self.Y.setxgroup(self.X)
+		elif isinstance(self.Y, Aggr) and isinstance(self.X, Aggr):
+			if not self.Y.group:
+				self.Y.group = self.X.group
+			if not self.X.group:
+				self.X.group = self.Y.group
+			if self.Y.group != self.X.group:
+				raise ValueError("Two aggregations have to group by the same entry.")
+
 		self.passed = passed
 		if  (isinstance(self.Y, Term) and self.Y.name == 'FILTER') or \
 			(isinstance(self.Y, Aggr) and self.Y.hasFILTER()) or \
@@ -240,36 +305,26 @@ class Formula:
 
 	def _parse_part(self, part, samples):
 		aggr = None
-		if part.endswith(')'):
+		if part.endswith(')') and '(' in part:
 			aggr, term_fms = part[:-1].split('(')
 		else:
 			term_fms = part
-		breakat = []
-		bracket = False
-		sqarekt = False
-		for i, char in enumerate(term_fms):
-			bracket = bracket if char not in '}{' else char == '{'
-			sqarekt = sqarekt if char not in '][' else char == '['
-			if char == ',' and not bracket and not sqarekt:
-				breakat.append(i)
 
-		if not breakat and not aggr:
-			return Term(term_fms, samples)
-		if not breakat and aggr:
+		parts = safe_split(term_fms, ',')
+		if not aggr and len(parts) == 1:
+			return Term(parts[0], samples)
+		if aggr and len(parts) == 1:
 			name = 'TERM' + str(len(self._terms))
 			self._terms[name] = Term(term_fms, samples)
 			return Aggr('{}({})'.format(aggr, name), self._terms)
-		if len(breakat) > 2:
+
+		if len(parts) > 3:
 			raise ValueError('Wrong number of arguments (at most 3) for Aggregation: {}.'.format(aggr))
 
 		name1 = 'TERM' + str(len(self._terms))
-		self._terms[name1] = self._parse_part(term_fms[:breakat[0]], samples)
+		self._terms[name1] = self._parse_part(parts[0], samples)
 		args = [name1]
-		for i, bat in enumerate(breakat):
-			if i == len(breakat) - 1:
-				termstr = term_fms[(bat+1):].strip()
-			else:
-				termstr = term_fms[(bat+1):breakat[i+1]].strip()
+		for i, termstr in enumerate(parts[1:]):
 			kw = None
 			if '=' in termstr:
 				kw, termstr = termstr.split('=', 1)
@@ -281,7 +336,6 @@ class Formula:
 			name2 = 'TERM' + str(len(self._terms))
 			self._terms[name2] = self._parse_part(termstr, samples)
 			args.append('{}={}'.format(kw, name2))
-		print('{}({})'.format(aggr, ', '.join(args)))
 		return Aggr('{}({})'.format(aggr, ', '.join(args)), self._terms)
 
 	def run(self, variant, datafile):
@@ -300,12 +354,6 @@ class Formula:
 			for i, r in enumerate(x):
 				datafile.write('{}\t{}\n'.format(y[i], r))
 		elif isinstance(self.Y, Aggr) and isinstance(self.X, Aggr):
-			if not self.Y.group:
-				self.Y.group = self.X.group
-			if not self.X.group:
-				self.X.group = self.Y.group
-			if self.Y.group != self.X.group:
-				raise ValueError("Two aggregations have to group by the same entry.")
 			self.Y.run(variant, self.passed)
 			self.X.run(variant, self.passed)
 		elif isinstance(self.Y, Aggr) and isinstance(self.X, Term):

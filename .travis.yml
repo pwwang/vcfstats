@@ -1,0 +1,25 @@
+language: python
+matrix:
+  include:
+    - python: 3.6
+    - python: 3.7
+      dist: xenial
+before_install:
+  - pip install poetry
+  - sudo apt-get update
+  - sudo apt-get install r-base
+  - sudo R -e 'install.packages(c("ggplot2", "ggrepel"))'
+install:
+  - poetry install -v
+script:
+  - pytest tests/ -s
+after_success: |
+  if [ "$TRAVIS_PYTHON_VERSION" == "3.7" ]; then
+    python-codacy-coverage -r .coverage.xml
+  fi
+deploy:
+  provider: script
+  script: poetry publish --build -u $PYPI_USER -p $PYPI_PASSWORD
+  on:
+    tags: true
+    condition: "$TRAVIS_PYTHON_VERSION == 3.7"
