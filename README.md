@@ -4,6 +4,12 @@ Powerful statistics for VCF files
 
 [Documentation][1]
 
+## Motivation
+There are a couple of tools that can plot some statistics of VCF files, include `bcftools` and `jvarkit`. However, none of them could:
+1. plot specific metrics
+2. customize the plots
+3. focus on variants with certain filters
+
 ## Installation
 `vcfstats` also requires R with ggplot2 to be installed.
 If you are doing `pie` chart, `ggrepel` is also required.
@@ -23,7 +29,7 @@ vcfstats --vcf examples/sample.vcf \
 	--config examples/config.toml
 ```
 
-![Number of variants on each chromosome](examples/Number_of_variants_on_each_chromosome.col.png)
+![Number of variants on each chromosome](https://github.com/pwwang/vcfstats/raw/master/examples/Number_of_variants_on_each_chromosome.col.png)
 
 #### Changing labels and ticks
 
@@ -38,7 +44,7 @@ vcfstats --vcf examples/sample.vcf \
 		ylab("# Variants")'
 ```
 
-![Number of variants on each chromosome (modified)](examples/Number_of_variants_on_each_chromosome_(modified).col.png)
+![Number of variants on each chromosome (modified)](https://github.com/pwwang/vcfstats/raw/master/examples/Number_of_variants_on_each_chromosome_(modified).col.png)
 
 #### Number of variants on first 5 chromosome
 
@@ -63,7 +69,7 @@ vcfstats --vcf examples/sample.vcf \
 	--config examples/config.toml -r 1 2 3 4 5
 ```
 
-![Number of variants on each chromosome (first 5)](examples/Number_of_variants_on_each_chromosome_(first_5).col.png)
+![Number of variants on each chromosome (first 5)](https://github.com/pwwang/vcfstats/raw/master/examples/Number_of_variants_on_each_chromosome_(first_5).col.png)
 
 ### Number of substitutions of SNPs
 ```shell
@@ -73,7 +79,7 @@ vcfstats --vcf examples/sample.vcf \
 	--title 'Number of substitutions of SNPs' \
 	--config examples/config.toml
 ```
-![Number of substitutions of SNPs](examples/Number_of_substitutions_of_SNPs.col.png)
+![Number of substitutions of SNPs](https://github.com/pwwang/vcfstats/raw/master/examples/Number_of_substitutions_of_SNPs.col.png)
 
 #### Only with SNPs PASS all filters
 
@@ -86,7 +92,7 @@ vcfstats --vcf examples/sample.vcf \
 	--passed
 ```
 
-![Number of substitutions of SNPs (passed)](examples/Number_of_substitutions_of_SNPs_(passed).col.png)
+![Number of substitutions of SNPs (passed)](https://github.com/pwwang/vcfstats/raw/master/examples/Number_of_substitutions_of_SNPs_(passed).col.png)
 
 ### Alternative allele frequency on each chromosome
 ```shell
@@ -98,7 +104,7 @@ vcfstats --vcf examples/sample.vcf \
 	--config examples/config.toml --ggs 'theme_dark()'
 ```
 
-![Allele frequency on each chromosome](examples/Allele_frequency_on_each_chromosome.violin.png)
+![Allele frequency on each chromosome](https://github.com/pwwang/vcfstats/raw/master/examples/Allele_frequency_on_each_chromosome.violin.png)
 
 #### Using boxplot
 ```shell
@@ -110,7 +116,7 @@ vcfstats --vcf examples/sample.vcf \
 	--figtype boxplot
 ```
 
-![Allele frequency on each chromosome](examples/Allele_frequency_on_each_chromosome.boxplot.png)
+![Allele frequency on each chromosome](https://github.com/pwwang/vcfstats/raw/master/examples/Allele_frequency_on_each_chromosome.boxplot.png)
 
 #### Using density plot/histogram to investigate the distribution:
 You can plot the distribution, using density plot or histogram
@@ -122,7 +128,7 @@ vcfstats --vcf examples/sample.vcf \
 	--config examples/config.toml \
 	--figtype density
 ```
-![Allele frequency on chromosome 1,2](examples/Allele_frequency_on_chromosome_1_2.density.png)
+![Allele frequency on chromosome 1,2](https://github.com/pwwang/vcfstats/raw/master/examples/Allele_frequency_on_chromosome_1_2.density.png)
 
 ### Overall distribution of allele frequency
 ```shell
@@ -132,7 +138,7 @@ vcfstats --vcf examples/sample.vcf \
 	--title 'Overall allele frequency distribution' \
 	--config examples/config.toml
 ```
-![Overall allele frequency distribution](examples/Overall_allele_frequency_distribution.histogram.png)
+![Overall allele frequency distribution](https://github.com/pwwang/vcfstats/raw/master/examples/Overall_allele_frequency_distribution.histogram.png)
 
 #### Excluding some low/high frequency variants
 ```shell
@@ -142,7 +148,7 @@ vcfstats --vcf examples/sample.vcf \
 	--title 'Overall allele frequency distribution (0.05-0.95)' \
 	--config examples/config.toml
 ```
-![Overall allele frequency distribution](examples/Overall_allele_frequency_distribution_(0.05-0.95).histogram.png)
+![Overall allele frequency distribution](https://github.com/pwwang/vcfstats/raw/master/examples/Overall_allele_frequency_distribution_(0.05-0.95).histogram.png)
 
 ### Counting types of variants on each chromosome
 ```shell
@@ -153,7 +159,7 @@ vcfstats --vcf examples/sample.vcf \
 	--config examples/config.toml
 ```
 
-![Types of variants on each chromosome](examples/Types_of_variants_on_each_chromosome.col.png)
+![Types of variants on each chromosome](https://github.com/pwwang/vcfstats/raw/master/examples/Types_of_variants_on_each_chromosome.col.png)
 
 #### Using pie chart if there is only one chromosome
 ```shell
@@ -164,7 +170,7 @@ vcfstats --vcf examples/sample.vcf \
 	--config examples/config.toml \
 	--figtype pie
 ```
-![Types of variants on each chromosome 1](examples/Types_of_variants_on_each_chromosome_1.pie.png)
+![Types of variants on each chromosome 1](https://github.com/pwwang/vcfstats/raw/master/examples/Types_of_variants_on_each_chromosome_1.pie.png)
 
 #### Counting variant types on whole genome
 ```shell
@@ -174,7 +180,7 @@ vcfstats --vcf examples/sample.vcf \
 	--title 'Types of variants on whole genome' \
 	--config examples/config.toml
 ```
-![Types of variants on whole genome](examples/Types_of_variants_on_whole_genome.pie.png)
+![Types of variants on whole genome](https://github.com/pwwang/vcfstats/raw/master/examples/Types_of_variants_on_whole_genome.pie.png)
 
 ### Counting type of mutant genotypes (HET, HOM_ALT) for sample 1 on each chromosome
 ```shell
@@ -185,7 +191,7 @@ vcfstats --vcf examples/sample.vcf \
 	--config examples/config.toml
 ```
 
-![Mutant genotypes on each chromosome](examples/Mutant_genotypes_on_each_chromosome_(sample_1).col.png)
+![Mutant genotypes on each chromosome](https://github.com/pwwang/vcfstats/raw/master/examples/Mutant_genotypes_on_each_chromosome_(sample_1).col.png)
 
 
 ### Exploration of mean(genotype quality) and mean(depth) on each chromosome for sample 1
@@ -196,7 +202,7 @@ vcfstats --vcf examples/sample.vcf \
 	--title 'GQ vs depth (sample 1)' \
 	--config examples/config.toml
 ```
-![GQ vs depth (sample 1)](examples/GQ_vs_depth_(sample_1).scatter.png)
+![GQ vs depth (sample 1)](https://github.com/pwwang/vcfstats/raw/master/examples/GQ_vs_depth_(sample_1).scatter.png)
 
 ### Exploration of depths for sample 1,2
 ```shell
@@ -206,6 +212,6 @@ vcfstats --vcf examples/sample.vcf \
 	--title 'Depths between sample 1 and 2' \
 	--config examples/config.toml
 ```
-![Depths between sample 1 and 2](examples/Depths_between_sample_1_and_2.scatter.png)
+![Depths between sample 1 and 2](https://github.com/pwwang/vcfstats/raw/master/examples/Depths_between_sample_1_and_2.scatter.png)
 
-[1]: documentation
+[1]: https://vcfstats.readthedocs.io/en/latest/

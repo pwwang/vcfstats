@@ -28,10 +28,6 @@ def get_plot_type(formula, figtype):
 			return figtype or 'violin'
 		raise TypeError("Don't know how to plot CONTINUOUS ~ CATEGORICAL using plots other than violin or boxplot")
 	if formula.Y.term['type'] == 'categorical' and formula.X.term['type'] == 'continuous':
-		if figtype in ('', None, 'col', 'bar', 'pie'):
-			if figtype == 'bar':
-				figtype = 'col'
-			return figtype or 'pie'
 		raise TypeError("If you want to plot CATEGORICAL ~ CONTINUOUS, transpose CONTINUOUS ~ CATEGORICAL")
 	if formula.Y.term['type'] == 'continuous' and formula.X.term['type'] == 'continuous':
 		if formula.X.term['func'].__name__ == '_ONE':
