@@ -15,6 +15,8 @@ before_install:
   - R -e "install.packages('ggplot2', repos = 'http://cran.us.r-project.org', lib='~/R')"
 install:
   - poetry install -v
+  - pip install tox-travis
+  - pip install codacy-coverage
 script:
   - pytest tests/ -s
 after_success: |
