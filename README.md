@@ -1,8 +1,8 @@
-# vcfstats
+# vcfstats - powerful statistics for VCF files
 
-Powerful statistics for VCF files
+[![Pypi][1]][2] [![Github][3]][4] [![PythonVers][5]][2] [![docs][6]][13] [![Travis building][7]][8] [![Codacy][9]][10] [![Codacy coverage][11]][10]
 
-[Documentation][1]
+[Documentation][13] | [CHANGELOG][12]
 
 ## Motivation
 There are a couple of tools that can plot some statistics of VCF files, include `bcftools` and `jvarkit`. However, none of them could:
@@ -214,4 +214,16 @@ vcfstats --vcf examples/sample.vcf \
 ```
 ![Depths between sample 1 and 2](https://github.com/pwwang/vcfstats/raw/master/examples/Depths_between_sample_1_and_2.scatter.png)
 
-[1]: https://vcfstats.readthedocs.io/en/latest/
+[1]: https://img.shields.io/pypi/v/vcfstats?style=flat-square
+[2]: https://pypi.org/project/vcfstats/
+[3]: https://img.shields.io/github/v/tag/pwwang/vcfstats?style=flat-square
+[4]: https://github.com/pwwang/vcfstats
+[5]: https://img.shields.io/pypi/pyversions/vcfstats?style=flat-square
+[6]: https://img.shields.io/readthedocs/vcfstats?style=flat-square
+[7]: https://img.shields.io/travis/pwwang/vcfstats?style=flat-square
+[8]: https://travis-ci.org/pwwang/vcfstats
+[9]: https://img.shields.io/codacy/grade/76b84a4cba794f1d925ba98913203c05?style=flat-square
+[10]: https://app.codacy.com/manual/pwwang/vcfstats
+[11]: https://img.shields.io/codacy/coverage/76b84a4cba794f1d925ba98913203c05?style=flat-square
+[12]: https://vcfstats.readthedocs.io/en/latest/CHANGELOG/
+[13]: https://vcfstats.readthedocs.io/en/latest/

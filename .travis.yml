@@ -7,7 +7,7 @@ matrix:
 before_install:
   - pip install poetry
   - sudo apt-get update
-  - sudo apt-get install r-base
+  - sudo apt-get install r-base cython
   - echo "R_LIBS=~/R" > ~/.Renviron
   - echo "export R_LIBS=~/R" >> ~/.environ
   - source ~/.environ
