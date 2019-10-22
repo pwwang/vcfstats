@@ -12,7 +12,7 @@ LOGGER = logging.getLogger(__name__)
 from . import macros
 from .one import One
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 params._desc = 'vcfstats v{}: Powerful VCF statistics.'.format(__version__)
 
