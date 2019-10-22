@@ -106,7 +106,8 @@ class One:
 			# }} else if (figtype == 'line') {{
 			# 	p = p + geom_line(aes_for_geom)
 			}} else if (figtype == 'bar') {{
-				p = p + geom_bar(aes_for_geom) + xticks
+				p = ggplot(plotdata, aes_string(x = bQuote(cnames[2])))
+				p = p + geom_bar(aes_string(fill = bQuote(cnames[1]))) + xticks
 			}} else if (figtype == 'col') {{
 				p = p + geom_col(aes_for_geom) + xticks
 			}} else if (figtype == 'pie') {{
