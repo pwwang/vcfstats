@@ -16,19 +16,22 @@ def get_plot_type(formula, figtype):
 			if figtype == 'bar':
 				figtype = 'col'
 			return (figtype or 'pie') if formula.X.name == '1' else (figtype or 'col')
-		raise TypeError("Don't know how to plot AGGREGATION ~ CATEGORICAL using plots other than bar or pie")
+		raise TypeError("Don't know how to plot AGGREGATION ~ CATEGORICAL using plots other than col/pie")
 	# all are terms, 'cuz we cannot have Term ~ Aggr
 	# if isinstance(formula.Y, Term) and isinstance(formula.X, Term):
 	if formula.Y.term['type'] == 'categorical' and formula.X.term['type'] == 'categorical':
-		if figtype in ('', None, 'bar'):
+		if figtype in ('', None, 'bar', 'pie'):
 			return figtype or 'bar'
-		raise TypeError("Don't know how to plot CATEGORICAL ~ CATEGORICAL using plots other than bar")
+		raise TypeError("Don't know how to plot CATEGORICAL ~ CATEGORICAL using plots other than bar/pie")
 	if formula.Y.term['type'] == 'continuous' and formula.X.term['type'] == 'categorical':
 		if figtype in ('', None, 'violin', 'boxplot', 'histogram', 'density', 'freqpoly'):
 			return figtype or 'violin'
 		raise TypeError("Don't know how to plot CONTINUOUS ~ CATEGORICAL using plots other than violin/boxplot/histogram/density/freqpoly")
 	if formula.Y.term['type'] == 'categorical' and formula.X.term['type'] == 'continuous':
-		raise TypeError("If you want to plot CATEGORICAL ~ CONTINUOUS, transpose CONTINUOUS ~ CATEGORICAL")
+		if formula.X.term['func'].__name__ == '_ONE':
+			if figtype in ('', None, 'bar', 'pie'):
+				return figtype or 'pie'
+		raise TypeError("If you want to plot CATEGORICAL ~ CONTINUOUS, where CONTINUOUS is not 1, transpose CONTINUOUS ~ CATEGORICAL")
 	if formula.Y.term['type'] == 'continuous' and formula.X.term['type'] == 'continuous':
 		if formula.X.term['func'].__name__ == '_ONE':
 			if figtype in ('', None, 'histogram', 'freqpoly', 'density'):
@@ -112,15 +115,30 @@ class One:
 				p = p + geom_col(aes_for_geom) + xticks
 			}} else if (figtype == 'pie') {{
 				library(ggrepel)
-				p = p + geom_col(aes_for_geom) + coord_polar("y", start=0) +
-					theme_minimal() + geom_label_repel(
-						aes_for_geom,
-						y = cumsum(plotdata[,1]) - plotdata[,1]/2,
-						label = paste0(unlist(round(plotdata[,1]/sum(plotdata[,1])*100,1)), '%'),
-						show.legend= F) +
-					theme(axis.title.x = element_blank(),
-						axis.title.y = element_blank(),
-						axis.text.y =element_blank())
+				if (length(cnames) > 2) {{
+					p = p + geom_col(aes_for_geom) + coord_polar("y", start=0) +
+						geom_label_repel(
+							aes_for_geom,
+							y = cumsum(plotdata[,1]) - plotdata[,1]/2,
+							label = paste0(unlist(round(plotdata[,1]/sum(plotdata[,1])*100,1)), '%'),
+							show.legend = FALSE)
+				}} else {{
+					plotdata[,1] = factor(plotdata[,1], levels = rev(unique(as.character(plotdata[,1]))))
+					fills = rev(levels(plotdata[,1]))
+					sums  = sapply(fills, function(f) sum(plotdata[,1] == f))
+					p = ggplot(plotdata, aes_string(x = bQuote(cnames[2]))) +
+						geom_bar(aes_string(fill = bQuote(cnames[1]))) + coord_polar("y", start=0) +
+						geom_label_repel(
+							inherit.aes = FALSE,
+							data = data.frame(sums, fills),
+							x = 1,
+							y = cumsum(sums) - sums/2,
+							label = paste0(unlist(round(sums/sum(sums)*100,1)), '%'),
+							show.legend = FALSE)
+				}}
+				p = p + theme_minimal() + theme(axis.title.x = element_blank(),
+					axis.title.y = element_blank(),
+					axis.text.y =element_blank())
 			}} else if (figtype == 'violin') {{
 				p = p + geom_violin(aes_for_geom) + xticks
 			}} else if (figtype == 'boxplot') {{

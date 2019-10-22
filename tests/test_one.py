@@ -26,6 +26,8 @@ def test_title_to_valid_path(title, expected):
 	('AAF ~ CHROM', None, 'violin'),
 	('AAF ~ CHROM', 'scatter', TypeError),
 	('CHROM ~ AAF', None, TypeError),
+	('VARTYPE ~ 1', None, 'pie'),
+	('VARTYPE ~ 1', 'boxplot', TypeError),
 	('QUAL ~ AAF', None, 'scatter'),
 	('QUAL ~ AAF', 'boxplot', TypeError),
 	('QUAL ~ 1', None, 'histogram'),

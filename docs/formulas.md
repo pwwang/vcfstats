@@ -19,9 +19,10 @@ See section `Macros` for details.
 |`aggregation`|`categorical`|col|pie|
 |`aggregation`|`1`|pie|col|
 |anything other than `aggregation`|`aggregation`|not available|-|
-|`categorical`|`categorical`|bar|-|
+|`categorical`|`categorical`|bar|pie|
 |`continuous`|`categorical`|voilin|boxplot/histogram/density/freqpoly|
-|`categorical`|`continuous`|not available|-|
+|`categorical`|`1`|pie|bar|
+|`categorical`|`continuous (not 1)`|not available|-|
 |`continueous`|`continuous`|scatter|-|
 
 ## `geom`s from `ggplot2` used to plot for different figure types

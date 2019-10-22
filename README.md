@@ -157,6 +157,8 @@ vcfstats --vcf examples/sample.vcf \
 vcfstats --vcf examples/sample.vcf \
 	--outdir examples/ \
 	--formula 'COUNT(1, group=VARTYPE) ~ CHROM' \
+	# or simply
+	# --formula 'VARTYPE ~ CHROM' \
 	--title 'Types of variants on each chromosome' \
 	--config examples/config.toml
 ```
@@ -168,6 +170,8 @@ vcfstats --vcf examples/sample.vcf \
 vcfstats --vcf examples/sample.vcf \
 	--outdir examples/ \
 	--formula 'COUNT(1, group=VARTYPE) ~ CHROM[1]' \
+	# or simply
+	# --formula 'VARTYPE ~ CHROM[1]' \
 	--title 'Types of variants on each chromosome 1' \
 	--config examples/config.toml \
 	--figtype pie
@@ -178,6 +182,8 @@ vcfstats --vcf examples/sample.vcf \
 ```shell
 vcfstats --vcf examples/sample.vcf \
 	--outdir examples/ \
+	# or simply
+	# --formula 'VARTYPE ~ 1' \
 	--formula 'COUNT(1, group=VARTYPE) ~ 1' \
 	--title 'Types of variants on whole genome' \
 	--config examples/config.toml
@@ -188,6 +194,8 @@ vcfstats --vcf examples/sample.vcf \
 ```shell
 vcfstats --vcf examples/sample.vcf \
 	--outdir examples/ \
+	# or simply
+	# --formula 'GTTYPEs[HET,HOM_ALT]{0} ~ CHROM' \
 	--formula 'COUNT(1, group=GTTYPEs[HET,HOM_ALT]{0}) ~ CHROM' \
 	--title 'Mutant genotypes on each chromosome (sample 1)' \
 	--config examples/config.toml
