@@ -93,7 +93,8 @@ class Term:
 			raise TypeError("No type specified for Term: {}".format(self.term))
 		remaining = remaining.strip()
 
-		errmsg = 'Malformated decorations for an Term. Expect {SAMPLE}, [SUBSETS] or a combination of both.'
+		errmsg = ('{}{}: Malformated decorations for an Term. '
+				  'Expect {{SAMPLE}}, [SUBSETS] or a combination of both.'.format(term, remaining))
 		self.samples = self.subsets = None
 
 		if not remaining:

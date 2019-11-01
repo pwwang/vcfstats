@@ -1,3 +1,4 @@
+import warnings
 from functools import partial
 from . import MACROS
 
@@ -94,7 +95,12 @@ def QUAL(variant):
 @continuous(alias = 'DPs')
 def DEPTHs(variant):
 	"""Get the read-depth for each sample as a numpy array."""
-	return [sum(dp) for dp in variant.format('DP')]
+	try:
+		return [sum(dp) for dp in variant.format('DP')]
+	except (TypeError, ValueError) as exc:
+		warnings.warn('Failed to fetch sample depth for variant: {}'.format(variant).rstrip("\n"),
+			stacklevel = 0)
+		return None
 
 @continuous
 def AAF(variant):

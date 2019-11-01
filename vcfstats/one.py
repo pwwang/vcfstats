@@ -66,8 +66,11 @@ class One:
 		LOGGER.debug("[{}] devpars: {}".format(self.title, self.devpars))
 
 	def __del__(self):
-		if self.datafile:
-			self.datafile.close()
+		try:
+			if self.datafile:
+				self.datafile.close()
+		except:
+			pass
 
 	def iterate(self, variant):
 		# Y
