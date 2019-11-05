@@ -159,9 +159,9 @@ class Term:
 			value = [value[sidx] for sidx in self.samples]
 
 		if self.term['type'] == 'continuous' and self.subsets:
-			if self.subsets[0] and any(val < self.subsets[0] for val in value):
+			if self.subsets[0] != '' and any(val < self.subsets[0] for val in value):
 				return False
-			if self.subsets[1] and any(val > self.subsets[1] for val in value):
+			if self.subsets[1] != '' and any(val > self.subsets[1] for val in value):
 				return False
 		if self.term['type'] == 'categorical' and self.subsets:
 			if any(val not in self.subsets for val in value):
