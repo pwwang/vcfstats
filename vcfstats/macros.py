@@ -1,8 +1,12 @@
+"""Builtin marcros for vcfstats"""
 import warnings
 from functools import partial
 from . import MACROS
 
+# pylint: disable=invalid-name
+
 def categorical(func = None, alias = None, _name = None):
+	"""Categorical decorator"""
 	if alias:
 		return partial(categorical, _name = alias)
 	funcname = func.__name__
@@ -15,6 +19,7 @@ def categorical(func = None, alias = None, _name = None):
 	return MACROS[funcname]['func']
 
 def continuous(func = None, alias = None, _name = None):
+	"""Continuous decorator"""
 	if alias:
 		return partial(continuous, _name = alias)
 	funcname = func.__name__
@@ -27,6 +32,7 @@ def continuous(func = None, alias = None, _name = None):
 	return MACROS[funcname]['func']
 
 def aggregation(func = None, alias = None, _name = None):
+	"""Aggregation decorator"""
 	if alias:
 		return partial(aggregation, _name = alias)
 	funcname = func.__name__
@@ -97,7 +103,7 @@ def DEPTHs(variant):
 	"""Get the read-depth for each sample as a numpy array."""
 	try:
 		return [sum(dp) for dp in variant.format('DP')]
-	except (TypeError, ValueError) as exc:
+	except (TypeError, ValueError):
 		warnings.warn('Failed to fetch sample depth for variant: {}'.format(variant).rstrip("\n"),
 			stacklevel = 0)
 		return None
@@ -113,7 +119,7 @@ def AFs(variant):
 	return variant.gt_alt_freqs
 
 @continuous
-def _ONE(variant):
+def _ONE(variant): # pylint: disable=unused-argument
 	"""Return 1 for a variant, usually used in aggregation, or indication of a distribution plot"""
 	return 1
 

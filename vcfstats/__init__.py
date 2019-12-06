@@ -1,16 +1,16 @@
 """Powerful VCF statistics"""
+import logging
 from os import path
 from itertools import chain
 from cyvcf2 import VCF
 from pyparam import params, Params
 MACROS = {}
-import logging
 logging.basicConfig(
 	level  = logging.DEBUG,
 	format = '[%(asctime)-15s %(levelname)5s] %(message)s')
 LOGGER = logging.getLogger(__name__)
-from . import macros
-from .one import One
+from . import macros # pylint:disable=wrong-import-position
+from .one import One # pylint:disable=wrong-import-position
 
 __version__ = "0.0.3"
 
@@ -127,7 +127,7 @@ def list_macros():
 			if name == '_ONE':
 				name = '1'
 			if macro.get('aggr'):
-			 	helps.select('Aggregations').add((name, '', macro['func'].__doc__ or ''))
+				helps.select('Aggregations').add((name, '', macro['func'].__doc__ or ''))
 			elif macro['type'] == 'continuous':
 				helps.select('Continuous').add((name, '', macro['func'].__doc__ or ''))
 			else:
@@ -142,8 +142,9 @@ def load_macrofile(macrofile):
 		macrofile = macrofile + '.py'
 	if not path.isfile(macrofile):
 		raise OSError("Macro file does not exist: {}".format(macrofile))
-	import importlib.machinery
-	importlib.machinery.SourceFileLoader('mymacros', macrofile).load_module()
+	import importlib.util
+	spec = importlib.util.spec_from_file_location("mymacros", macrofile)
+	spec.loader.exec_module(importlib.util.module_from_spec(spec))
 
 def load_config(config, opts):
 	"""Load the configurations from file"""
@@ -198,8 +199,8 @@ def main():
 			# save entries, cache aggr
 			one.iterate(variant)
 		if i % 10000 == 0: # pragma: no cover
-			LOGGER.debug("- {} variants read.".format(i))
-	LOGGER.info('{} variants read.'.format(i))
+			LOGGER.debug("- %s variants read.", i)
+	LOGGER.info('%s variants read.', i) # pylint: disable=undefined-loop-variable
 	for i, one in enumerate(ones):
 		# save aggr
 		one.summarize()

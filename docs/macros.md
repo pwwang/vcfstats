@@ -167,5 +167,3 @@ def MEAN(entries):
 		return 0.0
 	return sum(entries) / len(entries)
 ```
-
-

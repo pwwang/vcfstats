@@ -1,8 +1,10 @@
+"""Handling the formulas"""
 from os.path import commonprefix
 from collections import OrderedDict
 from . import MACROS, LOGGER
 
 def parse_subsets(subsets):
+	"""Parse subsets written in short format"""
 	ret = []
 	for subset in subsets.split(','):
 		subset = subset.strip()
@@ -73,8 +75,8 @@ def safe_split (string, delimter, trim = True):
 	return ret
 
 class Term:
-
-	def __init__(self, term, samples):
+	"""The term in the formula"""
+	def __init__(self, term, samples): # pylint: disable=too-many-branches,too-many-statements
 		token = ' \t[{'
 		pos = [term.find(c) for c in token]
 		if max(pos) == -1:
@@ -83,8 +85,7 @@ class Term:
 			pos = min(p for p in pos if p >= 0)
 			term, remaining = term[:pos], term[pos:]
 
-		if term == '1':
-			term = '_ONE'
+		term = '_ONE' if term == '1' else term
 		if term not in MACROS:
 			raise ValueError("Term {!r} has not been registered.".format(term))
 		self.name = term if term != '_ONE' else '1'
@@ -147,6 +148,7 @@ class Term:
 		return not self.__eq__(other)
 
 	def run(self, variant, passed):
+		"""Run the variant"""
 		if passed and variant.FILTER:
 			return False
 		value = self.term['func'](variant)
@@ -169,7 +171,7 @@ class Term:
 		return value
 
 class Aggr:
-
+	"""The aggregation"""
 	def __init__(self, aggr, terms):
 		self.cache = OrderedDict() # cache data for aggregation
 		if '(' not in aggr:
@@ -224,16 +226,19 @@ class Aggr:
 			self.aggr['func'].__name__, self.term, self.filter, self.group)
 
 	def hasFILTER(self):
+		"""Tell if I have filter"""
 		return self.term.name == 'FILTER' or (self.filter and self.filter.name == 'FILTER') or \
 			(self.group and self.group.name == 'FILTER')
 
 	def setxgroup(self, x):
+		"""Set the group of X"""
 		if not self.group:
 			self.group = x
 		else:
 			self.xgroup = x
 
 	def run(self, variant, passed):
+		"""Run each variant"""
 		if self.filter and self.filter.run(variant, passed) is False:
 			return
 		if not self.group:
@@ -242,11 +247,12 @@ class Aggr:
 		if group is False:
 			return
 		if len(group) > 1:
-			raise ValueError("Cannot aggregate on more than one group, make sure you specified sample for sample data.")
+			raise ValueError("Cannot aggregate on more than one group, " + \
+				"make sure you specified sample for sample data.")
 		group = group[0]
 
 		xgroup = False
-		if (self.xgroup):
+		if self.xgroup:
 			xgroup = self.xgroup.run(variant, passed)
 			if xgroup is False:
 				return
@@ -264,6 +270,7 @@ class Aggr:
 			self.cache.setdefault(group, []).extend(value)
 
 	def dump(self):
+		"""Dump and calculate the aggregations"""
 		ret = OrderedDict()
 		for key, value in self.cache.items():
 			if isinstance(value, dict):
@@ -274,18 +281,18 @@ class Aggr:
 		return ret
 
 class Formula:
-
+	"""Handling the formulas"""
 	def __init__(self, formula, samples, passed, title):
-		LOGGER.info("[{}] Parsing formulas ...".format(title))
+		LOGGER.info("[%s] Parsing formulas ...", title)
 		self._terms = {}
 		if '~' not in formula:
 			formula = formula + '~1'
 		parts = formula.split('~', 1)
 		if not parts[1].strip():
 			parts[1] = '1'
-		LOGGER.debug('[{}] - Y:{!r}, X:{!r}'.format(title, parts[0], parts[1]))
-		self.Y = self._parse_part(parts[0].strip(), samples)
-		self.X = self._parse_part(parts[1].strip(), samples)
+		LOGGER.debug('[%s] - Y:%r, X:%r', title, parts[0], parts[1])
+		self.Y = self._parsePart(parts[0].strip(), samples)
+		self.X = self._parsePart(parts[1].strip(), samples)
 
 		if isinstance(self.Y, Aggr) and isinstance(self.X, Term):
 			self.Y.setxgroup(self.X)
@@ -304,7 +311,8 @@ class Formula:
 			(isinstance(self.X, Aggr) and self.X.hasFILTER()):
 			self.passed = False
 
-	def _parse_part(self, part, samples):
+	def _parsePart(self, part, samples):
+		"""Parse each part of the formula"""
 		aggr = None
 		if part.endswith(')') and '(' in part:
 			aggr, term_fms = part[:-1].split('(')
@@ -323,7 +331,7 @@ class Formula:
 			raise ValueError('Wrong number of arguments (at most 3) for Aggregation: {}.'.format(aggr))
 
 		name1 = 'TERM' + str(len(self._terms))
-		self._terms[name1] = self._parse_part(parts[0], samples)
+		self._terms[name1] = self._parsePart(parts[0], samples)
 		args = [name1]
 		for i, termstr in enumerate(parts[1:]):
 			kw = None
@@ -335,11 +343,12 @@ class Formula:
 				raise ValueError('Expect filter/group as keyword argument name, but got {}.'.format(kw))
 
 			name2 = 'TERM' + str(len(self._terms))
-			self._terms[name2] = self._parse_part(termstr, samples)
+			self._terms[name2] = self._parsePart(termstr, samples)
 			args.append('{}={}'.format(kw, name2))
 		return Aggr('{}({})'.format(aggr, ', '.join(args)), self._terms)
 
 	def run(self, variant, datafile):
+		"""Run each variant"""
 		if isinstance(self.Y, Term) and isinstance(self.X, Term):
 			y, x = self.Y.run(variant, self.passed), self.X.run(variant, self.passed)
 			if y is False or x is False:
@@ -360,9 +369,11 @@ class Formula:
 		elif isinstance(self.Y, Aggr) and isinstance(self.X, Term):
 			self.Y.run(variant, self.passed)
 		else:
-			raise TypeError("Cannot do 'TERM ~ AGGREGATION'. If you want to do that, transpose 'AGGREGATION ~ TERM'")
+			raise TypeError("Cannot do 'TERM ~ AGGREGATION'. " + \
+				"If you want to do that, transpose 'AGGREGATION ~ TERM'")
 
 	def done(self, datafile):
+		"""Done iteration, start summarizing"""
 		if isinstance(self.Y, Aggr):
 			if isinstance(self.X, Term):
 				for key, value in self.Y.dump().items():
@@ -375,5 +386,3 @@ class Formula:
 				xdump = self.X.dump()
 				for key, value in self.Y.dump().items():
 					datafile.write("{}\t{}\t{}\n".format(value, xdump.get(key, 'NA'), key))
-
-

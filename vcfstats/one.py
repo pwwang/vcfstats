@@ -1,51 +1,61 @@
+"""Handling one plot/instance"""
 from os import path
+import string
 import cmdy
 from . import LOGGER
 from .formula import Formula, Term, Aggr
 
-def title_to_valid_path(title, allowed = '_-.()ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'):
+def title_to_valid_path(title, allowed = '_-.()' + string.ascii_letters + string.digits):
+	"""Convert a title to a valid file path"""
 	return ''.join(c if c in allowed else '_' for c in title)
 
 def get_plot_type(formula, figtype):
+	"""Get the real plot type"""
 	if isinstance(formula.Y, Aggr) and isinstance(formula.X, Aggr):
 		if figtype in ('', None, 'scatter'):
 			return figtype or 'scatter'
-		raise TypeError("Don't know how to plot AGGREGATION ~ AGGREGATION using plots other than scatter")
+		raise TypeError(
+			"Don't know how to plot AGGREGATION ~ AGGREGATION using plots other than scatter")
 	if isinstance(formula.Y, Aggr) and isinstance(formula.X, Term):
 		if figtype in ('', None, 'col', 'bar', 'pie'):
-			if figtype == 'bar':
-				figtype = 'col'
+			figtype = 'col' if figtype == 'bar' else figtype
 			return (figtype or 'pie') if formula.X.name == '1' else (figtype or 'col')
-		raise TypeError("Don't know how to plot AGGREGATION ~ CATEGORICAL using plots other than col/pie")
+		raise TypeError(
+			"Don't know how to plot AGGREGATION ~ CATEGORICAL using plots other than col/pie")
 	# all are terms, 'cuz we cannot have Term ~ Aggr
 	# if isinstance(formula.Y, Term) and isinstance(formula.X, Term):
 	if formula.Y.term['type'] == 'categorical' and formula.X.term['type'] == 'categorical':
 		if figtype in ('', None, 'bar', 'pie'):
 			return figtype or 'bar'
-		raise TypeError("Don't know how to plot CATEGORICAL ~ CATEGORICAL using plots other than bar/pie")
+		raise TypeError(
+			"Don't know how to plot CATEGORICAL ~ CATEGORICAL using plots other than bar/pie")
 	if formula.Y.term['type'] == 'continuous' and formula.X.term['type'] == 'categorical':
 		if figtype in ('', None, 'violin', 'boxplot', 'histogram', 'density', 'freqpoly'):
 			return figtype or 'violin'
-		raise TypeError("Don't know how to plot CONTINUOUS ~ CATEGORICAL using plots other than violin/boxplot/histogram/density/freqpoly")
+		raise TypeError("Don't know how to plot CONTINUOUS ~ CATEGORICAL " + \
+			"using plots other than violin/boxplot/histogram/density/freqpoly")
 	if formula.Y.term['type'] == 'categorical' and formula.X.term['type'] == 'continuous':
 		if formula.X.term['func'].__name__ == '_ONE':
 			if figtype in ('', None, 'bar', 'pie'):
 				return figtype or 'pie'
-		raise TypeError("If you want to plot CATEGORICAL ~ CONTINUOUS, where CONTINUOUS is not 1, transpose CONTINUOUS ~ CATEGORICAL")
+		raise TypeError("If you want to plot CATEGORICAL ~ CONTINUOUS, " + \
+			"where CONTINUOUS is not 1, transpose CONTINUOUS ~ CATEGORICAL")
 	if formula.Y.term['type'] == 'continuous' and formula.X.term['type'] == 'continuous':
 		if formula.X.term['func'].__name__ == '_ONE':
 			if figtype in ('', None, 'histogram', 'freqpoly', 'density'):
 				return figtype or 'histogram'
-			raise TypeError("Don't know how to plot distribution using plots other than histogram/freqpoly/density")
+			raise TypeError("Don't know how to plot distribution " + \
+				"using plots other than histogram/freqpoly/density")
 		if figtype in ('', None, 'scatter'):
 			return figtype or 'scatter'
-		raise TypeError("Don't know how to plot CONTINUOUS ~ CONTINUOUS using plots other than scatter")
+		raise TypeError(
+			"Don't know how to plot CONTINUOUS ~ CONTINUOUS using plots other than scatter")
 
 class One:
-
+	"""One instance/plot"""
 	def __init__(self, formula, title, ggs, devpars, outdir, samples, figtype, passed):
 
-		LOGGER.info("INSTANCE: {!r}".format(title))
+		LOGGER.info("INSTANCE: %r", title)
 		self.title     = title
 		self.formula   = Formula(formula, samples, passed, title)
 		self.outprefix = path.join(outdir, title_to_valid_path(title))
@@ -61,28 +71,31 @@ class One:
 			self.datafile.write("{}\t{}\n".format(
 				self.formula.Y.name, self.formula.X.name))
 		self.figtype = get_plot_type(self.formula, figtype)
-		LOGGER.info("[{}] plot type: {}".format(self.title, self.figtype))
-		LOGGER.debug("[{}] ggs: {}".format(self.title, self.ggs))
-		LOGGER.debug("[{}] devpars: {}".format(self.title, self.devpars))
+		LOGGER.info("[%s] plot type: %s", self.title, self.figtype)
+		LOGGER.debug("[%s] ggs: %s", self.title, self.ggs)
+		LOGGER.debug("[%s] devpars: %s", self.title, self.devpars)
 
 	def __del__(self):
 		try:
 			if self.datafile:
 				self.datafile.close()
-		except:
+		except Exception:
 			pass
 
 	def iterate(self, variant):
+		"""Iterate over each variant"""
 		# Y
 		self.formula.run(variant, self.datafile)
 
 	def summarize(self):
-		LOGGER.info("[{}] Summarizing aggregations ...".format(self.title))
+		"""Calculate the aggregations"""
+		LOGGER.info("[%s] Summarizing aggregations ...", self.title)
 		self.formula.done(self.datafile)
 		self.datafile.close()
 
-	def plot(self, Rscript):
-		LOGGER.info("[{}] Composing R code ...".format(self.title))
+	def plot(self, Rscript): # pylint: disable=invalid-name
+		"""Plot the figures using R"""
+		LOGGER.info("[%s] Composing R code ...", self.title)
 		rcode = """
 			require('ggplot2')
 			set.seed(8525)
@@ -175,11 +188,11 @@ class One:
 		)
 		with open(self.outprefix + '.plot.R', 'w') as f:
 			f.write(rcode)
-		LOGGER.info("[{}] Running R code to plot ...".format(self.title))
-		LOGGER.info("[{}] Data will be saved to: {}".format(self.title, self.outprefix + '.txt'))
-		LOGGER.info("[{}] Plot will be saved to: {}".format(
-			self.title, self.outprefix + '.' + self.figtype + '.png'))
+		LOGGER.info("[%s] Running R code to plot ...", self.title)
+		LOGGER.info("[%s] Data will be saved to: %s", self.title, self.outprefix + '.txt')
+		LOGGER.info("[%s] Plot will be saved to: %s",
+			self.title, self.outprefix + '.' + self.figtype + '.png')
 		cmd = cmdy.Rscript(self.outprefix + '.plot.R', _exe = Rscript, _raise = False)
 		if cmd.rc != 0:
 			for line in cmd.stderr.splitlines():
-				LOGGER.error("[{}] {}".format(self.title, line))
+				LOGGER.error("[%s] %s", self.title, line)

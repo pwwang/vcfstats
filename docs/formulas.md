@@ -37,4 +37,3 @@ See section `Macros` for details.
 |boxplot|`geom_boxplot`|
 |density|`geom_density`|
 |freqpoly|`geom_freqpoly`|
-
