@@ -124,7 +124,7 @@ def test_aggr_init():
 	assert aggr.term == Term('1', None)
 	assert aggr.filter is None
 	assert aggr.group is None
-	assert not aggr.hasFILTER()
+	assert not aggr.has_filter()
 
 	aggr = Aggr('COUNT(1, FILTER[PASS])', {'1': Term('1', None), 'FILTER[PASS]': Term('FILTER[PASS]', None)})
 	assert aggr.term == Term('1', None)
@@ -135,7 +135,7 @@ def test_aggr_init():
 	assert aggr.term == Term('1', None)
 	assert aggr.filter == Term('FILTER[PASS]', None)
 	assert aggr.group is None
-	assert aggr.hasFILTER()
+	assert aggr.has_filter()
 	aggr.setxgroup(Term('VARTYPE', None))
 	assert aggr.group == Term('VARTYPE', None)
 	assert aggr.xgroup is None
@@ -148,7 +148,7 @@ def test_aggr_init():
 	aggr.setxgroup(Term('GTTYPEs{0}', ['A']))
 	assert aggr.xgroup == Term('GTTYPEs{0}', ['A'])
 	assert repr(aggr) == "<Aggr COUNT(<Term 1(subsets=None, samples=None)>, filter=<Term FILTER(subsets=['PASS'], samples=None)>, group=<Term VARTYPE(subsets=None, samples=None)>)>"
-	assert aggr.hasFILTER()
+	assert aggr.has_filter()
 
 	aggr = Aggr('COUNT(1, FILTER, VARTYPE)', {'1': Term('1', None), 'FILTER': Term('FILTER', None), 'VARTYPE': Term('VARTYPE', None)})
 	assert aggr.term == Term('1', None)
