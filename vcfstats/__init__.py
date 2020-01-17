@@ -11,7 +11,7 @@ LOGGER = logging.getLogger(__name__)
 from . import macros  # pylint:disable=wrong-import-position
 from .one import One  # pylint:disable=wrong-import-position
 
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 
 params._desc = 'vcfstats v{}: Powerful VCF statistics.'.format(__version__)
 
