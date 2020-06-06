@@ -1,3 +1,6 @@
+# 0.0.5
+- Adopt lastest cmdy
+
 # 0.0.4
 - Add original formula in the error message if it is malformated
 - Add warnings if failed to fetch sample depth for a variant
