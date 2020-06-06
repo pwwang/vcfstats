@@ -9,8 +9,8 @@ HERE = Path(__file__).parent.resolve()
 def vcffile(tmp_path):
 	ovcf = HERE.parent.joinpath('examples', 'sample.vcf')
 	nvcf = tmp_path.with_suffix('.vcf.gz')
-	c = cmdy.bgzip(ovcf, c = True, _out = nvcf)
-	cmdy.tabix(p = 'vcf', _ = nvcf, _fg = True)
+	c = cmdy.bgzip(ovcf, c=True).r > nvcf
+	cmdy.tabix(p='vcf', _=nvcf).fg
 	return nvcf
 
 def test_get_vcf_by_regions(vcffile):
@@ -82,7 +82,7 @@ def test_load_config(tmp_path):
 
 def test_main(vcffile, tmp_path):
 	# help
-	cmd = cmdy.vcfstats(_raise = False)
+	cmd = cmdy.vcfstats(_raise=False)
 	assert 'Show help message and exit.' in cmd.stderr
 
 	macrofile = tmp_path.with_suffix('.macromain.py')
@@ -93,7 +93,9 @@ def DEMO(variant):
 	'''Some demo macro'''
 	return variant.CHROM
 """)
-	cmd = cmdy.vcfstats(l = True, macro = macrofile, _raise = False)
+	cmd = cmdy.vcfstats(vcf=True, l=True,
+						o=True, f=True, t=True,
+					    macro=macrofile, _raise=False)
 	assert 'Return 1 for a variant' in cmd.stderr
 	assert 'Some demo macro' in cmd.stderr
 

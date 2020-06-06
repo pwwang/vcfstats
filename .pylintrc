@@ -297,9 +297,19 @@ function-naming-style=snake_case
 good-names=i,
            j,
            k,
+           x,
+		   y,
+           z,
+           np,
+           nn,
+           t,
+           t0,
            ex,
            rc,
            eq,
+           do,
+           by,
+           tf,
            Run,
            _
 
@@ -498,7 +508,7 @@ max-attributes=7
 max-bool-expr=5
 
 # Maximum number of branch for function / method body.
-max-branches=12
+max-branches=15
 
 # Maximum number of locals for function / method body.
 max-locals=15
