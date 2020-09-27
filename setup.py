@@ -21,7 +21,7 @@ if os.path.exists(readme_path):
 setup(
     long_description=readme,
     name='vcfstats',
-    version='0.0.5',
+    version='0.0.6',
     description='Powerful VCF statistics',
     python_requires='==3.*,>=3.6.0',
     project_urls={
