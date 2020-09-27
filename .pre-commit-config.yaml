@@ -15,6 +15,7 @@ repos:
     -   id: masterpylintrc
         name: Overwrite local .pylintrc by master one
         entry: cp ../.pylintrc ./.pylintrc
+        files: .pylintrc
         pass_filenames: false
         always_run: true
         language: system

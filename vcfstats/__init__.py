@@ -1,9 +1,13 @@
 """Powerful VCF statistics"""
+import sys
 import logging
 from os import path
+from pathlib import Path
+from functools import partial
 from itertools import chain
+from simpleconf import Config
 from cyvcf2 import VCF
-from pyparam import params, Params
+from pyparam import Params, defaults
 MACROS = {}
 logging.basicConfig(level=logging.DEBUG,
                     format='[%(asctime)-15s %(levelname)5s] %(message)s')
@@ -11,85 +15,34 @@ LOGGER = logging.getLogger(__name__)
 from . import macros  # pylint:disable=wrong-import-position
 from .one import One  # pylint:disable=wrong-import-position
 
-__version__ = "0.0.5"
+__version__ = "0.0.6"
 
-params._desc = 'vcfstats v{}: Powerful VCF statistics.'.format(__version__)
+HERE = Path(__file__).parent.resolve()
+defaults.HELP_OPTION_WIDTH = 28
 
-params.vcf.required = True
-params.vcf.desc = 'The VCF file'
-params.v = params.vcf
-params.loglevel = 'INFO'
-params.loglevel.desc = 'The logging level.'
-params.outdir.required = True
-params.outdir.desc = 'The output directory.'
-params.o = params.outdir
-params.Rscript = 'Rscript'
-params.Rscript.desc = 'Path to Rscript to run R code for plotting.'
-params.figtype = []
-params.figtype.desc = 'Your preferences for types of plots for each formula.'
-params.r = []
-params.r.desc = 'Regions in format of [CHR] or [CHR]:[START]-[END]'
-params.region = params.r
-params.R.desc = ['Regions in a BED file',
-                 'If both -r/R are provided, regions will be merged.']
-params.Region = params.R
-params.p = False
-params.p.desc = [
-    'Only analyze variants that pass all filters.',
-    'This does not work if FILTER entry is in the analysis.'
-]
-params.passed = params.p
-params.l = False
-params.l.desc = 'List all available macros.'
-params.macro.desc = 'User-defined macro file.'
-params.list = params.l
-params.f.type = list
-params.f.required = True
-params.f.desc = [
-    'The formulas for plotting in format of [Y] ~ [X],',
-    'where [Y] or [X] should be an entry or an aggregation'
-]
-params.formula = params.f
-params.t.type = list
-params.t.required = True
-params.t.desc = ('The title of each figure, '
-                 'will be used to name the output files.')
-params.title = params.t
-params.ggs = []
-params.ggs.desc = 'Extra ggplot2 expression for each plot'
-params.devpars = dict(width=2000, height=2000, res=300)
-params.devpars.desc = [
-    'The device parameters for plots.',
-    'To specify devpars for each plot, use a configuration file.'
-]
-params.c.desc = [
-    'A configuration file defining how to plot in TOML format.',
-    'If this is provided, CLI arguments will be overwritten '
-    'if defined in this file.'
-]
-params.config = params.c
+def _list_callback(value, allvalues, params): # pylint:disable=unused-argument
+    if not value:
+        return False
+    for param in ('vcf', 'outdir', 'formula', 'title'):
+        params.get_param(param).required = False
+    return True
 
-params.l.callback = lambda opt, pms: (pms.vcf.set_value('vcf')
-                                      and pms.outdir.set_value('outdir')
-                                      and pms.f.set_value(['f'])
-                                      and pms.t.set_value(['t'])
-                                      if opt.value
-                                      else None)
+def _check_len_callback(value, allvalues, name):
+    expect_len = len(allvalues.formula)
+    if value and len(value) != expect_len:
+        return ValueError(f"Wrong length of {name}, expect {expect_len}.")
+    return value
 
-params.t.callback = lambda opt, pms: (
-    'Wrong length of title (expect {}, got {})'.format(len(pms.f.value or []),
-                                                       len(opt.value or []))
-    if len(opt.value or []) != len(pms.f.value or [])
-    else None
-)
-
-params.ggs.callback = lambda opt, pms: (
-    'Wrong length of ggs'
-    if (len(opt.value or []) > 1
-        and len(opt.value or []) != len(pms.f.value or []))
-    else None
-)
-
+def get_params():
+    """Get the parameter definitions"""
+    params = Params(prog='vcfstats',
+                    desc=f'vcfstats v{__version__}: Powerful VCF statistics.')
+    params.from_file(HERE / 'args.toml')
+    params.get_param('list').callback = partial(_list_callback, params=params)
+    params.get_param('title').callback = partial(_check_len_callback,
+                                                 name='title')
+    params.get_param('ggs').callback = partial(_check_len_callback, name='ggs')
+    return params
 
 def get_vcf_by_regions(vcffile, regions):
     """Compile all the regions provided by use together,
@@ -144,30 +97,10 @@ def get_ones(opts, samples):
 
 def list_macros():
     """List the available macros, including user-provided ones"""
-    macropage = Params()
-
-    def helpx(helps):
-        helps.remove('Usage')
-        helps.remove('Optional options')
-        helps.add('Continuous terms', sectype='option')
-        helps.add('Categorical terms', sectype='option')
-        helps.add('Aggregations', sectype='option')
-        for name, macro in MACROS.items():
-            if name == '_ONE':
-                name = '1'
-            if macro.get('aggr'):
-                helps.select('Aggregations').add(
-                    (name, '', macro['func'].__doc__ or ''))
-            elif macro['type'] == 'continuous':
-                helps.select('Continuous').add((name, '', macro['func'].__doc__
-                                                or ''))
-            else:
-                helps.select('Categorical').add(
-                    (name, '', macro['func'].__doc__ or ''))
-
-    macropage._helpx = helpx
-    macropage._help(print_and_exit=True)
-
+    for name, macro in MACROS.items():
+        print(name.ljust(10), "|", macro.get('type', '').ljust(15), "|",
+              macro['func'].__doc__)
+    sys.exit(0)
 
 def load_macrofile(macrofile):
     """Load the macros from a python file"""
@@ -185,14 +118,14 @@ def load_config(config, opts):
     """Load the configurations from file"""
     if not path.isfile(config):
         raise OSError("Config file does not exist: {}".format(config))
-    configs = Params()
-    configs._load_file(config)
-    configs = configs._as_dict()
+    configs = Config(with_profile=False)
+    configs._load(config)
+    configs = configs.as_dict()
     ones = []
     if 'one' in configs:
         ones = configs['one']
         del configs['one']
-    opts.update(configs)
+    opts |= configs
     # padding figtype and ggs, and devpars
     len_fml = len(opts['formula'])
     opts['figtype'].extend([None] * (len_fml - len(opts['figtype'])))
@@ -220,14 +153,20 @@ def load_config(config, opts):
 
 def main():
     """Main entrance of the program"""
-    opts = params._parse()
+    params = get_params()
+    # modify sys.argv to see if we have --list or -l option
+    # If so, we ignore those required arguments
+    if '-l' in sys.argv or '--list' in sys.argv:
+        if '--macro' in sys.argv:
+            load_macrofile(sys.argv[sys.argv.index('--macro') + 1])
+        list_macros()
+
+    opts = params.parse()
     LOGGER.setLevel(getattr(logging, opts['loglevel'].upper()))
     if opts['config']:
         load_config(opts['config'], opts)
     if opts['macro']:
         load_macrofile(opts['macro'])
-    if opts['l']:
-        list_macros()
     vcf, samples = get_vcf_by_regions(
         opts['vcf'], combine_regions(opts['region'], opts['Region']))
     ones = get_ones(opts, samples)

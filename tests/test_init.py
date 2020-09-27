@@ -1,6 +1,7 @@
 import pytest
 import cmdy
 from pathlib import Path
+from pyparam import Namespace
 from vcfstats import get_vcf_by_regions, combine_regions, get_ones, One, list_macros, load_macrofile, load_config, main, MACROS
 
 HERE = Path(__file__).parent.resolve()
@@ -45,8 +46,8 @@ def test_get_ones(tmp_path):
 def test_list_macros(capsys):
 	with pytest.raises(SystemExit):
 		list_macros()
-	err = capsys.readouterr().err
-	assert 'COUNT' in err
+	out = capsys.readouterr().out
+	assert 'COUNT' in out
 
 def test_load_macrofile(tmp_path):
 	macrofile = tmp_path.with_suffix('.macro.py')
@@ -66,10 +67,10 @@ def test_load_config(tmp_path):
 	with pytest.raises(OSError):
 		load_config(configfile, {})
 	configfile.write_text('[[one]]\nformula = "VARTYPE ~ CHROM"\ntitle = "title1"\n')
-	opts = {'formula': [], 'figtype': [], 'ggs': [], 'devpars': {}, 'title': []}
+	opts = Namespace(**{'formula': [], 'figtype': [], 'ggs': [], 'devpars': {}, 'title': []})
 	load_config(configfile, opts)
 	assert opts['formula'] == ['VARTYPE ~ CHROM']
-	opts = {'formula': ['VARTYPE ~ CHROM'], 'figtype': [], 'ggs': [], 'devpars': [{}], 'title': ['title1']}
+	opts = Namespace(**{'formula': ['VARTYPE ~ CHROM'], 'figtype': [], 'ggs': [], 'devpars': [{}], 'title': ['title1']})
 	load_config(configfile, opts)
 	assert opts['devpars'] == [{}, {}]
 
@@ -82,8 +83,8 @@ def test_load_config(tmp_path):
 
 def test_main(vcffile, tmp_path):
 	# help
-	cmd = cmdy.vcfstats(_raise=False)
-	assert 'Show help message and exit.' in cmd.stderr
+	cmd = cmdy.vcfstats(cmdy_raise=False)
+	assert 'Print help information for this command' in cmd.stdout
 
 	macrofile = tmp_path.with_suffix('.macromain.py')
 	macrofile.write_text("""
@@ -93,11 +94,9 @@ def DEMO(variant):
 	'''Some demo macro'''
 	return variant.CHROM
 """)
-	cmd = cmdy.vcfstats(vcf=True, l=True,
-						o=True, f=True, t=True,
-					    macro=macrofile, _raise=False)
-	assert 'Return 1 for a variant' in cmd.stderr
-	assert 'Some demo macro' in cmd.stderr
+	cmd = cmdy.vcfstats(l=True, macro=macrofile, cmdy_raise=False)
+	assert 'Return 1 for a variant' in cmd.stdout
+	assert 'Some demo macro' in cmd.stdout
 
 	cmd = cmdy.vcfstats(
 		vcf = vcffile,
@@ -105,6 +104,7 @@ def DEMO(variant):
 		formula = 'COUNT(1) ~ CONTIG',
 		title = 'Variants on each chromosome',
 		config = HERE.parent.joinpath('examples', 'config.toml'),
-		_raise = False)
+		cmdy_raise = False)
+	print(cmd.stderr, cmd.strcmd)
 	assert cmd.rc == 0
 

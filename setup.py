@@ -34,9 +34,7 @@ setup(
     entry_points={"console_scripts": ["vcfstats = vcfstats:main"]},
     packages=['vcfstats'],
     package_dir={"": "."},
-    package_data={"vcfstats": ["*.bak"]},
-    install_requires=[
-        'cmdy', 'cython==0.*', 'cyvcf2==0.*', 'pyparam', 'toml==0.*'
-    ],
+    package_data={"vcfstats": ["*.bak", "*.toml"]},
+    install_requires=['cmdy', 'cyvcf2==0.*', 'pyparam', 'toml==0.*'],
     extras_require={"dev": ["pytest", "pytest-cov"]},
 )

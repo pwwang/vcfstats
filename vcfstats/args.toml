@@ -1,0 +1,87 @@
+[params.vcf]
+aliases = ['v']
+required = true
+type = 'file'
+desc = 'The VCF file.'
+
+[params.loglevel]
+default = 'info'
+desc = 'The logging level.'
+
+[params.outdir]
+aliases = ['o']
+required = true
+desc = 'The output directory.'
+
+[params.Rscript]
+default = 'Rscript'
+desc = 'Path to `Rscript` to run R code for plotting.'
+
+[params.figtype]
+default = []
+desc = 'Your preferences for types of plots for each formula.'
+
+[params.region]
+aliases = ['r']
+default = []
+desc = 'Regions in format of `CHR` or `CHR:START-END`'
+
+[params.Region]
+aliases = ['R']
+desc = 'Regions in a BED file. If both --region/--Region are provided, regions will be merged together.'
+
+[params.passed]
+aliases = ['p']
+desc = '''Only analyze variants that pass all filters.
+This does not work if FILTER entry is in the analysis.
+'''
+
+[params.list]
+aliases = ['l']
+default = false
+desc = 'List all available macros.'
+
+[params.formula]
+aliases = ['f']
+required = true
+type = 'list'
+desc = '''The formulas for plotting in format of `Y ~ X`,
+where `Y` and `X` should be either an entry or an aggregation.
+'''
+
+[params.macro]
+type = 'file'
+desc = 'A user-defined macro file.'
+
+[params.title]
+required = true
+type = 'list'
+desc = 'The title of each figure, will be used to name the output files as well.'
+
+[params.ggs]
+default = []
+desc = 'Extra ggplot2 expressions for each plot'
+
+[params.devpars]
+type = 'ns'
+desc = 'The device parameters for plots. To specify devpars for each plot, use a configuration file.'
+
+[params."devpars.width"]
+default = 2000
+argname_shorten = false
+desc = 'The width of the plot'
+
+[params."devpars.height"]
+default = 2000
+argname_shorten = false
+desc = 'The height of the plot'
+
+[params."devpars.res"]
+default = 300
+argname_shorten = false
+desc = 'The resolution of the plot'
+
+[params.config]
+aliases = ['c']
+desc = '''A configuration file defining how to plot in TOML format.
+If this is provided, CLI arguments will be overwritten if defined in this file.'''
