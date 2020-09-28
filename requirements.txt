@@ -3,4 +3,5 @@ cyvcf2==0.*
 pyparam
 pytest
 pytest-cov
+rich==6.*
 toml==0.*

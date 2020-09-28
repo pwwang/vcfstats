@@ -1,7 +1,7 @@
 """Handling the formulas"""
 from os.path import commonprefix
 from collections import OrderedDict
-from . import MACROS, LOGGER
+from .utils import MACROS, logger
 
 
 def parse_subsets(subsets):
@@ -308,14 +308,14 @@ class Aggr:
 class Formula:
     """Handling the formulas"""
     def __init__(self, formula, samples, passed, title):
-        LOGGER.info("[%s] Parsing formulas ...", title)
+        logger.info("[%s] Parsing formulas ...", title)
         self._terms = {}
         if '~' not in formula:
             formula = formula + '~1'
         parts = formula.split('~', 1)
         if not parts[1].strip():
             parts[1] = '1'
-        LOGGER.debug('[%s] - Y:%rvar, X:%rvar', title, parts[0], parts[1])
+        logger.debug('[%s] - Y:%rvar, X:%rvar', title, parts[0], parts[1])
         self.Y = self._parse_part(parts[0].strip(), samples) # pylint: disable=invalid-name
         self.X = self._parse_part(parts[1].strip(), samples) # pylint: disable=invalid-name
 

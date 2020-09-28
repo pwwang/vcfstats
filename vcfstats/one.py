@@ -2,7 +2,7 @@
 from os import path
 import string
 import cmdy
-from . import LOGGER
+from .utils import logger
 from .formula import Formula, Term, Aggr
 
 
@@ -75,7 +75,7 @@ class One:
                  figtype,
                  passed):
 
-        LOGGER.info("INSTANCE: %r", title)
+        logger.info("INSTANCE: %r", title)
         self.title = title
         self.formula = Formula(formula, samples, passed, title)
         self.outprefix = path.join(outdir, title_to_valid_path(title))
@@ -91,9 +91,9 @@ class One:
             self.datafile.write("{}\t{}\n".format(self.formula.Y.name,
                                                   self.formula.X.name))
         self.figtype = get_plot_type(self.formula, figtype)
-        LOGGER.info("[%s] plot type: %s", self.title, self.figtype)
-        LOGGER.debug("[%s] ggs: %s", self.title, self.ggs)
-        LOGGER.debug("[%s] devpars: %s", self.title, self.devpars)
+        logger.info("[%s] plot type: %s", self.title, self.figtype)
+        logger.debug("[%s] ggs: %s", self.title, self.ggs)
+        logger.debug("[%s] devpars: %s", self.title, self.devpars)
 
     def __del__(self):
         try:
@@ -109,13 +109,13 @@ class One:
 
     def summarize(self):
         """Calculate the aggregations"""
-        LOGGER.info("[%s] Summarizing aggregations ...", self.title)
+        logger.info("[%s] Summarizing aggregations ...", self.title)
         self.formula.done(self.datafile)
         self.datafile.close()
 
     def plot(self, Rscript):  # pylint: disable=invalid-name
         """Plot the figures using R"""
-        LOGGER.info("[%s] Composing R code ...", self.title)
+        logger.info("[%s] Composing R code ...", self.title)
         rcode = """
             require('ggplot2')
             set.seed(8525)
@@ -206,14 +206,14 @@ class One:
                    extrggs=('p = p + ' + self.ggs) if self.ggs else '')
         with open(self.outprefix + '.plot.R', 'w') as fout:
             fout.write(rcode)
-        LOGGER.info("[%s] Running R code to plot ...", self.title)
-        LOGGER.info("[%s] Data will be saved to: %s", self.title,
+        logger.info("[%s] Running R code to plot ...", self.title)
+        logger.info("[%s] Data will be saved to: %s", self.title,
                     self.outprefix + '.txt')
-        LOGGER.info("[%s] Plot will be saved to: %s", self.title,
+        logger.info("[%s] Plot will be saved to: %s", self.title,
                     self.outprefix + '.' + self.figtype + '.png')
         cmd = cmdy.Rscript(self.outprefix + '.plot.R',
                            _exe=Rscript,
                            _raise=False)
         if cmd.rc != 0:
             for line in cmd.stderr.splitlines():
-                LOGGER.error("[%s] %s", self.title, line)
+                logger.error("[%s] %s", self.title, line)

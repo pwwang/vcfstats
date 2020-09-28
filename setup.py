@@ -21,8 +21,8 @@ if os.path.exists(readme_path):
 setup(
     long_description=readme,
     name='vcfstats',
-    version='0.0.6',
-    description='Powerful VCF statistics',
+    version='0.1.0',
+    description='Powerful statistics for VCF files',
     python_requires='==3.*,>=3.6.0',
     project_urls={
         "homepage": "https://github.com/pwwang/vcfstats",
@@ -31,10 +31,12 @@ setup(
     author='pwwang',
     author_email='pwwang@pwwang.com',
     license='MIT',
-    entry_points={"console_scripts": ["vcfstats = vcfstats:main"]},
+    entry_points={"console_scripts": ["vcfstats = vcfstats.cli:main"]},
     packages=['vcfstats'],
     package_dir={"": "."},
     package_data={"vcfstats": ["*.bak", "*.toml"]},
-    install_requires=['cmdy', 'cyvcf2==0.*', 'pyparam', 'toml==0.*'],
+    install_requires=[
+        'cmdy', 'cyvcf2==0.*', 'pyparam', 'rich==6.*', 'toml==0.*'
+    ],
     extras_require={"dev": ["pytest", "pytest-cov"]},
 )

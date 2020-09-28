@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
 from cyvcf2 import VCF
-from vcfstats import MACROS
+from vcfstats.utils import MACROS
 from vcfstats.macros import *
 from vcfstats.macros import _ONE
 

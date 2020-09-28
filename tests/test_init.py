@@ -2,7 +2,7 @@ import pytest
 import cmdy
 from pathlib import Path
 from pyparam import Namespace
-from vcfstats import get_vcf_by_regions, combine_regions, get_ones, One, list_macros, load_macrofile, load_config, main, MACROS
+from vcfstats.cli import get_vcf_by_regions, combine_regions, get_ones, One, list_macros, load_macrofile, load_config, main, MACROS
 
 HERE = Path(__file__).parent.resolve()
 
@@ -83,7 +83,7 @@ def test_load_config(tmp_path):
 
 def test_main(vcffile, tmp_path):
 	# help
-	cmd = cmdy.vcfstats(cmdy_raise=False)
+	cmd = cmdy.vcfstats(_raise=False)
 	assert 'Print help information for this command' in cmd.stdout
 
 	macrofile = tmp_path.with_suffix('.macromain.py')
@@ -94,7 +94,7 @@ def DEMO(variant):
 	'''Some demo macro'''
 	return variant.CHROM
 """)
-	cmd = cmdy.vcfstats(l=True, macro=macrofile, cmdy_raise=False)
+	cmd = cmdy.vcfstats(l=True, macro=macrofile, _raise=False)
 	assert 'Return 1 for a variant' in cmd.stdout
 	assert 'Some demo macro' in cmd.stdout
 
@@ -104,7 +104,7 @@ def DEMO(variant):
 		formula = 'COUNT(1) ~ CONTIG',
 		title = 'Variants on each chromosome',
 		config = HERE.parent.joinpath('examples', 'config.toml'),
-		cmdy_raise = False)
+		_raise = False)
 	print(cmd.stderr, cmd.strcmd)
 	assert cmd.rc == 0
 

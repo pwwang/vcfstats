@@ -4,8 +4,8 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "vcfstats"
-version = "0.0.6"
-description = "Powerful VCF statistics"
+version = "0.1.0"
+description = "Powerful statistics for VCF files"
 authors = [ "pwwang <pwwang@pwwang.com>",]
 license = "MIT"
 readme = "README.md"
@@ -19,10 +19,11 @@ cyvcf2 = "0.*"
 toml = "0.*"
 pyparam = "*"
 cmdy = "*"
+rich = "6.*"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
 pytest-cov = "*"
 
 [tool.poetry.scripts]
-vcfstats = "vcfstats:main"
+vcfstats = "vcfstats.cli:main"

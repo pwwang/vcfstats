@@ -2,7 +2,7 @@ import pytest
 from io import StringIO
 from pathlib import Path
 from cyvcf2 import VCF
-from vcfstats import MACROS
+from vcfstats.utils import MACROS
 from vcfstats.macros import cat
 from vcfstats.formula import parse_subsets, Term, Aggr, Formula, safe_split
 

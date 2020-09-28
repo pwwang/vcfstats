@@ -1,3 +1,10 @@
+# 0.1.0
+- Allow program to be run by `python -m vcfstats`
+- Avoid using root logger configuration
+
+# 0.0.6
+- Adopt latest pyparam
+
 # 0.0.5
 - Adopt lastest cmdy
 
