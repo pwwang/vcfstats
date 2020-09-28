@@ -2,24 +2,15 @@
 import sys
 import logging
 from os import path
-from pathlib import Path
 from functools import partial
 from itertools import chain
 from simpleconf import Config
+from rich.console import Console
+from rich.table import Table
 from cyvcf2 import VCF
-from pyparam import Params, defaults
+from pyparam import Params
 from .one import One  # pylint:disable=wrong-import-position
-from .utils import logger, MACROS
-
-HERE = Path(__file__).parent.resolve()
-defaults.HELP_OPTION_WIDTH = 28
-
-def _list_callback(value, allvalues, params): # pylint:disable=unused-argument
-    if not value:
-        return False
-    for param in ('vcf', 'outdir', 'formula', 'title'):
-        params.get_param(param).required = False
-    return True
+from .utils import logger, MACROS, HERE
 
 def _check_len_callback(value, allvalues, name):
     expect_len = len(allvalues.formula)
@@ -33,7 +24,6 @@ def get_params():
     params = Params(prog='vcfstats',
                     desc=f'vcfstats v{__version__}: Powerful VCF statistics.')
     params.from_file(HERE / 'args.toml')
-    params.get_param('list').callback = partial(_list_callback, params=params)
     params.get_param('title').callback = partial(_check_len_callback,
                                                  name='title')
     params.get_param('ggs').callback = partial(_check_len_callback, name='ggs')
@@ -92,9 +82,13 @@ def get_ones(opts, samples):
 
 def list_macros():
     """List the available macros, including user-provided ones"""
+    table = Table(title='Available Macros')
+    table.add_column('Name')
+    table.add_column('Type')
+    table.add_column('Description')
     for name, macro in MACROS.items():
-        print(name.ljust(10), "|", macro.get('type', '').ljust(15), "|",
-              macro['func'].__doc__)
+        table.add_row(name, macro.get('type', '-'), macro['func'].__doc__)
+    Console().print(table)
     sys.exit(0)
 
 def load_macrofile(macrofile):
