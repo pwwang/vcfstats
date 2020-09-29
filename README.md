@@ -19,6 +19,13 @@ If you are doing `pie` chart, [`ggrepel`][18] is also required.
 pip install vcfstats
 ```
 
+Or run with docker or singularity:
+```shell
+docker run --rm justold/vcfstats:first vcfstats
+# or
+singularity run docker://justold/vcfstats:first vcfstats
+```
+
 ## Gallery
 
 ### Number of variants on each chromosome

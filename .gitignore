@@ -140,3 +140,5 @@ poetry.lock
 
 examples/*.R
 examples/*.txt
+
+.singularity
