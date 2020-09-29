@@ -8,6 +8,7 @@ RUN apt-get update \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
+RUN R -e 'install.packages("ggrepel")'
 RUN python3 -m pip install poetry
 
 WORKDIR /vcfstats
