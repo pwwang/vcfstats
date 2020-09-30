@@ -52,7 +52,7 @@ def test_one_init(tmp_path, one):
 
 	one = One('COUNT(1, group=VARTYPE) ~ CHROM', 'title', '', {'width':1000, 'height':1000, 'res': 100}, outdir, ['A', 'B', 'C', 'D'], None, False)
 	one.datafile.close()
-	assert Path(one.outprefix + '.txt').read_text() == 'COUNT(1)\tCHROM\tGroup\n'
+	assert Path(one.outprefix + '.txt').read_text() == 'COUNT(_ONE)\tCHROM\tGroup\n'
 
 def test_one_iterate(tmp_path):
 	outdir = tmp_path.with_suffix('.vcfstats')

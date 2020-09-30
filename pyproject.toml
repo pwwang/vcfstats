@@ -20,6 +20,7 @@ toml = "0.*"
 pyparam = "*"
 cmdy = "*"
 rich = "6.*"
+lark-parser = "^0.9"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"

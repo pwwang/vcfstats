@@ -1,132 +1,86 @@
 """Handling the formulas"""
-from os.path import commonprefix
 from collections import OrderedDict
-from .utils import MACROS, logger
+from lark import Lark, Transformer, v_args, Token
+from .utils import MACROS, logger, parse_subsets
 
+@v_args(inline=True)
+class VcfStatsTransformer(Transformer):
+    """Transformer for vcfstats formulas"""
+    def start(self, expr1, expr2=None):
+        """The start rule"""
+        return expr1, expr2 or One()
 
-def parse_subsets(subsets):
-    """Parse subsets written in short format"""
-    ret = []
-    for subset in subsets.split(','):
-        subset = subset.strip()
-        if subset.count('-') == 1:
-            start, end = subset.split('-')
-            compref = commonprefix([start, end])
-            if compref and compref[-1].isdigit():
-                compref = compref[:-1]
-            start = start[len(compref):]
-            end = end[len(compref):]
-            if start.isdigit() and end.isdigit() and int(start) < int(end):
-                ret.extend([
-                    compref + str(i) for i in range(int(start),
-                                                    int(end) + 1)
-                ])
+    def term(self, name, items=None, samples=None):
+        """The term rule"""
+        return Term(name, items, samples)
+
+    def aggr(self, name, term, *kwargs):
+        """The aggr rule"""
+        aggr_args = []
+        aggr_kwargs = {}
+        if kwargs:
+            if isinstance(kwargs[0], Token):
+                for i in range(0, len(kwargs), 2):
+                    aggr_kwargs[str(kwargs[i])] = kwargs[i + 1]
             else:
-                ret.append(subset)
-        else:
-            ret.append(subset)
-    return ret
+                aggr_args.extend(kwargs)
+
+        return Aggr(name, term, *aggr_args, **aggr_kwargs)
+
+    def items(self, *itms):
+        """The items rule"""
+        return parse_subsets(itms)
+
+    samples = items
+    one = lambda _: One()
 
 
-def safe_split(string, delimter, trim=True):
-    """
-    Split a string using a single-character delimter
-    @params:
-        `string`: the string
-        `delimter`: the single-character delimter
-        `trim`: whether to trim each part. Default: True
-    @examples:
-        ```python
-        ret = split("'a,b',c", ",")
-        # ret == ["'a,b'", "c"]
-        # ',' inside quotes will be recognized.
-        ```
-    @returns:
-        The list of substrings
-    """
-    ret = []
-    special1 = ['(', ')', '[', ']', '{', '}']
-    special2 = ['\'', '"', '`']
-    special3 = '\\'
-    flags1 = [0, 0, 0]
-    flags2 = [False, False, False]
-    flags3 = False
-    start = 0
-    for i, char in enumerate(string):
-        if char == special3:
-            flags3 = not flags3
-        elif not flags3:
-            if char in special1:
-                index = special1.index(char)
-                if index % 2 == 0:
-                    flags1[int(index / 2)] += 1
-                else:
-                    flags1[int(index / 2)] -= 1
-            elif char in special2:
-                index = special2.index(char)
-                flags2[index] = not flags2[index]
-            elif char == delimter and not any(flags1) and not any(flags2):
-                rest = string[start:i]
-                if trim:
-                    rest = rest.strip()
-                ret.append(rest)
-                start = i + 1
-        else:
-            flags3 = False
-    rest = string[start:]
-    if trim:
-        rest = rest.strip()
-    ret.append(rest)
-    return ret
+GRAMMAR = r"""
+start: expr ["~" expr | "~"]
+?expr: aggr | term
+term: NAME [items] [samples]
+    | "1" -> one
+aggr: NAME "(" term ("," NAME "=" term | "," term)* ")"
+items: "[" [ITEM] ("," [ITEM])* "]"
+samples: "{" ITEM ("," ITEM)* "}"
 
+NAME: /[A-Za-z_]\w+/
+ITEM: /[^\]},]+/
+%ignore /\s+/
+"""
+
+PARSER = Lark(GRAMMAR,
+              parser='lalr',
+              debug=True,
+              maybe_placeholders=True,
+              transformer=VcfStatsTransformer())
 
 class Term:
     """The term in the formula"""
-    def __init__(self, term, samples):  # pylint: disable=too-many-branches,too-many-statements
-        token = ' \t[{'
-        pos = [term.find(c) for c in token]
-        if max(pos) == -1:
-            remaining = ''
-        else:
-            pos = min(p for p in pos if p >= 0)
-            term, remaining = term[:pos], term[pos:]
+    def __init__(self, name, items=None, samples=None):
+        self.name = name
+        if name not in MACROS:
+            raise ValueError("Term {!r} has not been registered.".format(name))
+        self.term = MACROS[name]
+        self.subsets = items
+        self.samples = samples
 
-        term = '_ONE' if term == '1' else term
-        if term not in MACROS:
-            raise ValueError("Term {!r} has not been registered.".format(term))
-        self.name = term if term != '_ONE' else '1'
-        self.term = MACROS[term]
         if not self.term.get('type'):
             raise TypeError("No type specified for Term: {}".format(self.term))
-        remaining = remaining.strip()
 
-        errmsg = (
-            '{}{}: Malformated decorations for an Term. '
-            'Expect {{SAMPLE}}, [SUBSETS] or a combination of both.'.format(
-                term, remaining))
-        self.samples = self.subsets = None
+        if self.term['type'] == 'continuous' and self.subsets:
+            if len(self.subsets) != 2:
+                raise KeyError(
+                    'Expect a subset of length 2 for continuous Term: {}'.
+                    format(self.term)
+                )
+            if self.subsets[0]:
+                self.subsets[0] = float(self.subsets[0])  # try to raise
+            if self.subsets[1]:
+                self.subsets[1] = float(self.subsets[1])
 
-        if not remaining:
-            pass
-        elif remaining[0] == '[' and remaining[-1] == ']':
-            self.subsets = parse_subsets(remaining[1:-1])
-        elif remaining[0] == '{' and remaining[-1] == '}':
-            self.samples = parse_subsets(remaining[1:-1])
-        elif remaining[0] == '{' and remaining[-1] == ']':
-            if not '}[' in remaining:
-                raise ValueError(errmsg)
-            specified_samples, subsets = remaining[1:-1].split('}[', 1)
-            self.samples = parse_subsets(specified_samples)
-            self.subsets = parse_subsets(subsets)
-        elif remaining[0] == '[' and remaining[-1] == '}':
-            if not ']{' in remaining:
-                raise ValueError(errmsg)
-            subsets, specified_samples = remaining[1:-1].split(']{', 1)
-            self.samples = parse_subsets(specified_samples)
-            self.subsets = parse_subsets(subsets)
-        else:
-            raise ValueError(errmsg)
-
+    def set_samples(self, samples):
+        """Set the samples for the term"""
         if self.samples:
             for i, sample in enumerate(self.samples):
                 if sample.isdigit():
@@ -137,19 +91,16 @@ class Term:
                 else:
                     self.samples[i] = samples.index(sample)
 
-        if self.term['type'] == 'continuous' and self.subsets:
-            if len(self.subsets) != 2:
-                raise KeyError(
-                    'Expect a subset of length 2 for continuous Term: {}'.
-                    format(self.term))
-            if self.subsets[0]:
-                self.subsets[0] = float(self.subsets[0])  # try to raise
-            if self.subsets[1]:
-                self.subsets[1] = float(self.subsets[1])
-
     def __repr__(self):
-        return '<Term {}(subsets={}, samples={})>'.format(
-            self.name, self.subsets, self.samples)
+        if self.subsets and self.samples:
+            return '<Term {}(subsets={}, samples={})>'.format(
+                self.name, self.subsets, self.samples
+            )
+        if self.subsets:
+            return '<Term {}(subsets={})>'.format(self.name, self.subsets)
+        if self.samples:
+            return '<Term {}(samples={})>'.format(self.name, self.samples)
+        return '<Term {}()>'.format(self.name)
 
     def __eq__(self, other):
         if not isinstance(other, Term):
@@ -175,63 +126,39 @@ class Term:
             value = [value[sidx] for sidx in self.samples]
 
         if self.term['type'] == 'continuous' and self.subsets:
-            if self.subsets[0] != '' and any(val < self.subsets[0]
-                                             for val in value):
+            if self.subsets[0] is not None and any(val < self.subsets[0]
+                                                   for val in value):
                 return False
-            if self.subsets[1] != '' and any(val > self.subsets[1]
-                                             for val in value):
+            if self.subsets[1] is not None and any(val > self.subsets[1]
+                                                   for val in value):
                 return False
         if self.term['type'] == 'categorical' and self.subsets:
             if any(val not in self.subsets for val in value):
                 return False
         return value
 
+class One(Term):
+    """Term 1"""
+    def __init__(self, name='_ONE', items=None, samples=None):
+        super().__init__(name, items, samples)
 
 class Aggr:
     """The aggregation"""
-    def __init__(self, aggr, terms):
+    def __init__(self, name, term, *args, **kwargs):
         # pylint: disable=too-many-branches
         self.cache = OrderedDict()  # cache data for aggregation
-        if '(' not in aggr:
-            raise ValueError("Expect an Aggregation in format of 'AGGR(...)'")
-        aggr, remaining = aggr.split('(', 1)
-        aggr = aggr.strip()
-        if aggr not in MACROS or not MACROS[aggr].get('aggr'):
+        if name not in MACROS or not MACROS[name].get('aggr'):
             raise ValueError(
-                "Aggregation {!r} has not been registered.".format(aggr))
-        self.aggr = MACROS[aggr]
+                "Aggregation {!r} has not been registered.".format(name))
+        self.aggr = MACROS[name]
+        if not term:
+            raise ValueError("Aggregation has to work with a term.")
 
-        remaining = remaining.strip()
-        if not remaining.endswith(')'):
-            raise ValueError("Expect an Aggregation in format of 'AGGR(...)'")
-        remaining = remaining[:-1]
-        if ',' not in remaining:
-            term, remaining = remaining, ''
-        else:
-            parts = safe_split(remaining, ',')
-            term, remaining = parts[0], ','.join(parts[1:])
+        self.term = term
+        self.filter = kwargs.get('filter')
+        self.group = kwargs.get('group', args[0] if args else None)
 
-        term = term.strip()
-        remaining = remaining.strip()
-        self.term = terms[term]
-        self.filter = None
-        self.group = None
-        for term in safe_split(remaining, ','):
-            term = term.strip()
-            if not term:
-                continue
-            if '=' not in term:
-                kword, name = 'filter' if not self.filter else 'group', term
-            else:
-                kword, name = term.split('=')
-                kword = kword.strip()
-                name = name.strip()
-            if kword == 'filter':
-                self.filter = terms[name]
-            else:
-                self.group = terms[name]
-
-        self.name = '{}({})'.format(aggr, self.term.name)
+        self.name = '{}({})'.format(name, self.term.name)
         if self.term.term['type'] != 'continuous':
             raise TypeError("Cannot aggregate on categorical data.")
 
@@ -309,15 +236,12 @@ class Formula:
     """Handling the formulas"""
     def __init__(self, formula, samples, passed, title):
         logger.info("[%s] Parsing formulas ...", title)
-        self._terms = {}
-        if '~' not in formula:
-            formula = formula + '~1'
-        parts = formula.split('~', 1)
-        if not parts[1].strip():
-            parts[1] = '1'
-        logger.debug('[%s] - Y:%rvar, X:%rvar', title, parts[0], parts[1])
-        self.Y = self._parse_part(parts[0].strip(), samples) # pylint: disable=invalid-name
-        self.X = self._parse_part(parts[1].strip(), samples) # pylint: disable=invalid-name
+
+        self.Y, self.X = PARSER.parse(formula) # pylint: disable=invalid-name
+        if isinstance(self.Y, Term):
+            self.Y.set_samples(samples)
+        if isinstance(self.X, Term):
+            self.X.set_samples(samples)
 
         if isinstance(self.Y, Aggr) and isinstance(self.X, Term):
             self.Y.setxgroup(self.X)
@@ -337,46 +261,6 @@ class Formula:
                 or (isinstance(self.X, Term) and self.X.name == 'FILTER')
                 or (isinstance(self.X, Aggr) and self.X.has_filter())):
             self.passed = False
-
-    def _parse_part(self, part, samples):
-        """Parse each part of the formula"""
-        aggr = None
-        if part.endswith(')') and '(' in part:
-            aggr, term_fms = part[:-1].split('(')
-        else:
-            term_fms = part
-
-        parts = safe_split(term_fms, ',')
-        if not aggr and len(parts) == 1:
-            return Term(parts[0], samples)
-        if aggr and len(parts) == 1:
-            name = 'TERM' + str(len(self._terms))
-            self._terms[name] = Term(term_fms, samples)
-            return Aggr('{}({})'.format(aggr, name), self._terms)
-
-        if len(parts) > 3:
-            raise ValueError(
-                'Wrong number of arguments (at most 3) for Aggregation: {}.'.
-                format(aggr))
-
-        name1 = 'TERM' + str(len(self._terms))
-        self._terms[name1] = self._parse_part(parts[0], samples)
-        args = [name1]
-        for i, termstr in enumerate(parts[1:]):
-            kword = None
-            if '=' in termstr:
-                kword, termstr = termstr.split('=', 1)
-                kword, termstr = kword.strip(), termstr.strip()
-            kword = kword or ('filter' if i == 0 else 'group')
-            if kword not in ('filter', 'group'):
-                raise ValueError(
-                    'Expect filter/group as keyword argument name, but got {}.'
-                    .format(kword))
-
-            name2 = 'TERM' + str(len(self._terms))
-            self._terms[name2] = self._parse_part(termstr, samples)
-            args.append('{}={}'.format(kword, name2))
-        return Aggr('{}({})'.format(aggr, ', '.join(args)), self._terms)
 
     def run(self, variant, datafile):
         """Run each variant"""
@@ -404,7 +288,7 @@ class Formula:
             self.Y.run(variant, self.passed)
         else:
             raise TypeError("Cannot do 'TERM ~ AGGREGATION'. " + \
-                "If you want to do that, transpose 'AGGREGATION ~ TERM'")
+                "If you want to do that, transpose it to 'AGGREGATION ~ TERM'")
 
     def done(self, datafile):
         """Done iteration, start summarizing"""

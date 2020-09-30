@@ -36,7 +36,8 @@ setup(
     package_dir={"": "."},
     package_data={"vcfstats": ["*.bak", "*.toml"]},
     install_requires=[
-        'cmdy', 'cyvcf2==0.*', 'pyparam', 'rich==6.*', 'toml==0.*'
+        'cmdy', 'cyvcf2==0.*', 'lark-parser==0.*,>=0.9.0', 'pyparam',
+        'rich==6.*', 'toml==0.*'
     ],
     extras_require={"dev": ["pytest", "pytest-cov"]},
 )

@@ -142,3 +142,4 @@ examples/*.R
 examples/*.txt
 
 .singularity
+vcfstats-out/

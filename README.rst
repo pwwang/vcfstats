@@ -56,6 +56,14 @@ If you are doing ``pie`` chart, `\ ``ggrepel`` <https://cran.r-project.org/web/p
 
    pip install vcfstats
 
+Or run with docker or singularity:
+
+.. code-block:: shell
+
+   docker run --rm justold/vcfstats:first vcfstats
+   # or
+   singularity run docker://justold/vcfstats:first vcfstats
+
 Gallery
 -------
 
