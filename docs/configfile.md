@@ -12,13 +12,13 @@ To specify multiple plots, we do:
 ```toml
 passed = true
 
-[[one]]
+[[instance]]
 formula = 'DEPTHs{0} ~ CHROM'
 title = 'Depth distribution on each chromosome'
 ggs = 'theme_minimal()'
 devpars = {width = 1000, height = 1000, res = 100}
 
-[[one]]
+[[instance]]
 formula = 'AAF ~ CHROM'
 title = 'Allele frequency distribution on each chromosome'
 ggs = 'theme_bw()'

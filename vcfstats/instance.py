@@ -6,74 +6,110 @@ from .utils import logger
 from .formula import Formula, Term, Aggr
 
 
-def title_to_valid_path(title,
-                        allowed='_-.()' + string.ascii_letters +
-                        string.digits):
+def title_to_valid_path(
+    title, allowed="_-.()" + string.ascii_letters + string.digits
+):
     """Convert a title to a valid file path"""
-    return ''.join(c if c in allowed else '_' for c in title)
+    return "".join(c if c in allowed else "_" for c in title)
 
 
 def get_plot_type(formula, figtype):
     """Get the real plot type"""
     # pylint: disable=too-many-branches,too-many-return-statements
     if isinstance(formula.Y, Aggr) and isinstance(formula.X, Aggr):
-        if figtype in ('', None, 'scatter'):
-            return figtype or 'scatter'
-        raise TypeError("Don't know how to plot AGGREGATION ~ AGGREGATION "
-                        "using plots other than scatter")
+        if figtype in ("", None, "scatter"):
+            return figtype or "scatter"
+        raise TypeError(
+            "Don't know how to plot AGGREGATION ~ AGGREGATION "
+            "using plots other than scatter"
+        )
     if isinstance(formula.Y, Aggr) and isinstance(formula.X, Term):
-        if figtype in ('', None, 'col', 'bar', 'pie'):
-            figtype = 'col' if figtype == 'bar' else figtype
-            return (figtype or 'pie') if formula.X.name == '1' else (figtype
-                                                                     or 'col')
-        raise TypeError("Don't know how to plot AGGREGATION ~ CATEGORICAL "
-                        "using plots other than col/pie")
+        if figtype in ("", None, "col", "bar", "pie"):
+            figtype = "col" if figtype == "bar" else figtype
+            return (
+                (figtype or "pie")
+                if formula.X.name == "1"
+                else (figtype or "col")
+            )
+        raise TypeError(
+            "Don't know how to plot AGGREGATION ~ CATEGORICAL "
+            "using plots other than col/pie"
+        )
     # all are terms, 'cuz we cannot have Term ~ Aggr
     # if isinstance(formula.Y, Term) and isinstance(formula.X, Term):
-    if formula.Y.term['type'] == 'categorical' and formula.X.term[
-            'type'] == 'categorical':
-        if figtype in ('', None, 'bar', 'pie'):
-            return figtype or 'bar'
-        raise TypeError("Don't know how to plot CATEGORICAL ~ CATEGORICAL "
-                        "using plots other than bar/pie")
-    if formula.Y.term['type'] == 'continuous' and formula.X.term[
-            'type'] == 'categorical':
-        if figtype in ('', None, 'violin', 'boxplot', 'histogram', 'density',
-                       'freqpoly'):
-            return figtype or 'violin'
-        raise TypeError("Don't know how to plot CONTINUOUS ~ CATEGORICAL " + \
-            "using plots other than violin/boxplot/histogram/density/freqpoly")
-    if formula.Y.term['type'] == 'categorical' and formula.X.term[
-            'type'] == 'continuous':
-        if formula.X.term['func'].__name__ == '_ONE':
-            if figtype in ('', None, 'bar', 'pie'):
-                return figtype or 'pie'
-        raise TypeError("If you want to plot CATEGORICAL ~ CONTINUOUS, " + \
-            "where CONTINUOUS is not 1, transpose CONTINUOUS ~ CATEGORICAL")
-    if formula.Y.term['type'] == 'continuous' and formula.X.term[
-            'type'] == 'continuous':
-        if formula.X.term['func'].__name__ == '_ONE':
-            if figtype in ('', None, 'histogram', 'freqpoly', 'density'):
-                return figtype or 'histogram'
-            raise TypeError("Don't know how to plot distribution " + \
-                "using plots other than histogram/freqpoly/density")
-        if figtype in ('', None, 'scatter'):
-            return figtype or 'scatter'
-        raise TypeError("Don't know how to plot CONTINUOUS ~ CONTINUOUS "
-                        "using plots other than scatter")
+    if (
+        formula.Y.term["type"] == "categorical"
+        and formula.X.term["type"] == "categorical"
+    ):
+        if figtype in ("", None, "bar", "pie"):
+            return figtype or "bar"
+        raise TypeError(
+            "Don't know how to plot CATEGORICAL ~ CATEGORICAL "
+            "using plots other than bar/pie"
+        )
+    if (
+        formula.Y.term["type"] == "continuous"
+        and formula.X.term["type"] == "categorical"
+    ):
+        if figtype in (
+            "",
+            None,
+            "violin",
+            "boxplot",
+            "histogram",
+            "density",
+            "freqpoly",
+        ):
+            return figtype or "violin"
+        raise TypeError(
+            "Don't know how to plot CONTINUOUS ~ CATEGORICAL "
+            + "using plots other than violin/boxplot/histogram/density/freqpoly"
+        )
+    if (
+        formula.Y.term["type"] == "categorical"
+        and formula.X.term["type"] == "continuous"
+    ):
+        if formula.X.term["func"].__name__ == "_ONE":
+            if figtype in ("", None, "bar", "pie"):
+                return figtype or "pie"
+        raise TypeError(
+            "If you want to plot CATEGORICAL ~ CONTINUOUS, "
+            + "where CONTINUOUS is not 1, transpose CONTINUOUS ~ CATEGORICAL"
+        )
+    if (
+        formula.Y.term["type"] == "continuous"
+        and formula.X.term["type"] == "continuous"
+    ):
+        if formula.X.term["func"].__name__ == "_ONE":
+            if figtype in ("", None, "histogram", "freqpoly", "density"):
+                return figtype or "histogram"
+            raise TypeError(
+                "Don't know how to plot distribution "
+                + "using plots other than histogram/freqpoly/density"
+            )
+        if figtype in ("", None, "scatter"):
+            return figtype or "scatter"
+        raise TypeError(
+            "Don't know how to plot CONTINUOUS ~ CONTINUOUS "
+            "using plots other than scatter"
+        )
     return None
 
-class One:
+
+class Instance:
     """One instance/plot"""
-    def __init__(self,  # pylint: disable=too-many-arguments
-                 formula,
-                 title,
-                 ggs,
-                 devpars,
-                 outdir,
-                 samples,
-                 figtype,
-                 passed):
+
+    def __init__(
+        self,  # pylint: disable=too-many-arguments
+        formula,
+        title,
+        ggs,
+        devpars,
+        outdir,
+        samples,
+        figtype,
+        passed,
+    ):
 
         logger.info("INSTANCE: %r", title)
         self.title = title
@@ -81,15 +117,20 @@ class One:
         self.outprefix = path.join(outdir, title_to_valid_path(title))
         self.devpars = devpars
         self.ggs = ggs
-        self.datafile = open(self.outprefix + '.txt', 'w')
-        if isinstance(self.formula.Y, Aggr) and \
-            ((isinstance(self.formula.X, Term) and self.formula.Y.xgroup) or \
-            isinstance(self.formula.X, Aggr)):
-            self.datafile.write("{}\t{}\tGroup\n".format(
-                self.formula.Y.name, self.formula.X.name))
+        self.datafile = open(self.outprefix + ".txt", "w")
+        if isinstance(self.formula.Y, Aggr) and (
+            (isinstance(self.formula.X, Term) and self.formula.Y.xgroup)
+            or isinstance(self.formula.X, Aggr)
+        ):
+            self.datafile.write(
+                "{}\t{}\tGroup\n".format(
+                    self.formula.Y.name, self.formula.X.name
+                )
+            )
         else:
-            self.datafile.write("{}\t{}\n".format(self.formula.Y.name,
-                                                  self.formula.X.name))
+            self.datafile.write(
+                "{}\t{}\n".format(self.formula.Y.name, self.formula.X.name)
+            )
         self.figtype = get_plot_type(self.formula, figtype)
         logger.info("[%s] plot type: %s", self.title, self.figtype)
         logger.debug("[%s] ggs: %s", self.title, self.ggs)
@@ -200,20 +241,28 @@ class One:
             {extrggs}
             print(p)
             dev.off()
-        """.format(figtype=self.figtype,
-                   outprefix=self.outprefix,
-                   devpars=self.devpars,
-                   extrggs=('p = p + ' + self.ggs) if self.ggs else '')
-        with open(self.outprefix + '.plot.R', 'w') as fout:
+        """.format(
+            figtype=self.figtype,
+            outprefix=self.outprefix,
+            devpars=self.devpars,
+            extrggs=("p = p + " + self.ggs) if self.ggs else "",
+        )
+        with open(self.outprefix + ".plot.R", "w") as fout:
             fout.write(rcode)
         logger.info("[%s] Running R code to plot ...", self.title)
-        logger.info("[%s] Data will be saved to: %s", self.title,
-                    self.outprefix + '.txt')
-        logger.info("[%s] Plot will be saved to: %s", self.title,
-                    self.outprefix + '.' + self.figtype + '.png')
-        cmd = cmdy.Rscript(self.outprefix + '.plot.R',
-                           _exe=Rscript,
-                           _raise=False)
+        logger.info(
+            "[%s] Data will be saved to: %s",
+            self.title,
+            self.outprefix + ".txt",
+        )
+        logger.info(
+            "[%s] Plot will be saved to: %s",
+            self.title,
+            self.outprefix + "." + self.figtype + ".png",
+        )
+        cmd = cmdy.Rscript(
+            self.outprefix + ".plot.R", _exe=Rscript, _raise=False
+        )
         if cmd.rc != 0:
             for line in cmd.stderr.splitlines():
                 logger.error("[%s] %s", self.title, line)

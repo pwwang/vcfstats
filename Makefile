@@ -18,7 +18,7 @@ TARGETS :=  examples/Number_of_variants_on_each_chromosome.col.png \
 
 
 DEPENDS :=  examples/sample.vcf examples/config.toml vcfstats/__init__.py \
-			vcfstats/formula.py vcfstats/macros.py vcfstats/one.py
+			vcfstats/formula.py vcfstats/macros.py vcfstats/instance.py
 
 VCFSTATS := vcfstats --vcf examples/sample.vcf \
 	--outdir examples/ \

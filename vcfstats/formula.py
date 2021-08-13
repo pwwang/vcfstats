@@ -3,9 +3,11 @@ from collections import OrderedDict
 from lark import Lark, Transformer, v_args, Token
 from .utils import MACROS, logger, parse_subsets
 
+
 @v_args(inline=True)
 class VcfStatsTransformer(Transformer):
     """Transformer for vcfstats formulas"""
+
     def start(self, expr1, expr2=None):
         """The start rule"""
         return expr1, expr2 or One()
@@ -49,14 +51,18 @@ ITEM: /[^\]},]+/
 %ignore /\s+/
 """
 
-PARSER = Lark(GRAMMAR,
-              parser='lalr',
-              debug=True,
-              maybe_placeholders=True,
-              transformer=VcfStatsTransformer())
+PARSER = Lark(
+    GRAMMAR,
+    parser="lalr",
+    debug=True,
+    maybe_placeholders=True,
+    transformer=VcfStatsTransformer(),
+)
+
 
 class Term:
     """The term in the formula"""
+
     def __init__(self, name, items=None, samples=None):
         self.name = name
         if name not in MACROS:
@@ -65,14 +71,15 @@ class Term:
         self.subsets = items
         self.samples = samples
 
-        if not self.term.get('type'):
+        if not self.term.get("type"):
             raise TypeError("No type specified for Term: {}".format(self.term))
 
-        if self.term['type'] == 'continuous' and self.subsets:
+        if self.term["type"] == "continuous" and self.subsets:
             if len(self.subsets) != 2:
                 raise KeyError(
-                    'Expect a subset of length 2 for continuous Term: {}'.
-                    format(self.term)
+                    "Expect a subset of length 2 for continuous Term: {}".format(
+                        self.term
+                    )
                 )
             if self.subsets[0]:
                 self.subsets[0] = float(self.subsets[0])  # try to raise
@@ -87,27 +94,30 @@ class Term:
                     self.samples[i] = int(sample)
                 elif sample not in samples:
                     raise ValueError(
-                        'Sample {!r} does not exist.'.format(sample))
+                        "Sample {!r} does not exist.".format(sample)
+                    )
                 else:
                     self.samples[i] = samples.index(sample)
 
     def __repr__(self):
         if self.subsets and self.samples:
-            return '<Term {}(subsets={}, samples={})>'.format(
+            return "<Term {}(subsets={}, samples={})>".format(
                 self.name, self.subsets, self.samples
             )
         if self.subsets:
-            return '<Term {}(subsets={})>'.format(self.name, self.subsets)
+            return "<Term {}(subsets={})>".format(self.name, self.subsets)
         if self.samples:
-            return '<Term {}(samples={})>'.format(self.name, self.samples)
-        return '<Term {}()>'.format(self.name)
+            return "<Term {}(samples={})>".format(self.name, self.samples)
+        return "<Term {}()>".format(self.name)
 
     def __eq__(self, other):
         if not isinstance(other, Term):
             return False
-        return (self.term == other.term
-                and self.subsets == other.subsets
-                and self.samples == other.samples)
+        return (
+            self.term == other.term
+            and self.subsets == other.subsets
+            and self.samples == other.samples
+        )
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -116,66 +126,76 @@ class Term:
         """Run the variant"""
         if passed and variant.FILTER:
             return False
-        value = self.term['func'](variant)
+        value = self.term["func"](variant)
         if value is False or value is None:
             return False
         # numpy.array
-        if not hasattr(value, 'T') and not isinstance(value, (tuple, list)):
+        if not hasattr(value, "T") and not isinstance(value, (tuple, list)):
             value = [value]
         if self.samples:
             value = [value[sidx] for sidx in self.samples]
 
-        if self.term['type'] == 'continuous' and self.subsets:
-            if self.subsets[0] is not None and any(val < self.subsets[0]
-                                                   for val in value):
+        if self.term["type"] == "continuous" and self.subsets:
+            if self.subsets[0] is not None and any(
+                val < self.subsets[0] for val in value
+            ):
                 return False
-            if self.subsets[1] is not None and any(val > self.subsets[1]
-                                                   for val in value):
+            if self.subsets[1] is not None and any(
+                val > self.subsets[1] for val in value
+            ):
                 return False
-        if self.term['type'] == 'categorical' and self.subsets:
+        if self.term["type"] == "categorical" and self.subsets:
             if any(val not in self.subsets for val in value):
                 return False
         return value
 
+
 class One(Term):
     """Term 1"""
-    def __init__(self, name='_ONE', items=None, samples=None):
+
+    def __init__(self, name="_ONE", items=None, samples=None):
         super().__init__(name, items, samples)
+
 
 class Aggr:
     """The aggregation"""
+
     def __init__(self, name, term, *args, **kwargs):
         # pylint: disable=too-many-branches
         self.cache = OrderedDict()  # cache data for aggregation
-        if name not in MACROS or not MACROS[name].get('aggr'):
+        if name not in MACROS or not MACROS[name].get("aggr"):
             raise ValueError(
-                "Aggregation {!r} has not been registered.".format(name))
+                "Aggregation {!r} has not been registered.".format(name)
+            )
         self.aggr = MACROS[name]
         if not term:
             raise ValueError("Aggregation has to work with a term.")
 
         self.term = term
-        self.filter = kwargs.get('filter')
-        self.group = kwargs.get('group', args[0] if args else None)
+        self.filter = kwargs.get("filter")
+        self.group = kwargs.get("group", args[0] if args else None)
 
-        self.name = '{}({})'.format(name, self.term.name)
-        if self.term.term['type'] != 'continuous':
+        self.name = "{}({})".format(name, self.term.name)
+        if self.term.term["type"] != "continuous":
             raise TypeError("Cannot aggregate on categorical data.")
 
-        if self.group and self.group.term['type'] != 'categorical':
+        if self.group and self.group.term["type"] != "categorical":
             raise TypeError("Cannot aggregate on continuous groups.")
 
         self.xgroup = None
 
     def __repr__(self):
-        return '<Aggr {}({}, filter={}, group={})>'.format(
-            self.aggr['func'].__name__, self.term, self.filter, self.group)
+        return "<Aggr {}({}, filter={}, group={})>".format(
+            self.aggr["func"].__name__, self.term, self.filter, self.group
+        )
 
     def has_filter(self):
         """Tell if I have filter"""
-        return (self.term.name == 'FILTER'
-                or (self.filter and self.filter.name == 'FILTER')
-                or (self.group and self.group.name == 'FILTER'))
+        return (
+            self.term.name == "FILTER"
+            or (self.filter and self.filter.name == "FILTER")
+            or (self.group and self.group.name == "FILTER")
+        )
 
     def setxgroup(self, xvar):
         """Set the group of X"""
@@ -190,13 +210,16 @@ class Aggr:
             return
         if not self.group:
             raise RuntimeError(
-                "No group specified, don't know how to aggregate.")
+                "No group specified, don't know how to aggregate."
+            )
         group = self.group.run(variant, passed)
         if group is False:
             return
         if len(group) > 1:
-            raise ValueError("Cannot aggregate on more than one group, " + \
-                "make sure you specified sample for sample data.")
+            raise ValueError(
+                "Cannot aggregate on more than one group, "
+                + "make sure you specified sample for sample data."
+            )
         group = group[0]
 
         xgroup = False
@@ -206,7 +229,8 @@ class Aggr:
                 return
             if len(xgroup) > 1:
                 raise ValueError(
-                    "Cannot aggregate on more than one level of xgroup.")
+                    "Cannot aggregate on more than one level of xgroup."
+                )
             xgroup = xgroup[0]
 
         value = self.term.run(variant, passed)
@@ -214,8 +238,9 @@ class Aggr:
         if value is False:
             return
         if xgroup:
-            self.cache.setdefault(xgroup, {}).setdefault(group,
-                                                         []).extend(value)
+            self.cache.setdefault(xgroup, {}).setdefault(group, []).extend(
+                value
+            )
         else:
             self.cache.setdefault(group, []).extend(value)
 
@@ -224,20 +249,23 @@ class Aggr:
         ret = OrderedDict()
         for key, value in self.cache.items():
             if isinstance(value, dict):
-                ret[key] = [(self.aggr['func'](val), grup)
-                            for grup, val in value.items()]
+                ret[key] = [
+                    (self.aggr["func"](val), grup)
+                    for grup, val in value.items()
+                ]
             else:
-                ret[key] = self.aggr['func'](value)
+                ret[key] = self.aggr["func"](value)
         self.cache.clear()
         return ret
 
 
 class Formula:
     """Handling the formulas"""
+
     def __init__(self, formula, samples, passed, title):
         logger.info("[%s] Parsing formulas ...", title)
 
-        self.Y, self.X = PARSER.parse(formula) # pylint: disable=invalid-name
+        self.Y, self.X = PARSER.parse(formula)  # pylint: disable=invalid-name
         if isinstance(self.Y, Term):
             self.Y.set_samples(samples)
         if isinstance(self.X, Term):
@@ -252,43 +280,52 @@ class Formula:
                 self.X.group = self.Y.group
             if self.Y.group != self.X.group:
                 raise ValueError(
-                    "Two aggregations have to group by the same entry.")
+                    "Two aggregations have to group by the same entry."
+                )
 
         self.passed = passed
         # pylint: disable=too-many-boolean-expressions
-        if ((isinstance(self.Y, Term) and self.Y.name == 'FILTER')
-                or (isinstance(self.Y, Aggr) and self.Y.has_filter())
-                or (isinstance(self.X, Term) and self.X.name == 'FILTER')
-                or (isinstance(self.X, Aggr) and self.X.has_filter())):
+        if (
+            (isinstance(self.Y, Term) and self.Y.name == "FILTER")
+            or (isinstance(self.Y, Aggr) and self.Y.has_filter())
+            or (isinstance(self.X, Term) and self.X.name == "FILTER")
+            or (isinstance(self.X, Aggr) and self.X.has_filter())
+        ):
             self.passed = False
 
     def run(self, variant, datafile):
         """Run each variant"""
         if isinstance(self.Y, Term) and isinstance(self.X, Term):
-            yvar, xvar = (self.Y.run(variant, self.passed),
-                          self.X.run(variant, self.passed))
+            yvar, xvar = (
+                self.Y.run(variant, self.passed),
+                self.X.run(variant, self.passed),
+            )
             if yvar is False or xvar is False:
                 return
             lenx = len(xvar)
             leny = len(yvar)
             if leny != lenx and leny != 1 and lenx != 1:
                 raise RuntimeError(
-                    'Unmatched length of MACRO results: Y({}), X({})'.format(
-                        leny, lenx))
+                    "Unmatched length of MACRO results: Y({}), X({})".format(
+                        leny, lenx
+                    )
+                )
             if lenx == 1:
                 xvar = xvar * leny
             if leny == 1:
                 yvar = yvar * lenx
             for i, rvar in enumerate(xvar):
-                datafile.write('{}\t{}\n'.format(yvar[i], rvar))
+                datafile.write("{}\t{}\n".format(yvar[i], rvar))
         elif isinstance(self.Y, Aggr) and isinstance(self.X, Aggr):
             self.Y.run(variant, self.passed)
             self.X.run(variant, self.passed)
         elif isinstance(self.Y, Aggr) and isinstance(self.X, Term):
             self.Y.run(variant, self.passed)
         else:
-            raise TypeError("Cannot do 'TERM ~ AGGREGATION'. " + \
-                "If you want to do that, transpose it to 'AGGREGATION ~ TERM'")
+            raise TypeError(
+                "Cannot do 'TERM ~ AGGREGATION'. "
+                + "If you want to do that, transpose it to 'AGGREGATION ~ TERM'"
+            )
 
     def done(self, datafile):
         """Done iteration, start summarizing"""
@@ -297,12 +334,14 @@ class Formula:
                 for key, value in self.Y.dump().items():
                     if isinstance(value, list):
                         for val, grup in value:
-                            datafile.write("{}\t{}\t{}\n".format(
-                                val, key, grup))
+                            datafile.write(
+                                "{}\t{}\t{}\n".format(val, key, grup)
+                            )
                     else:
                         datafile.write("{}\t{}\n".format(value, key))
             else:
                 xdump = self.X.dump()
                 for key, value in self.Y.dump().items():
-                    datafile.write("{}\t{}\t{}\n".format(
-                        value, xdump.get(key, 'NA'), key))
+                    datafile.write(
+                        "{}\t{}\t{}\n".format(value, xdump.get(key, "NA"), key)
+                    )

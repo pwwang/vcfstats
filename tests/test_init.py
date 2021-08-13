@@ -2,7 +2,7 @@ import pytest
 import cmdy
 from pathlib import Path
 from pyparam import Namespace
-from vcfstats.cli import get_vcf_by_regions, combine_regions, get_ones, One, list_macros, load_macrofile, load_config, main, MACROS
+from vcfstats.cli import get_vcf_by_regions, combine_regions, get_ones, Instance, list_macros, load_macrofile, load_config, main, MACROS
 
 HERE = Path(__file__).parent.resolve()
 
@@ -40,8 +40,8 @@ def test_get_ones(tmp_path):
 		'outdir' : tmp_path
 	}, ['A', 'B', 'C', 'D'])
 	assert len(ones) == 2
-	assert isinstance(ones[0], One)
-	assert isinstance(ones[1], One)
+	assert isinstance(ones[0], Instance)
+	assert isinstance(ones[1], Instance)
 
 def test_list_macros(capsys):
 	with pytest.raises(SystemExit):
@@ -66,7 +66,7 @@ def test_load_config(tmp_path):
 	configfile = tmp_path.with_suffix('.config.toml')
 	with pytest.raises(OSError):
 		load_config(configfile, {})
-	configfile.write_text('[[one]]\nformula = "VARTYPE ~ CHROM"\ntitle = "title1"\n')
+	configfile.write_text('[[instance]]\nformula = "VARTYPE ~ CHROM"\ntitle = "title1"\n')
 	opts = Namespace(**{'formula': [], 'figtype': [], 'ggs': [], 'devpars': {}, 'title': []})
 	load_config(configfile, opts)
 	assert opts['formula'] == ['VARTYPE ~ CHROM']
@@ -74,10 +74,10 @@ def test_load_config(tmp_path):
 	load_config(configfile, opts)
 	assert opts['devpars'] == [{}, {}]
 
-	configfile.write_text('[[one]]\ntitle = "title1"\n')
+	configfile.write_text('[[instance]]\ntitle = "title1"\n')
 	with pytest.raises(ValueError):
 		load_config(configfile, opts)
-	configfile.write_text('[[one]]\nformula = "VARTYPE ~ CHROM"\n')
+	configfile.write_text('[[instance]]\nformula = "VARTYPE ~ CHROM"\n')
 	with pytest.raises(ValueError):
 		load_config(configfile, opts)
 
