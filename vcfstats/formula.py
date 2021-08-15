@@ -1,6 +1,7 @@
 """Handling the formulas"""
 from collections import OrderedDict
 from lark import Lark, Transformer, v_args, Token
+import numpy
 from .utils import MACROS, logger, parse_subsets
 
 
@@ -293,7 +294,7 @@ class Formula:
         ):
             self.passed = False
 
-    def run(self, variant, datafile):
+    def run(self, variant, data_append, data_extend):
         """Run each variant"""
         if isinstance(self.Y, Term) and isinstance(self.X, Term):
             yvar, xvar = (
@@ -314,8 +315,11 @@ class Formula:
                 xvar = xvar * leny
             if leny == 1:
                 yvar = yvar * lenx
-            for i, rvar in enumerate(xvar):
-                datafile.write("{}\t{}\n".format(yvar[i], rvar))
+
+            data_extend((
+                (yvar[i], rvar)
+                for i, rvar in enumerate(xvar)
+            ))
         elif isinstance(self.Y, Aggr) and isinstance(self.X, Aggr):
             self.Y.run(variant, self.passed)
             self.X.run(variant, self.passed)
@@ -327,21 +331,21 @@ class Formula:
                 + "If you want to do that, transpose it to 'AGGREGATION ~ TERM'"
             )
 
-    def done(self, datafile):
+    def done(self, data_append, data_extend):
         """Done iteration, start summarizing"""
         if isinstance(self.Y, Aggr):
             if isinstance(self.X, Term):
                 for key, value in self.Y.dump().items():
                     if isinstance(value, list):
-                        for val, grup in value:
-                            datafile.write(
-                                "{}\t{}\t{}\n".format(val, key, grup)
-                            )
+                        data_extend((
+                            (val, key, grup)
+                            for val, grup in value
+                        ))
                     else:
-                        datafile.write("{}\t{}\n".format(value, key))
+                        data_append((value, key))
             else:
                 xdump = self.X.dump()
-                for key, value in self.Y.dump().items():
-                    datafile.write(
-                        "{}\t{}\t{}\n".format(value, xdump.get(key, "NA"), key)
-                    )
+                data_extend(
+                    (value, xdump.get(key, numpy.nan), key)
+                    for key, value in self.Y.dump.items()
+                )

@@ -148,7 +148,20 @@ disable=print-statement,
         cyclic-import,
         too-few-public-methods,
         unbalanced-tuple-unpacking,
-        no-self-use
+        no-self-use,
+        too-few-public-methods,
+        protected-access,
+        too-many-instance-attributes,
+        too-many-arguments,
+        too-many-return-statements,
+        too-many-locals,
+        not-callable,
+        unsubscriptable-object,
+        unused-arguments,
+        fixme,
+        consider-using-dict-items,
+        unexpected-keyword-arg,
+        C0330
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -217,7 +230,7 @@ ignore-docstrings=yes
 ignore-imports=yes
 
 # Minimum lines number of a similarity.
-min-similarity-lines=4
+min-similarity-lines=10
 
 
 [SPELLING]
@@ -297,13 +310,22 @@ function-naming-style=snake_case
 #function-rgx=
 
 # Good variable names which should always be accepted, separated by a comma.
-good-names=i,
+good-names=a,
+           b,
+           c,
+           i,
            j,
            k,
+           n,
            x,
            y,
            z,
+           fn,
+           df,
+           pd,
+           sd,
            np,
+           gc,
            nn,
            ns,
            t,
@@ -315,7 +337,9 @@ good-names=i,
            do,
            by,
            tf,
+           on,
            op,
+           wt,
            Run,
            _
 
@@ -446,7 +470,7 @@ indent-string='    '
 max-line-length=80
 
 # Maximum number of lines in a module.
-max-module-lines=1000
+max-module-lines=1500
 
 # List of optional constructs for which whitespace checking is disabled. `dict-
 # separator` is used to allow tabulation in dicts, etc.: {1  : 1,\n222: 2}.

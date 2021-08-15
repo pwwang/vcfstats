@@ -1,9 +1,12 @@
 """Utilities for vcfstats"""
 import logging
+from contextlib import contextmanager
 from os.path import commonprefix
 from pathlib import Path
-from rich.logging import RichHandler
+import py
+
 from pyparam import defaults
+from rich.logging import RichHandler
 
 defaults.HELP_OPTION_WIDTH = 28
 
@@ -42,3 +45,19 @@ def parse_subsets(subsets: list):
 logger = logging.getLogger(VCFSTATS_LOGGER_NAME)
 logger.setLevel(logging.INFO)
 logger.addHandler(RichHandler(show_time=True, show_path=False))
+
+@contextmanager
+def capture_cyvcf2_msg(stdout_level='info', stderr_level='warning'):
+    """Capture stdout/err from cyvcf2, which is c-level outputs that
+    cannot be captured by redirect_stdout/err"""
+    stdout_log = getattr(logger, stdout_level)
+    stderr_log = getattr(logger, stderr_level)
+    capture = py.io.StdCaptureFD(out=False, in_=False)
+    yield
+    out, err = capture.reset()
+    outs = out.rstrip().splitlines()
+    errs = err.rstrip().splitlines()
+    for out in outs:
+        stdout_log("[cyvcf2] %s", out)
+    for err in errs:
+        stderr_log("[cyvcf2] %s", err)

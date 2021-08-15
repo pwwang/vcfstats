@@ -2,15 +2,19 @@
 import sys
 import logging
 from os import path
+from io import StringIO
+from contextlib import redirect_stderr, redirect_stdout
 from functools import partial
 from itertools import chain
+
+import py
 from simpleconf import Config
 from rich.console import Console
 from rich.table import Table
 from cyvcf2 import VCF
 from pyparam import Params
 from .instance import Instance  # pylint:disable=wrong-import-position
-from .utils import logger, MACROS, HERE
+from .utils import capture_cyvcf2_msg, logger, MACROS, HERE
 
 
 def _check_len_callback(value, allvalues, name):
@@ -40,18 +44,19 @@ def get_vcf_by_regions(vcffile, regions):
     """Compile all the regions provided by use together,
     and return a chained iterator."""
     logger.info("Getting vcf handler by given regions ...")
-    vcf = VCF(str(vcffile), gts012=True)
-    samples = vcf.samples
-    if regions:
-        if len(regions) == 1:
-            vcf = vcf(regions[0])
-        else:
-            vcf2 = chain(vcf(regions[0]), vcf(regions[1]))
-            for region in regions[2:]:
-                vcf2 = chain(vcf2, vcf(region))
-            vcf = vcf2
-    return vcf, samples
+    with capture_cyvcf2_msg():
+        vcf = VCF(str(vcffile), gts012=True)
+        samples = vcf.samples
+        if regions:
+            if len(regions) == 1:
+                vcf = vcf(regions[0])
+            else:
+                vcf2 = chain(vcf(regions[0]), vcf(regions[1]))
+                for region in regions[2:]:
+                    vcf2 = chain(vcf2, vcf(region))
+                vcf = vcf2
 
+    return vcf, samples
 
 def combine_regions(regions, regfile):
     """Combine all the regions.
@@ -181,12 +186,13 @@ def main():
     )
     ones = get_ones(opts, samples)
     logger.info("Start reading variants ...")
-    for i, variant in enumerate(vcf):
-        for instance in ones:
-            # save entries, cache aggr
-            instance.iterate(variant)
-        if i % 10000 == 0:  # pragma: no cover
-            logger.debug("- %s variants read.", i)
+    with capture_cyvcf2_msg():
+        for i, variant in enumerate(vcf):
+            for instance in ones:
+                # save entries, cache aggr
+                instance.iterate(variant)
+            if i % 10000 == 0:  # pragma: no cover
+                logger.debug("- %s variants read.", i)
     logger.info(
         "%s variants read.", i
     )  # pylint: disable=undefined-loop-variable

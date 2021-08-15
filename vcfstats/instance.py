@@ -1,16 +1,35 @@
 """Handling one plot/instance"""
 from os import path
-import string
-import cmdy
+
+import pandas
+import plotnine as p9
+import plotnine_prism as p9p
+from datar.base import (
+    as_character,
+    cumsum,
+    factor,
+    levels,
+    make_unique,
+    paste0,
+    rev,
+    round_,
+    sum_,
+    unique,
+)
+from diot import Diot
+from slugify import slugify
+
+from .formula import Aggr, Formula, Term
 from .utils import logger
-from .formula import Formula, Term, Aggr
 
-
-def title_to_valid_path(
-    title, allowed="_-.()" + string.ascii_letters + string.digits
-):
-    """Convert a title to a valid file path"""
-    return "".join(c if c in allowed else "_" for c in title)
+GGS_ENV = {
+    **{attr: getattr(p9, attr) for attr in dir(p9) if not attr.startswith("_")},
+    **{
+        attr: getattr(p9p, attr)
+        for attr in dir(p9p)
+        if not attr.startswith("_")
+    },
+}
 
 
 def get_plot_type(formula, figtype):
@@ -114,155 +133,146 @@ class Instance:
         logger.info("INSTANCE: %r", title)
         self.title = title
         self.formula = Formula(formula, samples, passed, title)
-        self.outprefix = path.join(outdir, title_to_valid_path(title))
+        self.outprefix = path.join(outdir, slugify(title))
         self.devpars = devpars
         self.ggs = ggs
-        self.datafile = open(self.outprefix + ".txt", "w")
+        self.data = []
+        self.datacols = [self.formula.Y.name, self.formula.X.name]
         if isinstance(self.formula.Y, Aggr) and (
             (isinstance(self.formula.X, Term) and self.formula.Y.xgroup)
             or isinstance(self.formula.X, Aggr)
         ):
-            self.datafile.write(
-                "{}\t{}\tGroup\n".format(
-                    self.formula.Y.name, self.formula.X.name
-                )
-            )
-        else:
-            self.datafile.write(
-                "{}\t{}\n".format(self.formula.Y.name, self.formula.X.name)
-            )
+            self.datacols.append("Group")
         self.figtype = get_plot_type(self.formula, figtype)
         logger.info("[%s] plot type: %s", self.title, self.figtype)
         logger.debug("[%s] ggs: %s", self.title, self.ggs)
         logger.debug("[%s] devpars: %s", self.title, self.devpars)
 
     def __del__(self):
-        try:
-            if self.datafile:
-                self.datafile.close()
-        except Exception:
-            pass
+        del self.data
 
     def iterate(self, variant):
         """Iterate over each variant"""
         # Y
-        self.formula.run(variant, self.datafile)
+        self.formula.run(variant, self.data.append, self.data.extend)
 
     def summarize(self):
         """Calculate the aggregations"""
         logger.info("[%s] Summarizing aggregations ...", self.title)
-        self.formula.done(self.datafile)
-        self.datafile.close()
+        self.formula.done(self.data.append, self.data.extend)
 
     def plot(self, Rscript):  # pylint: disable=invalid-name
         """Plot the figures using R"""
-        logger.info("[%s] Composing R code ...", self.title)
-        rcode = """
-            require('ggplot2')
-            set.seed(8525)
-            figtype = {figtype!r}
+        df = pandas.DataFrame(  # pylint: disable=invalid-name
+            self.data,
+            columns=self.datacols,
+        )
+        df.columns = make_unique(df.columns.tolist())
+        aes_for_geom_fill = None
+        aes_for_geom_color = None
+        if df.shape[1] > 2:
+            aes_for_geom_fill = p9.aes(fill=df.columns[2])
+            aes_for_geom_color = p9.aes(color=df.columns[2])
+        plt = p9.ggplot(df, p9.aes(y=df.columns[0], x=df.columns[1]))
+        if self.figtype == "scatter":
+            plt = plt + p9.geom_point(aes_for_geom_color)
+        elif self.figtype == "line":
+            pass
+        elif self.figtype == "bar":
+            plt = plt + p9.geom_bar(p9.aes(fill=df.columns[0])) + p9.theme(
+                axis_text_x=p9.element_text(angle=60, hjust=1)
+            )
+        elif self.figtype == "col":
+            plt = plt + p9.geom_col(aes_for_geom_fill) + p9.theme(
+                axis_text_x=p9.element_text(angle=60, hjust=1)
+            )
+        elif self.figtype == "pie":
+            col0 = df.iloc[:, 0]
+            if df.shape[1] > 2:
+                plt = plt + p9.geom_label(
+                    aes_for_geom_fill,
+                    y=cumsum(col0) - col0 / 2.0,
+                    label=paste0(round_(100 * col0 / sum_(col0), 1), "%"),
+                    show_legend=False,
+                    position=p9.position_adjust_text(),
+                )
+            else:
+                col0 = factor(col0, levels=rev(unique(as_character(col0))))
+                fills = rev(levels(col0))
+                sums = map(lambda x: sum(col0 == x), fills)
+                plt = (
+                    p9.ggplot(df, p9.aes(x=df.columns[1]))
+                    + p9.geom_bar(p9.aes(fill=df.columns[0]))
+                    + p9.geom_label(
+                        x=1,
+                        y=cumsum(sums) - sums / 2,
+                        label=paste0(round(sums / sum(sums) * 100, 1), "%"),
+                        show_legend=False,
+                    )
+                    + p9.theme(
+                        axis_title_x=p9.element_blank(),
+                        axis_title_y=p9.element_blank(),
+                        axis_text_y=p9.element_blank(),
+                    )
+                )
+        elif self.figtype == "violin":
+            plt = p9.geom_violin(aes_for_geom_fill) + p9.theme(
+                axis_text_x=p9.element_text(angle=60, hjust=1)
+            )
+        elif self.figtype == "boxplot":
+            plt = p9.geom_boxplot(aes_for_geom_fill) + p9.theme(
+                axis_text_x=p9.element_text(angle=60, hjust=1)
+            )
+        elif self.figtype in ("histogram", "density"):
+            col1 = factor(df.iloc[:, 1])
+            plt = p9.ggplot(df, p9.aes(x=df.columns[0]))
+            geom = getattr(p9, f"geom_{self.figtype}")
+            if df.columns[1] != "1":
+                plt = plt + geom(p9.aes(color=df.columns[1]), alpha=0.6)
+            else:
+                plt = plt + geom(alpha=0.6)
+        elif self.figtype == "freqpoly":
+            col1 = factor(df.iloc[:, 1])
+            plt = p9.ggplot(df, p9.aes(x=df.columns[0]))
+            if df.columns[1] != "1":
+                plt = plt + p9.geom_freqpoly(p9.aes(color=df.columns[1]))
+            else:
+                plt = plt + p9.geom_freqpoly()
+        else:
+            raise ValueError(f"Unknown figure type: {self.figtype}")
 
-            plotdata = read.table(	paste0({outprefix!r}, '.txt'),
-                                    header = TRUE, row.names = NULL, check.names = FALSE, sep = "\t")
-            cnames = make.unique(colnames(plotdata))
-            colnames(plotdata) = cnames
+        plt = plt + p9.ggtitle(self.title)
+        self.save_plot(plt)
 
-            bQuote = function(s) paste0('`', s, '`')
+    def save_plot(self, plt):
+        ggs = []
+        has_theme = False
+        for i, gg in enumerate(ggs):
+            ggcode = compile(
+                f"__gg__ = {gg}", f"<vcfstats-ggs-{i}>", mode="exec"
+            )
+            try:
+                # pylint: disable=exec-used
+                exec(ggcode, GGS_ENV)
+            except Exception as exc:
+                raise ValueError(f"Invalid ggs expression: {gg}") from exc
+            ggs.append(GGS_ENV.pop("__gg__"))
+            if gg.startswith("theme_"):
+                has_theme = True
+        if not has_theme:
+            plt += p9p.theme_prism(base_size=12)
 
-            png(paste0({outprefix!r}, '.', figtype, '.png'),
-                height = {devpars[height]}, width = {devpars[width]}, res = {devpars[res]})
-            if (length(cnames) > 2) {{
-                aes_for_geom = aes_string(fill = bQuote(cnames[3]))
-                aes_for_geom_color = aes_string(color = bQuote(cnames[3]))
-                plotdata[,3] = factor(plotdata[,3], levels = rev(unique(as.character(plotdata[,3]))))
-            }} else {{
-                aes_for_geom = NULL
-                aes_for_geom_color = NULL
-            }}
-            p = ggplot(plotdata, aes_string(y = bQuote(cnames[1]), x = bQuote(cnames[2])))
-            xticks = theme(axis.text.x = element_text(angle = 60, hjust = 1))
-            if (figtype == 'scatter') {{
-                p = p + geom_point(aes_for_geom_color)
-            # }} else if (figtype == 'line') {{
-            # 	p = p + geom_line(aes_for_geom)
-            }} else if (figtype == 'bar') {{
-                p = ggplot(plotdata, aes_string(x = bQuote(cnames[2])))
-                p = p + geom_bar(aes_string(fill = bQuote(cnames[1]))) + xticks
-            }} else if (figtype == 'col') {{
-                p = p + geom_col(aes_for_geom) + xticks
-            }} else if (figtype == 'pie') {{
-                library(ggrepel)
-                if (length(cnames) > 2) {{
-                    p = p + geom_col(aes_for_geom) + coord_polar("y", start=0) +
-                        geom_label_repel(
-                            aes_for_geom,
-                            y = cumsum(plotdata[,1]) - plotdata[,1]/2,
-                            label = paste0(unlist(round(plotdata[,1]/sum(plotdata[,1])*100,1)), '%'),
-                            show.legend = FALSE)
-                }} else {{
-                    plotdata[,1] = factor(plotdata[,1], levels = rev(unique(as.character(plotdata[,1]))))
-                    fills = rev(levels(plotdata[,1]))
-                    sums  = sapply(fills, function(f) sum(plotdata[,1] == f))
-                    p = ggplot(plotdata, aes_string(x = bQuote(cnames[2]))) +
-                        geom_bar(aes_string(fill = bQuote(cnames[1]))) + coord_polar("y", start=0) +
-                        geom_label_repel(
-                            inherit.aes = FALSE,
-                            data = data.frame(sums, fills),
-                            x = 1,
-                            y = cumsum(sums) - sums/2,
-                            label = paste0(unlist(round(sums/sum(sums)*100,1)), '%'),
-                            show.legend = FALSE)
-                }}
-                p = p + theme_minimal() + theme(axis.title.x = element_blank(),
-                    axis.title.y = element_blank(),
-                    axis.text.y =element_blank())
-            }} else if (figtype == 'violin') {{
-                p = p + geom_violin(aes_for_geom) + xticks
-            }} else if (figtype == 'boxplot') {{
-                p = p + geom_boxplot(aes_for_geom) + xticks
-            }} else if (figtype == 'histogram' || figtype == 'density') {{
-                plotdata[,2] = as.factor(plotdata[,2])
-                p = ggplot(plotdata, aes_string(x = bQuote(cnames[1])))
-                params = list(alpha = .6)
-                if (cnames[2] != '1') {{
-                    params$mapping = aes_string(fill = bQuote(cnames[2]))
-                }}
-                p = p + do.call(paste0("geom_", figtype), params)
-            }} else if (figtype == 'freqpoly') {{
-                plotdata[,2] = as.factor(plotdata[,2])
-                p = ggplot(plotdata, aes_string(x = bQuote(cnames[1])))
-                if (cnames[2] != '1') {{
-                    params$mapping = aes_string(color = bQuote(cnames[2]))
-                }}
-                p = p + do.call(paste0("geom_", figtype), params)
-            }} else {{
-                stop(paste('Unknown plot type:', figtype))
-            }}
-            {extrggs}
-            print(p)
-            dev.off()
-        """.format(
-            figtype=self.figtype,
-            outprefix=self.outprefix,
-            devpars=self.devpars,
-            extrggs=("p = p + " + self.ggs) if self.ggs else "",
+        devpars = (
+            Diot(height=1000, width=1000, res=100, format="png") | self.devpars
         )
-        with open(self.outprefix + ".plot.R", "w") as fout:
-            fout.write(rcode)
-        logger.info("[%s] Running R code to plot ...", self.title)
-        logger.info(
-            "[%s] Data will be saved to: %s",
-            self.title,
-            self.outprefix + ".txt",
+        devpars.height /= devpars.res
+        devpars.width /= devpars.res
+        figfile = f"{self.outprefix}.{self.figtype}.{devpars.format}"
+        plt.save(
+            filename=figfile,
+            verbose=False,
+            width=devpars.width,
+            height=devpars.height,
+            dpi=devpars.res,
         )
-        logger.info(
-            "[%s] Plot will be saved to: %s",
-            self.title,
-            self.outprefix + "." + self.figtype + ".png",
-        )
-        cmd = cmdy.Rscript(
-            self.outprefix + ".plot.R", _exe=Rscript, _raise=False
-        )
-        if cmd.rc != 0:
-            for line in cmd.stderr.splitlines():
-                logger.error("[%s] %s", self.title, line)
+        logger.info("[%s] plot saved to: %s", self.title, figfile)
