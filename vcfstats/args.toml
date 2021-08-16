@@ -37,6 +37,11 @@ aliases = ['l']
 default = false
 desc = 'List all available macros.'
 
+[params.savedata]
+aliases = ['s']
+default = false
+desc = 'Whether save the plotting data for further exploration.'
+
 [params.formula]
 aliases = ['f']
 required = true

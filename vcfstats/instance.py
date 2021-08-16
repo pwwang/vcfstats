@@ -128,6 +128,7 @@ class Instance:
         samples,
         figtype,
         passed,
+        savedata,
     ):
 
         logger.info(
@@ -141,6 +142,7 @@ class Instance:
         self.devpars = devpars
         self.ggs = ggs or ""
         self.data = []
+        self.savedata = savedata
         self.datacols = [self.formula.Y.name, self.formula.X.name]
         if isinstance(self.formula.Y, Aggr) and (
             (isinstance(self.formula.X, Term) and self.formula.Y.xgroup)
@@ -192,6 +194,16 @@ class Instance:
         )
         with capture_c_msg("datar", prefix=f"[r]{self.title}[/r]: "):
             df.columns = make_unique(df.columns.tolist())
+
+        if self.savedata:
+            datafile = self.outprefix + ".csv"
+            logger.info(
+                "[r]%s[/r]: Saving data to: %r",
+                self.title,
+                datafile,
+                extra={"markup": True},
+            )
+            df.to_csv(datafile, index=False)
 
         aes_for_geom_fill = None
         aes_for_geom_color = None

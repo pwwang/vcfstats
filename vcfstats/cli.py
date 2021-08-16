@@ -96,6 +96,7 @@ def get_ones(opts, samples):
                 samples,
                 figtype,
                 opts["passed"],
+                opts["savedata"],
             )
         )
     return ret
