@@ -1,20 +1,18 @@
 """Powerful VCF statistics"""
-import sys
 import logging
-from os import path
-from io import StringIO
-from contextlib import redirect_stderr, redirect_stdout
+import sys
 from functools import partial
 from itertools import chain
+from os import path
 
-import py
-from simpleconf import Config
-from rich.console import Console
-from rich.table import Table
 from cyvcf2 import VCF
 from pyparam import Params
+from rich.console import Console
+from rich.table import Table
+from simpleconf import Config
+
 from .instance import Instance  # pylint:disable=wrong-import-position
-from .utils import capture_cyvcf2_msg, logger, MACROS, HERE
+from .utils import HERE, MACROS, capture_c_msg, logger
 
 
 def _check_len_callback(value, allvalues, name):
@@ -44,7 +42,7 @@ def get_vcf_by_regions(vcffile, regions):
     """Compile all the regions provided by use together,
     and return a chained iterator."""
     logger.info("Getting vcf handler by given regions ...")
-    with capture_cyvcf2_msg():
+    with capture_c_msg("cyvcf2"):
         vcf = VCF(str(vcffile), gts012=True)
         samples = vcf.samples
         if regions:
@@ -57,6 +55,7 @@ def get_vcf_by_regions(vcffile, regions):
                 vcf = vcf2
 
     return vcf, samples
+
 
 def combine_regions(regions, regfile):
     """Combine all the regions.
@@ -153,7 +152,9 @@ def load_config(config, opts):
         opts["devpars"] = [opts["devpars"]] * len_fml
     for instance in ones:
         if "formula" not in instance:
-            raise ValueError("Formula not found in instance: {}".format(instance))
+            raise ValueError(
+                "Formula not found in instance: {}".format(instance)
+            )
         if "title" not in instance:
             raise ValueError("Title not found in instance: {}".format(instance))
         opts["formula"].append(instance["formula"])
@@ -186,7 +187,7 @@ def main():
     )
     ones = get_ones(opts, samples)
     logger.info("Start reading variants ...")
-    with capture_cyvcf2_msg():
+    with capture_c_msg("cyvcf2"):
         for i, variant in enumerate(vcf):
             for instance in ones:
                 # save entries, cache aggr
@@ -199,4 +200,4 @@ def main():
     for i, instance in enumerate(ones):
         # save aggr
         instance.summarize()
-        instance.plot(opts["Rscript"])
+        instance.plot()

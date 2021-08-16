@@ -20,7 +20,7 @@ from diot import Diot
 from slugify import slugify
 
 from .formula import Aggr, Formula, Term
-from .utils import logger
+from .utils import capture_c_msg, capture_python_msg, logger
 
 GGS_ENV = {
     **{attr: getattr(p9, attr) for attr in dir(p9) if not attr.startswith("_")},
@@ -130,12 +130,16 @@ class Instance:
         passed,
     ):
 
-        logger.info("INSTANCE: %r", title)
+        logger.info(
+            "[r]INSTANCE[/r]: %r",
+            title,
+            extra={"markup": True},
+        )
         self.title = title
         self.formula = Formula(formula, samples, passed, title)
         self.outprefix = path.join(outdir, slugify(title))
         self.devpars = devpars
-        self.ggs = ggs
+        self.ggs = ggs or ""
         self.data = []
         self.datacols = [self.formula.Y.name, self.formula.X.name]
         if isinstance(self.formula.Y, Aggr) and (
@@ -144,9 +148,24 @@ class Instance:
         ):
             self.datacols.append("Group")
         self.figtype = get_plot_type(self.formula, figtype)
-        logger.info("[%s] plot type: %s", self.title, self.figtype)
-        logger.debug("[%s] ggs: %s", self.title, self.ggs)
-        logger.debug("[%s] devpars: %s", self.title, self.devpars)
+        logger.info(
+            "[r]%s[/r]: plot type: %s",
+            self.title,
+            self.figtype,
+            extra={"markup": True},
+        )
+        logger.debug(
+            "[r]%s[/r]: ggs: %s",
+            self.title,
+            self.ggs,
+            extra={"markup": True},
+        )
+        logger.debug(
+            "[r]%s[/r]: devpars: %s",
+            self.title,
+            self.devpars,
+            extra={"markup": True},
+        )
 
     def __del__(self):
         del self.data
@@ -158,34 +177,41 @@ class Instance:
 
     def summarize(self):
         """Calculate the aggregations"""
-        logger.info("[%s] Summarizing aggregations ...", self.title)
+        logger.info(
+            "[r]%s[/r]: Summarizing aggregations ...",
+            self.title,
+            extra={"markup": True},
+        )
         self.formula.done(self.data.append, self.data.extend)
 
-    def plot(self, Rscript):  # pylint: disable=invalid-name
+    def plot(self):  # pylint: disable=invalid-name
         """Plot the figures using R"""
         df = pandas.DataFrame(  # pylint: disable=invalid-name
             self.data,
             columns=self.datacols,
         )
-        df.columns = make_unique(df.columns.tolist())
+        with capture_c_msg("datar", prefix=f"[r]{self.title}[/r]: "):
+            df.columns = make_unique(df.columns.tolist())
+
         aes_for_geom_fill = None
         aes_for_geom_color = None
+        theme_elems = p9.theme(
+
+            axis_text_x=p9.element_text(angle=60, hjust=2)
+        )
         if df.shape[1] > 2:
             aes_for_geom_fill = p9.aes(fill=df.columns[2])
             aes_for_geom_color = p9.aes(color=df.columns[2])
         plt = p9.ggplot(df, p9.aes(y=df.columns[0], x=df.columns[1]))
         if self.figtype == "scatter":
             plt = plt + p9.geom_point(aes_for_geom_color)
+            theme_elems = None
         elif self.figtype == "line":
             pass
         elif self.figtype == "bar":
-            plt = plt + p9.geom_bar(p9.aes(fill=df.columns[0])) + p9.theme(
-                axis_text_x=p9.element_text(angle=60, hjust=1)
-            )
+            plt = plt + p9.geom_bar(p9.aes(fill=df.columns[0]))
         elif self.figtype == "col":
-            plt = plt + p9.geom_col(aes_for_geom_fill) + p9.theme(
-                axis_text_x=p9.element_text(angle=60, hjust=1)
-            )
+            plt = plt + p9.geom_col(aes_for_geom_fill)
         elif self.figtype == "pie":
             col0 = df.iloc[:, 0]
             if df.shape[1] > 2:
@@ -194,7 +220,7 @@ class Instance:
                     y=cumsum(col0) - col0 / 2.0,
                     label=paste0(round_(100 * col0 / sum_(col0), 1), "%"),
                     show_legend=False,
-                    position=p9.position_adjust_text(),
+                    # position=p9.position_adjust_text(),
                 )
             else:
                 col0 = factor(col0, levels=rev(unique(as_character(col0))))
@@ -209,45 +235,43 @@ class Instance:
                         label=paste0(round(sums / sum(sums) * 100, 1), "%"),
                         show_legend=False,
                     )
-                    + p9.theme(
-                        axis_title_x=p9.element_blank(),
-                        axis_title_y=p9.element_blank(),
-                        axis_text_y=p9.element_blank(),
-                    )
+                )
+                theme_elems = p9.theme(
+                    axis_title_x=p9.element_blank(),
+                    axis_title_y=p9.element_blank(),
+                    axis_text_y=p9.element_blank(),
                 )
         elif self.figtype == "violin":
-            plt = p9.geom_violin(aes_for_geom_fill) + p9.theme(
-                axis_text_x=p9.element_text(angle=60, hjust=1)
-            )
+            plt = plt + p9.geom_violin(aes_for_geom_fill)
         elif self.figtype == "boxplot":
-            plt = p9.geom_boxplot(aes_for_geom_fill) + p9.theme(
-                axis_text_x=p9.element_text(angle=60, hjust=1)
-            )
+            plt = plt + p9.geom_boxplot(aes_for_geom_fill)
         elif self.figtype in ("histogram", "density"):
-            col1 = factor(df.iloc[:, 1])
             plt = p9.ggplot(df, p9.aes(x=df.columns[0]))
             geom = getattr(p9, f"geom_{self.figtype}")
             if df.columns[1] != "1":
-                plt = plt + geom(p9.aes(color=df.columns[1]), alpha=0.6)
+                plt = plt + geom(p9.aes(fill=df.columns[1]), alpha=0.6)
             else:
                 plt = plt + geom(alpha=0.6)
+            theme_elems = None
         elif self.figtype == "freqpoly":
-            col1 = factor(df.iloc[:, 1])
             plt = p9.ggplot(df, p9.aes(x=df.columns[0]))
             if df.columns[1] != "1":
-                plt = plt + p9.geom_freqpoly(p9.aes(color=df.columns[1]))
+                plt = plt + p9.geom_freqpoly(p9.aes(fill=df.columns[1]))
             else:
                 plt = plt + p9.geom_freqpoly()
+            theme_elems = None
         else:
             raise ValueError(f"Unknown figure type: {self.figtype}")
 
         plt = plt + p9.ggtitle(self.title)
-        self.save_plot(plt)
+        self.save_plot(plt, theme_elems)
 
-    def save_plot(self, plt):
-        ggs = []
+    def save_plot(self, plt, theme_elems):
         has_theme = False
-        for i, gg in enumerate(ggs):
+        for i, gg in enumerate(self.ggs.split(";")):
+            gg = gg.strip()
+            if not gg:
+                continue
             ggcode = compile(
                 f"__gg__ = {gg}", f"<vcfstats-ggs-{i}>", mode="exec"
             )
@@ -256,11 +280,14 @@ class Instance:
                 exec(ggcode, GGS_ENV)
             except Exception as exc:
                 raise ValueError(f"Invalid ggs expression: {gg}") from exc
-            ggs.append(GGS_ENV.pop("__gg__"))
+            ggexpr = GGS_ENV.pop("__gg__")
+            plt = plt + ggexpr
             if gg.startswith("theme_"):
                 has_theme = True
+
         if not has_theme:
-            plt += p9p.theme_prism(base_size=12)
+            plt = plt + p9p.theme_prism(base_size=12)
+        plt = plt + theme_elems
 
         devpars = (
             Diot(height=1000, width=1000, res=100, format="png") | self.devpars
@@ -268,11 +295,17 @@ class Instance:
         devpars.height /= devpars.res
         devpars.width /= devpars.res
         figfile = f"{self.outprefix}.{self.figtype}.{devpars.format}"
-        plt.save(
-            filename=figfile,
-            verbose=False,
-            width=devpars.width,
-            height=devpars.height,
-            dpi=devpars.res,
+        with capture_python_msg("plotnine", prefix=f"[r]{self.title}[/r]: "):
+            plt.save(
+                filename=figfile,
+                verbose=False,
+                width=devpars.width,
+                height=devpars.height,
+                dpi=devpars.res,
+            )
+        logger.info(
+            "[r]%s[/r]: plot saved to: %s",
+            self.title,
+            figfile,
+            extra={"markup": True},
         )
-        logger.info("[%s] plot saved to: %s", self.title, figfile)

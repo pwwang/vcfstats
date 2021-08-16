@@ -1,6 +1,7 @@
 """Utilities for vcfstats"""
+from io import StringIO
 import logging
-from contextlib import contextmanager
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from os.path import commonprefix
 from pathlib import Path
 import py
@@ -44,10 +45,13 @@ def parse_subsets(subsets: list):
 # pylint: disable=invalid-name
 logger = logging.getLogger(VCFSTATS_LOGGER_NAME)
 logger.setLevel(logging.INFO)
-logger.addHandler(RichHandler(show_time=True, show_path=False))
+logger.addHandler(
+    RichHandler(show_time=True, show_path=False)  # , omit_repeated_times=False)
+)
+
 
 @contextmanager
-def capture_cyvcf2_msg(stdout_level='info', stderr_level='warning'):
+def capture_c_msg(name, stdout_level="info", stderr_level="warning", prefix=""):
     """Capture stdout/err from cyvcf2, which is c-level outputs that
     cannot be captured by redirect_stdout/err"""
     stdout_log = getattr(logger, stdout_level)
@@ -58,6 +62,52 @@ def capture_cyvcf2_msg(stdout_level='info', stderr_level='warning'):
     outs = out.rstrip().splitlines()
     errs = err.rstrip().splitlines()
     for out in outs:
-        stdout_log("[cyvcf2] %s", out)
+        stdout_log(
+            "%s(%s) [dim]%s[/dim]",
+            prefix,
+            name,
+            out,
+            extra={"markup": True},
+        )
     for err in errs:
-        stderr_log("[cyvcf2] %s", err)
+        stderr_log(
+            "%s(%s) [dim]%s[/dim]",
+            prefix,
+            name,
+            err,
+            extra={"markup": True},
+        )
+
+
+@contextmanager
+def capture_python_msg(
+    name,
+    stdout_level="info",
+    stderr_level="warning",
+    prefix="",
+):
+    outio = StringIO()
+    errio = StringIO()
+    stdout_log = getattr(logger, stdout_level)
+    stderr_log = getattr(logger, stderr_level)
+    with redirect_stdout(outio), redirect_stderr(errio):
+        yield
+
+    outs = outio.getvalue().rstrip().splitlines()
+    errs = errio.getvalue().rstrip().splitlines()
+    for out in outs:
+        stdout_log(
+            "%s(%s) [dim]%s[/dim]",
+            prefix,
+            name,
+            out,
+            extra={"markup": True},
+        )
+    for err in errs:
+        stderr_log(
+            "%s(%s) [dim]%s[/dim]",
+            prefix,
+            name,
+            err,
+            extra={"markup": True},
+        )

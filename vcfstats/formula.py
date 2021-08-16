@@ -264,7 +264,11 @@ class Formula:
     """Handling the formulas"""
 
     def __init__(self, formula, samples, passed, title):
-        logger.info("[%s] Parsing formulas ...", title)
+        logger.info(
+            "[r]%s[/r]: Parsing formulas ...",
+            title,
+            extra={"markup": True},
+        )
 
         self.Y, self.X = PARSER.parse(formula)  # pylint: disable=invalid-name
         if isinstance(self.Y, Term):
@@ -316,10 +320,7 @@ class Formula:
             if leny == 1:
                 yvar = yvar * lenx
 
-            data_extend((
-                (yvar[i], rvar)
-                for i, rvar in enumerate(xvar)
-            ))
+            data_extend(((yvar[i], rvar) for i, rvar in enumerate(xvar)))
         elif isinstance(self.Y, Aggr) and isinstance(self.X, Aggr):
             self.Y.run(variant, self.passed)
             self.X.run(variant, self.passed)
@@ -337,10 +338,7 @@ class Formula:
             if isinstance(self.X, Term):
                 for key, value in self.Y.dump().items():
                     if isinstance(value, list):
-                        data_extend((
-                            (val, key, grup)
-                            for val, grup in value
-                        ))
+                        data_extend(((val, key, grup) for val, grup in value))
                     else:
                         data_append((value, key))
             else:

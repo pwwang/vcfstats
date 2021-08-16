@@ -13,10 +13,6 @@ aliases = ['o']
 required = true
 desc = 'The output directory.'
 
-[params.Rscript]
-default = 'Rscript'
-desc = 'Path to `Rscript` to run R code for plotting.'
-
 [params.figtype]
 default = []
 desc = 'Your preferences for types of plots for each formula.'
