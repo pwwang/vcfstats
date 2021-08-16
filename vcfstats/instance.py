@@ -82,7 +82,7 @@ def get_plot_type(formula, figtype):
             return figtype or "violin"
         raise TypeError(
             "Don't know how to plot CONTINUOUS ~ CATEGORICAL "
-            + "using plots other than violin/boxplot/histogram/density/freqpoly"
+            "using plots other than violin/boxplot/histogram/density/freqpoly"
         )
     if (
         formula.Y.term["type"] == "categorical"
@@ -93,7 +93,7 @@ def get_plot_type(formula, figtype):
                 return figtype or "pie"
         raise TypeError(
             "If you want to plot CATEGORICAL ~ CONTINUOUS, "
-            + "where CONTINUOUS is not 1, transpose CONTINUOUS ~ CATEGORICAL"
+            "where CONTINUOUS is not 1, transpose CONTINUOUS ~ CATEGORICAL"
         )
     if (
         formula.Y.term["type"] == "continuous"
@@ -104,7 +104,7 @@ def get_plot_type(formula, figtype):
                 return figtype or "histogram"
             raise TypeError(
                 "Don't know how to plot distribution "
-                + "using plots other than histogram/freqpoly/density"
+                "using plots other than histogram/freqpoly/density"
             )
         if figtype in ("", None, "scatter"):
             return figtype or "scatter"

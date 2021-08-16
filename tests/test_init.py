@@ -2,7 +2,7 @@ import pytest
 import cmdy
 from pathlib import Path
 from pyparam import Namespace
-from vcfstats.cli import get_vcf_by_regions, combine_regions, get_ones, Instance, list_macros, load_macrofile, load_config, main, MACROS
+from vcfstats.cli import get_vcf_by_regions, combine_regions, get_instances, Instance, list_macros, load_macrofile, load_config, main, MACROS
 
 HERE = Path(__file__).parent.resolve()
 
@@ -30,7 +30,7 @@ def test_combine_regions(tmp_path):
 	assert regions == ['1:10176-10251', '2:14900-15000','3:1-1000','4:2-2000']
 
 def test_get_ones(tmp_path):
-	ones = get_ones({
+	ones = get_instances({
 		'devpars': {'width':1000, 'height':1000, 'res': 100},
 		'formula': ['COUNT(1) ~ CHROM', 'AAF ~ CHROM'],
 		'title'  : ['title1', 'title2'],

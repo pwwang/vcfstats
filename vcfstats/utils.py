@@ -56,8 +56,12 @@ def capture_c_msg(name, stdout_level="info", stderr_level="warning", prefix=""):
     cannot be captured by redirect_stdout/err"""
     stdout_log = getattr(logger, stdout_level)
     stderr_log = getattr(logger, stderr_level)
+    g_exc = None
     capture = py.io.StdCaptureFD(out=False, in_=False)
-    yield
+    try:
+        yield
+    except Exception as exc:
+        g_exc = exc
     out, err = capture.reset()
     outs = out.rstrip().splitlines()
     errs = err.rstrip().splitlines()
@@ -77,6 +81,8 @@ def capture_c_msg(name, stdout_level="info", stderr_level="warning", prefix=""):
             err,
             extra={"markup": True},
         )
+    if g_exc:
+        raise g_exc
 
 
 @contextmanager

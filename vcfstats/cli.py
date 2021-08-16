@@ -75,7 +75,7 @@ def combine_regions(regions, regfile):
     return ret
 
 
-def get_ones(opts, samples):
+def get_instances(opts, samples):
     """Get instances/formulas. This will determine h
     ow many figures we are plotting"""
     logger.info("Getting instances ...")
@@ -186,7 +186,7 @@ def main():
     vcf, samples = get_vcf_by_regions(
         opts["vcf"], combine_regions(opts["region"], opts["Region"])
     )
-    ones = get_ones(opts, samples)
+    ones = get_instances(opts, samples)
     logger.info("Start reading variants ...")
     with capture_c_msg("cyvcf2"):
         for i, variant in enumerate(vcf):
