@@ -143,3 +143,4 @@ examples/*.txt
 
 .singularity
 vcfstats-out/
+docs/index.md
