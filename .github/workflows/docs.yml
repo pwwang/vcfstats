@@ -25,7 +25,7 @@ jobs:
           poetry run python -m pip install -r docs/requirements.txt
           cd docs
           cp ../README.md index.md
-          cp ../examples .
+          cp -r ../examples .
           cd ..
           poetry run mkdocs gh-deploy --clean --force
         if: success()
