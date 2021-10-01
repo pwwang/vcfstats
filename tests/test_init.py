@@ -21,7 +21,7 @@ HERE = Path(__file__).parent.resolve()
 
 @pytest.fixture
 def vcffile(tmp_path):
-    ovcf = HERE.parent.joinpath("docs", "examples", "sample.vcf")
+    ovcf = HERE.parent.joinpath("examples", "sample.vcf")
     nvcf = tmp_path.with_suffix(".vcf.gz")
     c = cmdy.bgzip(ovcf, c=True).r > nvcf
     cmdy.tabix(p="vcf", _=nvcf).fg
@@ -150,7 +150,7 @@ def DEMO(variant):
         outdir=tmp_path,
         formula="COUNT(1) ~ CONTIG",
         title="Variants on each chromosome",
-        config=HERE.parent.joinpath("docs", "examples", "config.toml"),
+        config=HERE.parent.joinpath("examples", "config.toml"),
         _raise=False,
     )
     print(cmd.stderr, cmd.strcmd)

@@ -1,4 +1,6 @@
 site_name: vcfstats
+repo_url: https://github.com/pwwang/vcfstats
+repo_name: pwwang/vcfstats
 theme:
     name: 'material'
     font:

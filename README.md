@@ -29,207 +29,207 @@ singularity run docker://justold/vcfstats:first vcfstats
 ### Number of variants on each chromosome
 
 ```shell
-vcfstats --vcf docs/examples/sample.vcf \
-	--outdir docs/examples/ \
+vcfstats --vcf examples/sample.vcf \
+	--outdir examples/ \
 	--formula 'COUNT(1) ~ CONTIG' \
 	--title 'Number of variants on each chromosome' \
-	--config docs/examples/config.toml
+	--config examples/config.toml
 ```
 
-![Number of variants on each chromosome](docs/examples/number-of-variants-on-each-chromosome.col.png)
+![Number of variants on each chromosome](examples/number-of-variants-on-each-chromosome.col.png)
 
 #### Changing labels and ticks
 
 `vcfstats` uses [`plotnine`][17] for plotting, read more about it on how to specify `--ggs` to modify the plots.
 
 ```shell
-vcfstats --vcf docs/examples/sample.vcf \
-	--outdir docs/examples/ \
+vcfstats --vcf examples/sample.vcf \
+	--outdir examples/ \
 	--formula 'COUNT(1) ~ CONTIG' \
 	--title 'Number of variants on each chromosome (modified)' \
-	--config docs/examples/config.toml \
+	--config examples/config.toml \
 	--ggs 'scale_x_discrete(name ="Chromosome", \
 		limits=["1","2","3","4","5","6","7","8","9","10","X"]); \
 		ylab("# Variants")'
 ```
 
-![Number of variants on each chromosome (modified)](docs/examples/number-of-variants-on-each-chromosome-modified.col.png)
+![Number of variants on each chromosome (modified)](examples/number-of-variants-on-each-chromosome-modified.col.png)
 
 #### Number of variants on first 5 chromosome
 
 ```shell
-vcfstats --vcf docs/examples/sample.vcf \
-	--outdir docs/examples/ \
+vcfstats --vcf examples/sample.vcf \
+	--outdir examples/ \
 	--formula 'COUNT(1) ~ CONTIG[1,2,3,4,5]' \
 	--title 'Number of variants on each chromosome (first 5)' \
-	--config docs/examples/config.toml
+	--config examples/config.toml
 # or
-vcfstats --vcf docs/examples/sample.vcf \
-	--outdir docs/examples/ \
+vcfstats --vcf examples/sample.vcf \
+	--outdir examples/ \
 	--formula 'COUNT(1) ~ CONTIG[1-5]' \
 	--title 'Number of variants on each chromosome (first 5)' \
-	--config docs/examples/config.toml
+	--config examples/config.toml
 # or
 # require vcf file to be tabix-indexed.
-vcfstats --vcf docs/examples/sample.vcf \
-	--outdir docs/examples/ \
+vcfstats --vcf examples/sample.vcf \
+	--outdir examples/ \
 	--formula 'COUNT(1) ~ CONTIG' \
 	--title 'Number of variants on each chromosome (first 5)' \
-	--config docs/examples/config.toml -r 1 2 3 4 5
+	--config examples/config.toml -r 1 2 3 4 5
 ```
 
-![Number of variants on each chromosome (first 5)](docs/examples/number-of-variants-on-each-chromosome-first-5.col.png)
+![Number of variants on each chromosome (first 5)](examples/number-of-variants-on-each-chromosome-first-5.col.png)
 
 ### Number of substitutions of SNPs
 ```shell
-vcfstats --vcf docs/examples/sample.vcf \
-	--outdir docs/examples/ \
+vcfstats --vcf examples/sample.vcf \
+	--outdir examples/ \
 	--formula 'COUNT(1, VARTYPE[snp]) ~ SUBST[A>T,A>G,A>C,T>A,T>G,T>C,G>A,G>T,G>C,C>A,C>T,C>G]' \
 	--title 'Number of substitutions of SNPs' \
-	--config docs/examples/config.toml
+	--config examples/config.toml
 ```
-![Number of substitutions of SNPs](docs/examples/number-of-substitutions-of-snps.col.png)
+![Number of substitutions of SNPs](examples/number-of-substitutions-of-snps.col.png)
 
 #### Only with SNPs PASS all filters
 
 ```shell
-vcfstats --vcf docs/examples/sample.vcf \
-	--outdir docs/examples/ \
+vcfstats --vcf examples/sample.vcf \
+	--outdir examples/ \
 	--formula 'COUNT(1, VARTYPE[snp]) ~ SUBST[A>T,A>G,A>C,T>A,T>G,T>C,G>A,G>T,G>C,C>A,C>T,C>G]' \
 	--title 'Number of substitutions of SNPs (passed)' \
-	--config docs/examples/config.toml \
+	--config examples/config.toml \
 	--passed
 ```
 
-![Number of substitutions of SNPs (passed)](docs/examples/number-of-substitutions-of-snps-passed.col.png)
+![Number of substitutions of SNPs (passed)](examples/number-of-substitutions-of-snps-passed.col.png)
 
 ### Alternative allele frequency on each chromosome
 ```shell
 # using a dark theme
-vcfstats --vcf docs/examples/sample.vcf \
-	--outdir docs/examples/ \
+vcfstats --vcf examples/sample.vcf \
+	--outdir examples/ \
 	--formula 'AAF ~ CONTIG' \
 	--title 'Allele frequency on each chromosome' \
-	--config docs/examples/config.toml --ggs 'theme_dark()'
+	--config examples/config.toml --ggs 'theme_dark()'
 ```
 
-![Allele frequency on each chromosome](docs/examples/allele-frequency-on-each-chromosome.violin.png)
+![Allele frequency on each chromosome](examples/allele-frequency-on-each-chromosome.violin.png)
 
 #### Using boxplot
 ```shell
-vcfstats --vcf docs/examples/sample.vcf \
-	--outdir docs/examples/ \
+vcfstats --vcf examples/sample.vcf \
+	--outdir examples/ \
 	--formula 'AAF ~ CONTIG' \
 	--title 'Allele frequency on each chromosome (boxplot)' \
-	--config docs/examples/config.toml \
+	--config examples/config.toml \
 	--figtype boxplot
 ```
 
-![Allele frequency on each chromosome](docs/examples/allele-frequency-on-each-chromosome.boxplot.png)
+![Allele frequency on each chromosome](examples/allele-frequency-on-each-chromosome.boxplot.png)
 
 #### Using density plot/histogram to investigate the distribution:
 You can plot the distribution, using density plot or histogram
 ```shell
-vcfstats --vcf docs/examples/sample.vcf \
-	--outdir docs/examples/ \
+vcfstats --vcf examples/sample.vcf \
+	--outdir examples/ \
 	--formula 'AAF ~ CONTIG[1,2]' \
 	--title 'Allele frequency on chromosome 1,2' \
-	--config docs/examples/config.toml \
+	--config examples/config.toml \
 	--figtype density
 ```
-![Allele frequency on chromosome 1,2](docs/examples/allele-frequency-on-chromosome-1-2.density.png)
+![Allele frequency on chromosome 1,2](examples/allele-frequency-on-chromosome-1-2.density.png)
 
 ### Overall distribution of allele frequency
 ```shell
-vcfstats --vcf docs/examples/sample.vcf \
-	--outdir docs/examples/ \
+vcfstats --vcf examples/sample.vcf \
+	--outdir examples/ \
 	--formula 'AAF ~ 1' \
 	--title 'Overall allele frequency distribution' \
-	--config docs/examples/config.toml
+	--config examples/config.toml
 ```
-![Overall allele frequency distribution](docs/examples/overall-allele-frequency-distribution.histogram.png)
+![Overall allele frequency distribution](examples/overall-allele-frequency-distribution.histogram.png)
 
 #### Excluding some low/high frequency variants
 ```shell
-vcfstats --vcf docs/examples/sample.vcf \
-	--outdir docs/examples/ \
+vcfstats --vcf examples/sample.vcf \
+	--outdir examples/ \
 	--formula 'AAF[0.05, 0.95] ~ 1' \
 	--title 'Overall allele frequency distribution (0.05-0.95)' \
-	--config docs/examples/config.toml
+	--config examples/config.toml
 ```
-![Overall allele frequency distribution](docs/examples/overall-allele-frequency-distribution-0-05-0-95.histogram.png)
+![Overall allele frequency distribution](examples/overall-allele-frequency-distribution-0-05-0-95.histogram.png)
 
 ### Counting types of variants on each chromosome
 ```shell
-vcfstats --vcf docs/examples/sample.vcf \
-	--outdir docs/examples/ \
+vcfstats --vcf examples/sample.vcf \
+	--outdir examples/ \
 	--formula 'COUNT(1, group=VARTYPE) ~ CHROM' \
 	# or simply
 	# --formula 'VARTYPE ~ CHROM' \
 	--title 'Types of variants on each chromosome' \
-	--config docs/examples/config.toml
+	--config examples/config.toml
 ```
 
-![Types of variants on each chromosome](docs/examples/types-of-variants-on-each-chromosome.col.png)
+![Types of variants on each chromosome](examples/types-of-variants-on-each-chromosome.col.png)
 
 #### Using bar chart if there is only one chromosome
 ```shell
-vcfstats --vcf docs/examples/sample.vcf \
-	--outdir docs/examples/ \
+vcfstats --vcf examples/sample.vcf \
+	--outdir examples/ \
 	--formula 'COUNT(1, group=VARTYPE) ~ CHROM[1]' \
 	# or simply
 	# --formula 'VARTYPE ~ CHROM[1]' \
 	--title 'Types of variants on chromosome 1' \
-	--config docs/examples/config.toml \
+	--config examples/config.toml \
 	--figtype pie
 ```
-![Types of variants on chromosome 1](docs/examples/types-of-variants-on-chromosome-1.pie.png)
+![Types of variants on chromosome 1](examples/types-of-variants-on-chromosome-1.pie.png)
 
 #### Counting variant types on whole genome
 ```shell
-vcfstats --vcf docs/examples/sample.vcf \
-	--outdir docs/examples/ \
+vcfstats --vcf examples/sample.vcf \
+	--outdir examples/ \
 	# or simply
 	# --formula 'VARTYPE ~ 1' \
 	--formula 'COUNT(1, group=VARTYPE) ~ 1' \
 	--title 'Types of variants on whole genome' \
-	--config docs/examples/config.toml
+	--config examples/config.toml
 ```
-![Types of variants on whole genome](docs/examples/types-of-variants-on-whole-genome.col.png)
+![Types of variants on whole genome](examples/types-of-variants-on-whole-genome.col.png)
 
 ### Counting type of mutant genotypes (HET, HOM_ALT) for sample 1 on each chromosome
 ```shell
-vcfstats --vcf docs/examples/sample.vcf \
-	--outdir docs/examples/ \
+vcfstats --vcf examples/sample.vcf \
+	--outdir examples/ \
 	# or simply
 	# --formula 'GTTYPEs[HET,HOM_ALT]{0} ~ CHROM' \
 	--formula 'COUNT(1, group=GTTYPEs[HET,HOM_ALT]{0}) ~ CHROM' \
 	--title 'Mutant genotypes on each chromosome (sample 1)' \
-	--config docs/examples/config.toml
+	--config examples/config.toml
 ```
 
-![Mutant genotypes on each chromosome](docs/examples/mutant-genotypes-on-each-chromosome-sample-1.col.png)
+![Mutant genotypes on each chromosome](examples/mutant-genotypes-on-each-chromosome-sample-1.col.png)
 
 
 ### Exploration of mean(genotype quality) and mean(depth) on each chromosome for sample 1
 ```shell
-vcfstats --vcf docs/examples/sample.vcf \
-	--outdir docs/examples/ \
+vcfstats --vcf examples/sample.vcf \
+	--outdir examples/ \
 	--formula 'MEAN(GQs{0}) ~ MEAN(DEPTHs{0}, group=CHROM)' \
 	--title 'GQ vs depth (sample 1)' \
-	--config docs/examples/config.toml
+	--config examples/config.toml
 ```
-![GQ vs depth (sample 1)](docs/examples/gq-vs-depth-sample-1.scatter.png)
+![GQ vs depth (sample 1)](examples/gq-vs-depth-sample-1.scatter.png)
 
 ### Exploration of depths for sample 1,2
 ```shell
-vcfstats --vcf docs/examples/sample.vcf \
-	--outdir docs/examples/ \
+vcfstats --vcf examples/sample.vcf \
+	--outdir examples/ \
 	--formula 'DEPTHs{0} ~ DEPTHs{1}' \
 	--title 'Depths between sample 1 and 2' \
-	--config docs/examples/config.toml
+	--config examples/config.toml
 ```
-![Depths between sample 1 and 2](docs/examples/depths-between-sample-1-and-2.scatter.png)
+![Depths between sample 1 and 2](examples/depths-between-sample-1-and-2.scatter.png)
 
 [1]: https://img.shields.io/pypi/v/vcfstats?style=flat-square
 [2]: https://pypi.org/project/vcfstats/

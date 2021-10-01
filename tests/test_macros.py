@@ -13,7 +13,7 @@ HERE = Path(__file__).parent.resolve()
 @pytest.fixture(scope="module")
 def variants():
     vcf = VCF(
-        str(HERE.parent.joinpath("docs", "examples", "sample.vcf")),
+        str(HERE.parent.joinpath("examples", "sample.vcf")),
         gts012=True,
     )
     return list(vcf)
