@@ -128,6 +128,7 @@ class Instance:
         figtype,
         passed,
         savedata=False,
+        figfmt="png",
     ):
 
         logger.info(
@@ -149,6 +150,7 @@ class Instance:
         ):
             self.datacols.append("Group")
         self.figtype = get_plot_type(self.formula, figtype)
+        self.figfmt = figfmt
         logger.info(
             "[r]%s[/r]: plot type: %s",
             self.title,
@@ -311,7 +313,8 @@ class Instance:
         plt = plt + theme_elems
 
         devpars = (
-            Diot(height=1000, width=1000, res=100, format="png") | self.devpars
+            Diot(height=1000, width=1000, res=100, format=self.figfmt)
+            | self.devpars
         )
         devpars.height /= devpars.res
         devpars.width /= devpars.res

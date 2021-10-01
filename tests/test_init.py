@@ -63,6 +63,7 @@ def test_get_ones(tmp_path):
             "passed": False,
             "outdir": tmp_path,
             "savedata": False,
+            "figfmt": [],
         },
         ["A", "B", "C", "D"],
     )
@@ -102,7 +103,14 @@ def test_load_config(tmp_path):
         '[[instance]]\nformula = "VARTYPE ~ CHROM"\ntitle = "title1"\n'
     )
     opts = Namespace(
-        **{"formula": [], "figtype": [], "ggs": [], "devpars": {}, "title": []}
+        **{
+            "formula": [],
+            "figtype": [],
+            "figfmt": [],
+            "ggs": [],
+            "devpars": {},
+            "title": [],
+        }
     )
     load_config(configfile, opts)
     assert opts["formula"] == ["VARTYPE ~ CHROM"]
@@ -110,6 +118,7 @@ def test_load_config(tmp_path):
         **{
             "formula": ["VARTYPE ~ CHROM"],
             "figtype": [],
+            "figfmt": [],
             "ggs": [],
             "devpars": [{}],
             "title": ["title1"],

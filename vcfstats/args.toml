@@ -15,7 +15,11 @@ desc = 'The output directory.'
 
 [params.figtype]
 default = []
-desc = 'Your preferences for types of plots for each formula.'
+desc = 'Your preferences for type of plot for each formula.'
+
+[params.figfmt]
+default = []
+desc = 'Your preferences for format of figure for each formula, Any file format supported by matplotlib. Default is png.'
 
 [params.region]
 aliases = ['r']

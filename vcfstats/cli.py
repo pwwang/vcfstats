@@ -86,6 +86,7 @@ def get_instances(opts, samples):
     for i, formula in enumerate(opts["formula"]):
         ggs = opts["ggs"][i] if i < len(opts["ggs"]) else None
         figtype = opts["figtype"][i] if i < len(opts["figtype"]) else None
+        figfmt = opts["figfmt"][i] if i < len(opts["figfmt"]) else None
         ret.append(
             Instance(
                 formula,
@@ -97,6 +98,7 @@ def get_instances(opts, samples):
                 figtype,
                 opts["passed"],
                 opts["savedata"],
+                figfmt or "png",
             )
         )
     return ret
@@ -142,6 +144,7 @@ def load_config(config, opts):
     # padding figtype and ggs, and devpars
     len_fml = len(opts["formula"])
     opts["figtype"].extend([None] * (len_fml - len(opts["figtype"])))
+    opts["figfmt"].extend([None] * (len_fml - len(opts["figfmt"])))
     opts["ggs"].extend([None] * (len_fml - len(opts["ggs"])))
     if isinstance(opts["devpars"], list):
         default_devpars = opts["devpars"][0]
@@ -163,6 +166,7 @@ def load_config(config, opts):
         opts["formula"].append(instance["formula"])
         opts["title"].append(instance["title"])
         opts["figtype"].append(instance.get("figtype"))
+        opts["figfmt"].append(instance.get("figfmt"))
         opts["ggs"].append(instance.get("ggs"))
         def_devpars = default_devpars.copy()
         def_devpars.update(instance.get("devpars", {}))
