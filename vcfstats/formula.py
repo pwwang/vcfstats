@@ -15,7 +15,7 @@ class VcfStatsTransformer(Transformer):
 
     def term(self, name, items=None, samples=None):
         """The term rule"""
-        return Term(name, items, samples)
+        return Term(str(name), items, samples)
 
     def aggr(self, name, term, *kwargs):
         """The aggr rule"""
@@ -28,7 +28,7 @@ class VcfStatsTransformer(Transformer):
             else:
                 aggr_args.extend(kwargs)
 
-        return Aggr(name, term, *aggr_args, **aggr_kwargs)
+        return Aggr(str(name), term, *aggr_args, **aggr_kwargs)
 
     def items(self, *itms):
         """The items rule"""
@@ -269,12 +269,19 @@ class Formula:
             title,
             extra={"markup": True},
         )
-
         self.Y, self.X = PARSER.parse(formula)  # pylint: disable=invalid-name
         if isinstance(self.Y, Term):
             self.Y.set_samples(samples)
         if isinstance(self.X, Term):
             self.X.set_samples(samples)
+        if isinstance(self.Y, Aggr) and isinstance(self.Y.group, Term):
+            self.Y.group.set_samples(samples)
+        if isinstance(self.X, Aggr) and isinstance(self.X.group, Term):
+            self.X.group.set_samples(samples)
+        if isinstance(self.Y, Aggr) and isinstance(self.Y.term, Term):
+            self.Y.term.set_samples(samples)
+        if isinstance(self.X, Aggr) and isinstance(self.X.term, Term):
+            self.X.term.set_samples(samples)
 
         if isinstance(self.Y, Aggr) and isinstance(self.X, Term):
             self.Y.setxgroup(self.X)
@@ -345,5 +352,5 @@ class Formula:
                 xdump = self.X.dump()
                 data_extend(
                     (value, xdump.get(key, numpy.nan), key)
-                    for key, value in self.Y.dump.items()
+                    for key, value in self.Y.dump().items()
                 )

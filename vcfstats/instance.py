@@ -3,6 +3,7 @@ from os import path
 
 import pandas
 import plotnine as p9
+from plotnine.themes.themeable import legend_position
 import plotnine_prism as p9p
 from datar.base import (
     as_character,
@@ -47,7 +48,7 @@ def get_plot_type(formula, figtype):
             figtype = "col" if figtype == "bar" else figtype
             return (
                 (figtype or "pie")
-                if formula.X.name == "1"
+                if formula.X.name == "ONE"
                 else (figtype or "col")
             )
         raise TypeError(
@@ -225,19 +226,25 @@ class Instance:
         elif self.figtype == "col":
             plt = plt + p9.geom_col(aes_for_geom_fill)
         elif self.figtype == "pie":
+            logger.warning("Pie chart is not support by plotnine yet, plotting bar chart instead.")
             col0 = df.iloc[:, 0]
             if df.shape[1] > 2:
-                plt = plt + p9.geom_label(
-                    aes_for_geom_fill,
-                    y=cumsum(col0) - col0 / 2.0,
-                    label=paste0(round_(100 * col0 / sum_(col0), 1), "%"),
-                    show_legend=False,
+                plt = plt + p9.geom_bar(
+                    p9.aes(x=df.columns[2], y=col0.name, fill=df.columns[2]),
+                    stat="identity"
+                    # aes_for_geom_fill,
+                    # x=df.Group,
+                    # y=col0,
+                    # label=paste0(round_(100 * col0 / sum_(col0), 1), "%"),
+                    # show_legend=False,
                     # position=p9.position_adjust_text(),
                 )
             else:
                 col0 = factor(col0, levels=rev(unique(as_character(col0))))
                 fills = rev(levels(col0))
                 sums = map(lambda x: sum(col0 == x), fills)
+                print(col0)
+                print(fills)
                 plt = (
                     p9.ggplot(df, p9.aes(x=df.columns[1]))
                     + p9.geom_bar(p9.aes(fill=df.columns[0]))
@@ -260,14 +267,15 @@ class Instance:
         elif self.figtype in ("histogram", "density"):
             plt = p9.ggplot(df, p9.aes(x=df.columns[0]))
             geom = getattr(p9, f"geom_{self.figtype}")
-            if df.columns[1] != "1":
+            if df.columns[1] != "ONE":
                 plt = plt + geom(p9.aes(fill=df.columns[1]), alpha=0.6)
+                theme_elems = None
             else:
                 plt = plt + geom(alpha=0.6)
-            theme_elems = None
+                theme_elems = p9.theme(legend_position="none")
         elif self.figtype == "freqpoly":
             plt = p9.ggplot(df, p9.aes(x=df.columns[0]))
-            if df.columns[1] != "1":
+            if df.columns[1] != "ONE":
                 plt = plt + p9.geom_freqpoly(p9.aes(fill=df.columns[1]))
             else:
                 plt = plt + p9.geom_freqpoly()
@@ -298,7 +306,7 @@ class Instance:
                 has_theme = True
 
         if not has_theme:
-            plt = plt + p9p.theme_prism(base_size=12)
+            plt = plt + p9p.theme_prism(base_size=12, base_family="monospace")
         plt = plt + theme_elems
 
         devpars = (

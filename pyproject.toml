@@ -17,13 +17,13 @@ include = ["vcfstats/args.toml"]
 python = "^3.7.1"
 cyvcf2 = "0.*"
 toml = "0.*"
-pyparam = "*"
-rich = "*"
+pyparam = "^0.4"
+rich = "^10"
 lark-parser = "^0.11"
 plotnine = "^0.8.0"
-plotnine-prism = "*"
+plotnine-prism = "^0.0"
 python-slugify = "^5.0.2"
-datar = "*"
+datar = "^0.5"
 py = "^1.10.0"
 
 [tool.poetry.dev-dependencies]

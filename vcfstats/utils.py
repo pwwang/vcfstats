@@ -24,6 +24,7 @@ def parse_subsets(subsets: list):
     """Parse subsets written in short format"""
     ret = []
     for subset in subsets:
+        subset = str(subset)
         if subset.count("-") == 1:
             start, end = subset.split("-")
             compref = commonprefix([start, end])
@@ -46,7 +47,7 @@ def parse_subsets(subsets: list):
 logger = logging.getLogger(VCFSTATS_LOGGER_NAME)
 logger.setLevel(logging.INFO)
 logger.addHandler(
-    RichHandler(show_time=True, show_path=False)  # , omit_repeated_times=False)
+    RichHandler(show_time=True, show_path=False, omit_repeated_times=False)
 )
 
 
