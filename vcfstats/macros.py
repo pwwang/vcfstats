@@ -1,6 +1,7 @@
 """Builtin marcros for vcfstats"""
 import warnings
 from functools import partial
+
 from .utils import MACROS
 
 # pylint: disable=invalid-name

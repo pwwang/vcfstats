@@ -3,7 +3,6 @@ from os import path
 
 import pandas
 import plotnine as p9
-from plotnine.themes.themeable import legend_position
 import plotnine_prism as p9p
 from datar.base import (
     as_character,
@@ -18,13 +17,16 @@ from datar.base import (
     unique,
 )
 from diot import Diot
+from plotnine.themes.themeable import legend_position
 from slugify import slugify
 
 from .formula import Aggr, Formula, Term
 from .utils import capture_c_msg, capture_python_msg, logger
 
 GGS_ENV = {
-    **{attr: getattr(p9, attr) for attr in dir(p9) if not attr.startswith("_")},
+    **{
+        attr: getattr(p9, attr) for attr in dir(p9) if not attr.startswith("_")
+    },
     **{
         attr: getattr(p9p, attr)
         for attr in dir(p9p)
@@ -129,7 +131,7 @@ class Instance:
         samples,
         figtype,
         passed,
-        savedata,
+        savedata=False,
     ):
 
         logger.info(
@@ -206,12 +208,13 @@ class Instance:
             )
             df.to_csv(datafile, index=False)
 
+        if df.shape[0] == 0:
+            logger.warning("No data points to plot")
+            return
+
         aes_for_geom_fill = None
         aes_for_geom_color = None
-        theme_elems = p9.theme(
-
-            axis_text_x=p9.element_text(angle=60, hjust=2)
-        )
+        theme_elems = p9.theme(axis_text_x=p9.element_text(angle=60, hjust=2))
         if df.shape[1] > 2:
             aes_for_geom_fill = p9.aes(fill=df.columns[2])
             aes_for_geom_color = p9.aes(color=df.columns[2])
@@ -226,7 +229,10 @@ class Instance:
         elif self.figtype == "col":
             plt = plt + p9.geom_col(aes_for_geom_fill)
         elif self.figtype == "pie":
-            logger.warning("Pie chart is not support by plotnine yet, plotting bar chart instead.")
+            logger.warning(
+                "Pie chart is not support by plotnine yet, "
+                "plotting bar chart instead."
+            )
             col0 = df.iloc[:, 0]
             if df.shape[1] > 2:
                 plt = plt + p9.geom_bar(

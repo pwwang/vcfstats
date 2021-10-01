@@ -1,7 +1,10 @@
-import pytest
 from pathlib import Path
+
+import pytest
+from slugify import slugify
+
 from vcfstats.formula import Formula
-from vcfstats.instance import title_to_valid_path, get_plot_type, Instance
+from vcfstats.instance import Instance, get_plot_type
 
 
 @pytest.fixture
@@ -20,15 +23,15 @@ def instance(tmp_path):
     )
 
 
-@pytest.mark.parametrize(
-    "title,expected",
-    [
-        ("abc.d", "abc.d"),
-        ("abc/d", "abc_d"),
-    ],
-)
-def test_title_to_valid_path(title, expected):
-    assert title_to_valid_path(title) == expected
+# @pytest.mark.parametrize(
+#     "title,expected",
+#     [
+#         ("abc.d", "abc.d"),
+#         ("abc/d", "abc_d"),
+#     ],
+# )
+# def test_title_to_valid_path(title, expected):
+#     assert title_to_valid_path(title) == expected
 
 
 @pytest.mark.parametrize(
@@ -64,12 +67,10 @@ def test_one_init(tmp_path, instance):
     outdir = tmp_path.with_suffix(".vcfstats")
     outdir.mkdir(parents=True, exist_ok=True)
     assert instance.title == "title"
-    assert instance.outprefix == str(
-        outdir / title_to_valid_path(instance.title)
-    )
+    assert instance.outprefix == str(outdir / slugify(instance.title))
     assert instance.devpars == {"width": 1000, "height": 1000, "res": 100}
     assert instance.ggs == ""
-    assert not instance.datafile.closed
+    # assert not instance.datafile.closed
 
     instance = Instance(
         "COUNT(1, group=VARTYPE) ~ CHROM",
@@ -80,11 +81,13 @@ def test_one_init(tmp_path, instance):
         ["A", "B", "C", "D"],
         None,
         False,
+        savedata=True,
     )
-    instance.datafile.close()
+    # instance.datafile.close()
+    instance.plot()
     assert (
-        Path(instance.outprefix + ".txt").read_text()
-        == "COUNT(_ONE)\tCHROM\tGroup\n"
+        Path(instance.outprefix + ".csv").read_text().strip()
+        == "COUNT_ONE,CHROM,Group"
     )
 
 
@@ -105,14 +108,14 @@ def test_one_iterate(tmp_path):
         instance.iterate(None)
 
 
-def test_summarize(instance):
-    instance.summarize()
-    assert instance.datafile.closed
+# def test_summarize(instance):
+#     instance.summarize()
+#     assert instance.datafile.closed
 
 
-def test_plot(instance, caplog):
-    import logging
+# def test_plot(instance, caplog):
+#     import logging
 
-    with caplog.at_level(logging.INFO):
-        instance.plot("Rscript")
-    assert "no lines available in input" in caplog.text
+#     with caplog.at_level(logging.INFO):
+#         instance.plot("Rscript")
+#     assert "no lines available in input" in caplog.text

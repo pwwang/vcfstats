@@ -1,11 +1,11 @@
 """Utilities for vcfstats"""
-from io import StringIO
 import logging
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
+from io import StringIO
 from os.path import commonprefix
 from pathlib import Path
-import py
 
+import py
 from pyparam import defaults
 from rich.logging import RichHandler
 
@@ -52,7 +52,9 @@ logger.addHandler(
 
 
 @contextmanager
-def capture_c_msg(name, stdout_level="info", stderr_level="warning", prefix=""):
+def capture_c_msg(
+    name, stdout_level="info", stderr_level="warning", prefix=""
+):
     """Capture stdout/err from cyvcf2, which is c-level outputs that
     cannot be captured by redirect_stdout/err"""
     stdout_log = getattr(logger, stdout_level)

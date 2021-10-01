@@ -157,7 +157,9 @@ def load_config(config, opts):
                 "Formula not found in instance: {}".format(instance)
             )
         if "title" not in instance:
-            raise ValueError("Title not found in instance: {}".format(instance))
+            raise ValueError(
+                "Title not found in instance: {}".format(instance)
+            )
         opts["formula"].append(instance["formula"])
         opts["title"].append(instance["title"])
         opts["figtype"].append(instance.get("figtype"))

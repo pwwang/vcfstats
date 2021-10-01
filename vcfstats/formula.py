@@ -1,7 +1,9 @@
 """Handling the formulas"""
 from collections import OrderedDict
-from lark import Lark, Transformer, v_args, Token
+
 import numpy
+from lark import Lark, Token, Transformer, v_args
+
 from .utils import MACROS, logger, parse_subsets
 
 
