@@ -1,6 +1,6 @@
 # vcfstats - powerful statistics for VCF files
 
-[![Pypi][1]][2] [![Github][3]][4] [![PythonVers][5]][2] [![docs][6][13] ![github action][7] [![Codacy][9]][10] [![Codacy coverage][11]][10]
+[![Pypi][1]][2] [![Github][3]][4] [![PythonVers][5]][2] [![docs][6]][13] ![github action][7] [![Codacy][9]][10] [![Codacy coverage][11]][10]
 
 [Documentation][13] | [CHANGELOG][12]
 
