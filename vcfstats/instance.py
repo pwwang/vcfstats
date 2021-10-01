@@ -12,12 +12,9 @@ from datar.base import (
     make_unique,
     paste0,
     rev,
-    round_,
-    sum_,
     unique,
 )
 from diot import Diot
-from plotnine.themes.themeable import legend_position
 from slugify import slugify
 
 from .formula import Aggr, Formula, Term
@@ -37,7 +34,6 @@ GGS_ENV = {
 
 def get_plot_type(formula, figtype):
     """Get the real plot type"""
-    # pylint: disable=too-many-branches,too-many-return-statements
     if isinstance(formula.Y, Aggr) and isinstance(formula.X, Aggr):
         if figtype in ("", None, "scatter"):
             return figtype or "scatter"
@@ -122,7 +118,7 @@ class Instance:
     """One instance/plot"""
 
     def __init__(
-        self,  # pylint: disable=too-many-arguments
+        self,
         formula,
         title,
         ggs,
@@ -189,9 +185,9 @@ class Instance:
         )
         self.formula.done(self.data.append, self.data.extend)
 
-    def plot(self):  # pylint: disable=invalid-name
+    def plot(self):
         """Plot the figures using R"""
-        df = pandas.DataFrame(  # pylint: disable=invalid-name
+        df = pandas.DataFrame(
             self.data,
             columns=self.datacols,
         )
@@ -302,7 +298,6 @@ class Instance:
                 f"__gg__ = {gg}", f"<vcfstats-ggs-{i}>", mode="exec"
             )
             try:
-                # pylint: disable=exec-used
                 exec(ggcode, GGS_ENV)
             except Exception as exc:
                 raise ValueError(f"Invalid ggs expression: {gg}") from exc

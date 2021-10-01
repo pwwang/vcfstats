@@ -4,8 +4,6 @@ from functools import partial
 
 from .utils import MACROS
 
-# pylint: disable=invalid-name
-
 
 def categorical(func=None, alias=None, _name=None):
     """Categorical decorator"""
@@ -150,7 +148,7 @@ def AFs(variant):
 
 
 @continuous
-def _ONE(variant):  # pylint: disable=unused-argument
+def _ONE(variant):
     """Return 1 for a variant, usually used in aggregation,
     or indication of a distribution plot"""
     return 1

@@ -80,9 +80,8 @@ class Term:
         if self.term["type"] == "continuous" and self.subsets:
             if len(self.subsets) != 2:
                 raise KeyError(
-                    "Expect a subset of length 2 for continuous Term: {}".format(
-                        self.term
-                    )
+                    "Expect a subset of length 2 for continuous Term: "
+                    f"{self.term}"
                 )
             if self.subsets[0]:
                 self.subsets[0] = float(self.subsets[0])  # try to raise
@@ -164,7 +163,6 @@ class Aggr:
     """The aggregation"""
 
     def __init__(self, name, term, *args, **kwargs):
-        # pylint: disable=too-many-branches
         self.cache = OrderedDict()  # cache data for aggregation
         if name not in MACROS or not MACROS[name].get("aggr"):
             raise ValueError(
@@ -271,7 +269,7 @@ class Formula:
             title,
             extra={"markup": True},
         )
-        self.Y, self.X = PARSER.parse(formula)  # pylint: disable=invalid-name
+        self.Y, self.X = PARSER.parse(formula)
         if isinstance(self.Y, Term):
             self.Y.set_samples(samples)
         if isinstance(self.X, Term):
@@ -298,7 +296,6 @@ class Formula:
                 )
 
         self.passed = passed
-        # pylint: disable=too-many-boolean-expressions
         if (
             (isinstance(self.Y, Term) and self.Y.name == "FILTER")
             or (isinstance(self.Y, Aggr) and self.Y.has_filter())
@@ -338,7 +335,8 @@ class Formula:
         else:
             raise TypeError(
                 "Cannot do 'TERM ~ AGGREGATION'. "
-                + "If you want to do that, transpose it to 'AGGREGATION ~ TERM'"
+                "If you want to do that, transpose it to "
+                "'AGGREGATION ~ TERM'"
             )
 
     def done(self, data_append, data_extend):

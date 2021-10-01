@@ -43,7 +43,6 @@ def parse_subsets(subsets: list):
     return ret
 
 
-# pylint: disable=invalid-name
 logger = logging.getLogger(VCFSTATS_LOGGER_NAME)
 logger.setLevel(logging.INFO)
 logger.addHandler(

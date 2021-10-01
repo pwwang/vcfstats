@@ -11,7 +11,7 @@ from rich.console import Console
 from rich.table import Table
 from simpleconf import Config
 
-from .instance import Instance  # pylint:disable=wrong-import-position
+from .instance import Instance
 from .utils import HERE, MACROS, capture_c_msg, logger
 
 
@@ -199,7 +199,7 @@ def main():
                 logger.debug("- %s variants read.", i)
     logger.info(
         "%s variants read.", i
-    )  # pylint: disable=undefined-loop-variable
+    )
     for i, instance in enumerate(ones):
         # save aggr
         instance.summarize()
