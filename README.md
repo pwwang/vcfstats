@@ -1,6 +1,6 @@
 # vcfstats - powerful statistics for VCF files
 
-[![Pypi][1]][2] [![Github][3]][4] [![PythonVers][5]][2] [![docs][6]][13] [![Travis building][7]][8] [![Codacy][9]][10] [![Codacy coverage][11]][10]
+[![Pypi][1]][2] [![Github][3]][4] [![PythonVers][5]][2] [![docs][6][13] ![github action][7] [![Codacy][9]][10] [![Codacy coverage][11]][10]
 
 [Documentation][13] | [CHANGELOG][12]
 
@@ -236,14 +236,14 @@ vcfstats --vcf docs/examples/sample.vcf \
 [3]: https://img.shields.io/github/v/tag/pwwang/vcfstats?style=flat-square
 [4]: https://github.com/pwwang/vcfstats
 [5]: https://img.shields.io/pypi/pyversions/vcfstats?style=flat-square
-[6]: https://img.shields.io/readthedocs/vcfstats?style=flat-square
-[7]: https://img.shields.io/travis/pwwang/vcfstats?style=flat-square
+[6]: https://img.shields.io/github/workflow/status/pwwang/vcfstats/Build%20Docs?label=docs&style=flat-square
+[7]: https://img.shields.io/github/workflow/status/pwwang/vcfstats/Build%20and%20Deploy?style=flat-square
 [8]: https://travis-ci.org/pwwang/vcfstats
-[9]: https://img.shields.io/codacy/grade/76b84a4cba794f1d925ba98913203c05?style=flat-square
-[10]: https://app.codacy.com/manual/pwwang/vcfstats
-[11]: https://img.shields.io/codacy/coverage/76b84a4cba794f1d925ba98913203c05?style=flat-square
-[12]: https://vcfstats.readthedocs.io/en/latest/CHANGELOG/
-[13]: https://vcfstats.readthedocs.io/en/latest/
+[9]: https://img.shields.io/codacy/grade/c8c8bfa8c5e9443bbf268a0a7c6f206d?style=flat-square
+[10]: https://app.codacy.com/gh/pwwang/vcfstats/
+[11]: https://img.shields.io/codacy/coverage/c8c8bfa8c5e9443bbf268a0a7c6f206d?style=flat-square
+[12]: https://pwwang.github.io/vcfstats/CHANGELOG/
+[13]: https://pwwang.github.io/vcfstats/
 [14]: https://samtools.github.io/bcftools/bcftools.html#stats
 [15]: http://lindenb.github.io/jvarkit/VcfStatsJfx.html
 [16]: https://www.r-project.org/

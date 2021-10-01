@@ -10,6 +10,8 @@ markdown_extensions:
         preserve_tabs: true
     - toc:
         baselevel: 2
+extra_css:
+    - style.css
 nav:
     - 'Introduction': 'index.md'
     - 'Command-line arguments': 'cliargs.md'
