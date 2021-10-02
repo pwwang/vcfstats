@@ -1,3 +1,7 @@
+# 0.2.0
+- Use `plotnine` instead of `ggplot2` so no `R` is needed
+- Add `figfmt` to generate different format of figures other than `png`
+
 # 0.1.0
 - Allow program to be run by `python -m vcfstats`
 - Avoid using root logger configuration
