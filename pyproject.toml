@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "vcfstats"
-version = "0.1.0"
+version = "0.2.0"
 description = "Powerful statistics for VCF files"
 authors = [ "pwwang <pwwang@pwwang.com>",]
 license = "MIT"
@@ -14,17 +14,35 @@ repository = "https://github.com/pwwang/vcfstats"
 include = ["vcfstats/args.toml"]
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7.1"
 cyvcf2 = "0.*"
 toml = "0.*"
-pyparam = "*"
-cmdy = "*"
-rich = "6.*"
-lark-parser = "^0.9"
+pyparam = "^0.4"
+rich = "^10"
+lark-parser = "^0.11"
+plotnine = "^0.8.0"
+plotnine-prism = "^0.0"
+python-slugify = "^5.0.2"
+datar = "^0.5.2"
+py = "^1.10.0"
 
 [tool.poetry.dev-dependencies]
+cmdy = "*"
 pytest = "*"
 pytest-cov = "*"
 
 [tool.poetry.scripts]
 vcfstats = "vcfstats.cli:main"
+
+[tool.black]
+line-length = 79
+target-version = ['py37', 'py38', 'py39']
+include = '\.pyi?$'
+
+[tool.pytest.ini_options]
+addopts = "-vv --cov-config=.coveragerc --cov=vcfstats --cov-report xml:.coverage.xml --cov-report term-missing"
+filterwarnings = [
+    #"error"
+]
+console_output_style = "progress"
+junit_family = "xunit1"

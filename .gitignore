@@ -139,7 +139,9 @@ poetry.lock
 # End of https://www.gitignore.io/api/python
 
 examples/*.R
-examples/*.txt
+examples/*.csv
 
 .singularity
 vcfstats-out/
+docs/index.md
+examples/*.svg

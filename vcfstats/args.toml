@@ -13,13 +13,13 @@ aliases = ['o']
 required = true
 desc = 'The output directory.'
 
-[params.Rscript]
-default = 'Rscript'
-desc = 'Path to `Rscript` to run R code for plotting.'
-
 [params.figtype]
 default = []
-desc = 'Your preferences for types of plots for each formula.'
+desc = 'Your preferences for type of plot for each formula.'
+
+[params.figfmt]
+default = []
+desc = 'Your preferences for format of figure for each formula, Any file format supported by matplotlib. Default is png.'
 
 [params.region]
 aliases = ['r']
@@ -32,6 +32,7 @@ desc = 'Regions in a BED file. If both --region/--Region are provided, regions w
 
 [params.passed]
 aliases = ['p']
+default = false
 desc = '''Only analyze variants that pass all filters.
 This does not work if FILTER entry is in the analysis.
 '''
@@ -40,6 +41,11 @@ This does not work if FILTER entry is in the analysis.
 aliases = ['l']
 default = false
 desc = 'List all available macros.'
+
+[params.savedata]
+aliases = ['s']
+default = false
+desc = 'Whether save the plotting data for further exploration.'
 
 [params.formula]
 aliases = ['f']

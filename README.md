@@ -1,6 +1,6 @@
 # vcfstats - powerful statistics for VCF files
 
-[![Pypi][1]][2] [![Github][3]][4] [![PythonVers][5]][2] [![docs][6]][13] [![Travis building][7]][8] [![Codacy][9]][10] [![Codacy coverage][11]][10]
+[![Pypi][1]][2] [![Github][3]][4] [![PythonVers][5]][2] [![docs][6]][13] ![github action][7] [![Codacy][9]][10] [![Codacy coverage][11]][10]
 
 [Documentation][13] | [CHANGELOG][12]
 
@@ -13,17 +13,15 @@ There are a couple of tools that can plot some statistics of VCF files, includin
 R package [`vcfR`][19] can do some of the above. However, it has to load entire VCF into memory, which is not friendly to large VCF files.
 
 ## Installation
-`vcfstats` also requires [`R`][16] with [`ggplot2`][17] to be installed. \
-If you are doing `pie` chart, [`ggrepel`][18] is also required.
 ```shell
-pip install vcfstats
+pip install -U vcfstats
 ```
 
 Or run with docker or singularity:
 ```shell
-docker run --rm justold/vcfstats:first vcfstats
+docker run --rm justold/vcfstats:latest vcfstats
 # or
-singularity run docker://justold/vcfstats:first vcfstats
+singularity run docker://justold/vcfstats:latest vcfstats
 ```
 
 ## Gallery
@@ -38,9 +36,11 @@ vcfstats --vcf examples/sample.vcf \
 	--config examples/config.toml
 ```
 
-![Number of variants on each chromosome](https://github.com/pwwang/vcfstats/raw/master/examples/Number_of_variants_on_each_chromosome.col.png)
+![Number of variants on each chromosome](examples/number-of-variants-on-each-chromosome.col.png)
 
 #### Changing labels and ticks
+
+`vcfstats` uses [`plotnine`][17] for plotting, read more about it on how to specify `--ggs` to modify the plots.
 
 ```shell
 vcfstats --vcf examples/sample.vcf \
@@ -49,11 +49,11 @@ vcfstats --vcf examples/sample.vcf \
 	--title 'Number of variants on each chromosome (modified)' \
 	--config examples/config.toml \
 	--ggs 'scale_x_discrete(name ="Chromosome", \
-		limits=c("1","2","3","4","5","6","7","8","9","10","X")) + \
+		limits=["1","2","3","4","5","6","7","8","9","10","X"]); \
 		ylab("# Variants")'
 ```
 
-![Number of variants on each chromosome (modified)](https://github.com/pwwang/vcfstats/raw/master/examples/Number_of_variants_on_each_chromosome_(modified).col.png)
+![Number of variants on each chromosome (modified)](examples/number-of-variants-on-each-chromosome-modified.col.png)
 
 #### Number of variants on first 5 chromosome
 
@@ -78,7 +78,7 @@ vcfstats --vcf examples/sample.vcf \
 	--config examples/config.toml -r 1 2 3 4 5
 ```
 
-![Number of variants on each chromosome (first 5)](https://github.com/pwwang/vcfstats/raw/master/examples/Number_of_variants_on_each_chromosome_(first_5).col.png)
+![Number of variants on each chromosome (first 5)](examples/number-of-variants-on-each-chromosome-first-5.col.png)
 
 ### Number of substitutions of SNPs
 ```shell
@@ -88,7 +88,7 @@ vcfstats --vcf examples/sample.vcf \
 	--title 'Number of substitutions of SNPs' \
 	--config examples/config.toml
 ```
-![Number of substitutions of SNPs](https://github.com/pwwang/vcfstats/raw/master/examples/Number_of_substitutions_of_SNPs.col.png)
+![Number of substitutions of SNPs](examples/number-of-substitutions-of-snps.col.png)
 
 #### Only with SNPs PASS all filters
 
@@ -101,7 +101,7 @@ vcfstats --vcf examples/sample.vcf \
 	--passed
 ```
 
-![Number of substitutions of SNPs (passed)](https://github.com/pwwang/vcfstats/raw/master/examples/Number_of_substitutions_of_SNPs_(passed).col.png)
+![Number of substitutions of SNPs (passed)](examples/number-of-substitutions-of-snps-passed.col.png)
 
 ### Alternative allele frequency on each chromosome
 ```shell
@@ -113,7 +113,7 @@ vcfstats --vcf examples/sample.vcf \
 	--config examples/config.toml --ggs 'theme_dark()'
 ```
 
-![Allele frequency on each chromosome](https://github.com/pwwang/vcfstats/raw/master/examples/Allele_frequency_on_each_chromosome.violin.png)
+![Allele frequency on each chromosome](examples/allele-frequency-on-each-chromosome.violin.png)
 
 #### Using boxplot
 ```shell
@@ -125,7 +125,7 @@ vcfstats --vcf examples/sample.vcf \
 	--figtype boxplot
 ```
 
-![Allele frequency on each chromosome](https://github.com/pwwang/vcfstats/raw/master/examples/Allele_frequency_on_each_chromosome.boxplot.png)
+![Allele frequency on each chromosome](examples/allele-frequency-on-each-chromosome.boxplot.png)
 
 #### Using density plot/histogram to investigate the distribution:
 You can plot the distribution, using density plot or histogram
@@ -137,7 +137,7 @@ vcfstats --vcf examples/sample.vcf \
 	--config examples/config.toml \
 	--figtype density
 ```
-![Allele frequency on chromosome 1,2](https://github.com/pwwang/vcfstats/raw/master/examples/Allele_frequency_on_chromosome_1_2.density.png)
+![Allele frequency on chromosome 1,2](examples/allele-frequency-on-chromosome-1-2.density.png)
 
 ### Overall distribution of allele frequency
 ```shell
@@ -147,7 +147,7 @@ vcfstats --vcf examples/sample.vcf \
 	--title 'Overall allele frequency distribution' \
 	--config examples/config.toml
 ```
-![Overall allele frequency distribution](https://github.com/pwwang/vcfstats/raw/master/examples/Overall_allele_frequency_distribution.histogram.png)
+![Overall allele frequency distribution](examples/overall-allele-frequency-distribution.histogram.png)
 
 #### Excluding some low/high frequency variants
 ```shell
@@ -157,7 +157,7 @@ vcfstats --vcf examples/sample.vcf \
 	--title 'Overall allele frequency distribution (0.05-0.95)' \
 	--config examples/config.toml
 ```
-![Overall allele frequency distribution](https://github.com/pwwang/vcfstats/raw/master/examples/Overall_allele_frequency_distribution_(0.05-0.95).histogram.png)
+![Overall allele frequency distribution](examples/overall-allele-frequency-distribution-0-05-0-95.histogram.png)
 
 ### Counting types of variants on each chromosome
 ```shell
@@ -170,20 +170,20 @@ vcfstats --vcf examples/sample.vcf \
 	--config examples/config.toml
 ```
 
-![Types of variants on each chromosome](https://github.com/pwwang/vcfstats/raw/master/examples/Types_of_variants_on_each_chromosome.col.png)
+![Types of variants on each chromosome](examples/types-of-variants-on-each-chromosome.col.png)
 
-#### Using pie chart if there is only one chromosome
+#### Using bar chart if there is only one chromosome
 ```shell
 vcfstats --vcf examples/sample.vcf \
 	--outdir examples/ \
 	--formula 'COUNT(1, group=VARTYPE) ~ CHROM[1]' \
 	# or simply
 	# --formula 'VARTYPE ~ CHROM[1]' \
-	--title 'Types of variants on each chromosome 1' \
+	--title 'Types of variants on chromosome 1' \
 	--config examples/config.toml \
 	--figtype pie
 ```
-![Types of variants on each chromosome 1](https://github.com/pwwang/vcfstats/raw/master/examples/Types_of_variants_on_each_chromosome_1.pie.png)
+![Types of variants on chromosome 1](examples/types-of-variants-on-chromosome-1.pie.png)
 
 #### Counting variant types on whole genome
 ```shell
@@ -195,7 +195,7 @@ vcfstats --vcf examples/sample.vcf \
 	--title 'Types of variants on whole genome' \
 	--config examples/config.toml
 ```
-![Types of variants on whole genome](https://github.com/pwwang/vcfstats/raw/master/examples/Types_of_variants_on_whole_genome.pie.png)
+![Types of variants on whole genome](examples/types-of-variants-on-whole-genome.col.png)
 
 ### Counting type of mutant genotypes (HET, HOM_ALT) for sample 1 on each chromosome
 ```shell
@@ -208,7 +208,7 @@ vcfstats --vcf examples/sample.vcf \
 	--config examples/config.toml
 ```
 
-![Mutant genotypes on each chromosome](https://github.com/pwwang/vcfstats/raw/master/examples/Mutant_genotypes_on_each_chromosome_(sample_1).col.png)
+![Mutant genotypes on each chromosome](examples/mutant-genotypes-on-each-chromosome-sample-1.col.png)
 
 
 ### Exploration of mean(genotype quality) and mean(depth) on each chromosome for sample 1
@@ -219,7 +219,7 @@ vcfstats --vcf examples/sample.vcf \
 	--title 'GQ vs depth (sample 1)' \
 	--config examples/config.toml
 ```
-![GQ vs depth (sample 1)](https://github.com/pwwang/vcfstats/raw/master/examples/GQ_vs_depth_(sample_1).scatter.png)
+![GQ vs depth (sample 1)](examples/gq-vs-depth-sample-1.scatter.png)
 
 ### Exploration of depths for sample 1,2
 ```shell
@@ -229,24 +229,24 @@ vcfstats --vcf examples/sample.vcf \
 	--title 'Depths between sample 1 and 2' \
 	--config examples/config.toml
 ```
-![Depths between sample 1 and 2](https://github.com/pwwang/vcfstats/raw/master/examples/Depths_between_sample_1_and_2.scatter.png)
+![Depths between sample 1 and 2](examples/depths-between-sample-1-and-2.scatter.png)
 
 [1]: https://img.shields.io/pypi/v/vcfstats?style=flat-square
 [2]: https://pypi.org/project/vcfstats/
 [3]: https://img.shields.io/github/v/tag/pwwang/vcfstats?style=flat-square
 [4]: https://github.com/pwwang/vcfstats
 [5]: https://img.shields.io/pypi/pyversions/vcfstats?style=flat-square
-[6]: https://img.shields.io/readthedocs/vcfstats?style=flat-square
-[7]: https://img.shields.io/travis/pwwang/vcfstats?style=flat-square
+[6]: https://img.shields.io/github/workflow/status/pwwang/vcfstats/Build%20Docs?label=docs&style=flat-square
+[7]: https://img.shields.io/github/workflow/status/pwwang/vcfstats/Build%20and%20Deploy?style=flat-square
 [8]: https://travis-ci.org/pwwang/vcfstats
-[9]: https://img.shields.io/codacy/grade/76b84a4cba794f1d925ba98913203c05?style=flat-square
-[10]: https://app.codacy.com/manual/pwwang/vcfstats
-[11]: https://img.shields.io/codacy/coverage/76b84a4cba794f1d925ba98913203c05?style=flat-square
-[12]: https://vcfstats.readthedocs.io/en/latest/CHANGELOG/
-[13]: https://vcfstats.readthedocs.io/en/latest/
+[9]: https://img.shields.io/codacy/grade/c8c8bfa8c5e9443bbf268a0a7c6f206d?style=flat-square
+[10]: https://app.codacy.com/gh/pwwang/vcfstats/
+[11]: https://img.shields.io/codacy/coverage/c8c8bfa8c5e9443bbf268a0a7c6f206d?style=flat-square
+[12]: https://pwwang.github.io/vcfstats/CHANGELOG/
+[13]: https://pwwang.github.io/vcfstats/
 [14]: https://samtools.github.io/bcftools/bcftools.html#stats
 [15]: http://lindenb.github.io/jvarkit/VcfStatsJfx.html
 [16]: https://www.r-project.org/
-[17]: https://ggplot2.tidyverse.org/
+[17]: https://plotnine.readthedocs.io/en/stable/
 [18]: https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html
 [19]: https://knausb.github.io/vcfR_documentation/visualization_1.html

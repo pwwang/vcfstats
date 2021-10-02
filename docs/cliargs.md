@@ -1,47 +1,55 @@
 # Command-line arguments
 
 ```shell
-Description:
-  vcfstats v0.0.1: Powerful VCF statistics.
+DESCRIPTION:
+  vcfstats v0.2.0: Powerful VCF statistics.
 
-Usage:
-  vcfstats <--vcf AUTO> <--outdir AUTO> <-f LIST> <-t LIST> [OPTIONS]
+USAGE:
+  vcfstats --vcf PATH --outdir AUTO --formula LIST --title LIST [OPTIONS]
 
-Required options:
-  -v, --vcf <AUTO>         - The VCF file
-  -o, --outdir <AUTO>      - The output directory.
-  -f, --formula <LIST>     - The formulas for plotting in format of [Y] ~ [X],
-                             where [Y] or [X] should be an entry or an aggregation
-  -t, --title <LIST>       - The title of each figure, will be used to name the output files.
+REQUIRED OPTIONS:
+  -v, --vcf <PATH>          - The VCF file.
+  -o, --outdir <AUTO>       - The output directory.
+  -f, --formula <LIST>      - The formulas for plotting in format of Y ~ X,
+                              where Y and X should be either an entry or an
+                              aggregation.
+  --title <LIST>            - The title of each figure, will be used to name the
+                              output files as well.
 
-Optional options:
-  --loglevel <STR>         - The logging level. Default: 'INFO'
-  --Rscript <STR>          - Path to Rscript to run R code for plotting.
-                             Default: 'Rscript'
-  --figtype <LIST>         - Your preferences for types of plots for each formula.
-                             Default: []
-  -r, --region <LIST>      - Regions in format of [CHR] or [CHR]:[START]-[END]
-                             Default: []
-  -R, --Region <AUTO>      - Regions in a BED file
-                             If both -r/R are provided, regions will be merged.
-                             Default: None
-  -p, --passed [BOOL]      - Only analyze variants that pass all filters.
-                             This does not work if FILTER entry is in the analysis.
-                             Default: False
-  -l, --list [BOOL]        - List all available macros.
-                             Default: False
-  --macro <AUTO>           - User-defined macro file.
-                             Default: None
-  --ggs <LIST>             - Extra ggplot2 expression for each plot
-                             Default: []
-  --devpars <DICT>         - The device parameters for plots.
-                             To specify devpars for each plot, use a configuration file.
-                             Default: {'width': 2000, 'height': 2000, 'res': 300}
-  -c, --config <AUTO>      - A configuration file defining how to plot in TOML format.
-                             If this is provided, CLI arguments will be overwritten if defined in \
-                             this file.
-                             Default: None
-  -h, -H, --help           - Show help message and exit.
+OPTIONAL OPTIONS:
+  --loglevel <STR>          - The logging level. Default: info
+  --figtype <LIST>          - Your preferences for type of plot for each
+                              formula. Default: \[]
+  --figfmt <LIST>           - Your preferences for format of figure for each
+                              formula, Any file format supported by matplotlib.
+                              Default is png. Default: \[]
+  -r, --region <LIST>       - Regions in format of CHR or CHR:START-END
+                              Default: \[]
+  -R, --Region <AUTO>       - Regions in a BED file. If both --region/--Region
+                              are provided, regions will be merged together.
+                              Default: None
+  -p, --passed [BOOL]       - Only analyze variants that pass all filters.
+                              This does not work if FILTER entry is in the
+                              analysis.
+                              Default: False
+  -l, --list [BOOL]         - List all available macros. Default: False
+  -s, --savedata [BOOL]     - Whether save the plotting data for further
+                              exploration. Default: False
+  --macro <PATH>            - A user-defined macro file. Default: None
+  --ggs <LIST>              - Extra ggplot2 expressions for each plot
+                              Default: \[]
+  --devpars <NS>            - The device parameters for plots. To specify
+                              devpars for each plot, use a configuration file.
+  -c, --config <AUTO>       - A configuration file defining how to plot in TOML
+                              format.
+                              If this is provided, CLI arguments will be
+                              overwritten if defined in this file. Default: None
+  -h, --help                - Print help information for this command
+
+OPTIONAL OPTIONS UNDER --devpars:
+  --devpars.width <INT>     - The width of the plot Default: 2000
+  --devpars.height <INT>    - The height of the plot Default: 2000
+  --devpars.res <INT>       - The resolution of the plot Default: 300
 ```
 
 - You can specify regions using `-r/--region` and/or `-R/--Region`, however, you have to make sure regions are not overlapping, otherwise, variants in the overlapping regions will be redundant in the calculations.
@@ -62,7 +70,7 @@ Optional options:
 		--outdir vcfstats-out \
 		--formula 'DEPTHs{0} ~ CHROM' 'AAF ~ CHROM' \
 		--title 'Depth distribution on each chromosome' 'Allele frequency distribution on each chromosome' \
-		--figtype '' boxplot` # using boxplot instead of violin for 2nd plot
+		--figtype '' boxplot # using boxplot instead of violin for 2nd plot
 	```
 
 - Similar as `--figtype`, you can also use `--ggs` to modify the plots generated by `ggplot2`. Please refer to `ggplot2` documentation.
@@ -70,3 +78,5 @@ Optional options:
 - However, for `--devpars`, you can only specify a universal parameters. To change each sub-parameter of it, you can do `--devpars.res 70`
 
 - To specify different devpars for different plots, you have to use a configuration file. Please refer to seciont `Configuration file`
+
+- To specify `--ggs` for multiple plots, you can do `--ggs "theme_minimal()" "theme_dark()"`. If you have multiple ggs for the same plot, you need `;` to seaprate them: `--ggs "theme_minimal(); ylab('Count')" "theme_dark(); xlab('ABC')"`

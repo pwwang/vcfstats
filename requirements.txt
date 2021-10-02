@@ -1,8 +1,0 @@
-cmdy
-cyvcf2==0.*
-lark-parser==0.*,>=0.9.0
-pyparam
-pytest
-pytest-cov
-rich==6.*
-toml==0.*

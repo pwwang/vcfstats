@@ -18,7 +18,7 @@ TARGETS :=  examples/Number_of_variants_on_each_chromosome.col.png \
 
 
 DEPENDS :=  examples/sample.vcf examples/config.toml vcfstats/__init__.py \
-			vcfstats/formula.py vcfstats/macros.py vcfstats/one.py
+			vcfstats/formula.py vcfstats/macros.py vcfstats/instance.py
 
 VCFSTATS := vcfstats --vcf examples/sample.vcf \
 	--outdir examples/ \
@@ -43,11 +43,13 @@ examples/Number_of_variants_on_each_chromosome.col.png: $(DEPENDS)
 	$(VCFSTATS) --title '$(call FILETOTITLE,$@)' --figtype $(call FIGTYPE,$@) \
 	--formula 'COUNT(1) ~ CONTIG'
 
+
 examples/Number_of_variants_on_each_chromosome_(modified).col.png: $(DEPENDS)
 	@$(call LOGGER,$@)
 	$(VCFSTATS) --title '$(call FILETOTITLE,$@)' --figtype $(call FIGTYPE,$@) \
 	--formula 'COUNT(1) ~ CONTIG' \
-	--ggs 'scale_x_discrete(name ="Chromosome", limits=c("1","2","3","4","5","6","7","8","9","10","X")) + ylab("# Variants")'
+	--ggs 'scale_x_discrete(name ="Chromosome", limits=["1","2","3","4","5","6","7","8","9","10","X"]); ylab("# Variants")'
+
 
 examples/Number_of_substitutions_of_SNPs.col.png: $(DEPENDS)
 	@$(call LOGGER,$@)
@@ -129,4 +131,4 @@ examples/Depths_between_sample_1_and_2.scatter.png: $(DEPENDS)
 	--formula 'DEPTHs{0} ~ DEPTHs{1}'
 
 clean:
-	rm -f examples/*.txt examples/*.R examples/*.png
+	rm -f examples/*.csv examples/*.png
