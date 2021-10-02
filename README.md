@@ -19,9 +19,9 @@ pip install -U vcfstats
 
 Or run with docker or singularity:
 ```shell
-docker run --rm justold/vcfstats:first vcfstats
+docker run --rm justold/vcfstats:latest vcfstats
 # or
-singularity run docker://justold/vcfstats:first vcfstats
+singularity run docker://justold/vcfstats:latest vcfstats
 ```
 
 ## Gallery
