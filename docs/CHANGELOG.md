@@ -1,3 +1,7 @@
+# 0.3.0
+
+- Introduce enhancements (pwwang/vcfstats#15)
+
 # 0.2.0
 - Use `plotnine` instead of `ggplot2` so no `R` is needed
 - Add `figfmt` to generate different format of figures other than `png`
