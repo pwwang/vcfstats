@@ -102,6 +102,12 @@ def SUBST(variant):
     return "{}>{}".format(variant.REF, ",".join(variant.ALT))
 
 
+@categorical
+def SAMPLES(variant):
+    """Get the sample indices"""
+    return list(range(len(variant.genotypes)))
+
+
 @continuous
 def NALT(variant):
     """Number of alternative alleles"""

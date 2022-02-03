@@ -1,5 +1,6 @@
 """Handling one plot/instance"""
 from os import path
+from types import ModuleType
 
 import pandas
 import plotnine as p9
@@ -28,6 +29,7 @@ GGS_ENV = {
         attr: getattr(p9p, attr)
         for attr in dir(p9p)
         if not attr.startswith("_")
+        and not isinstance(getattr(p9p, attr), ModuleType)
     },
 }
 
@@ -235,20 +237,12 @@ class Instance:
             if df.shape[1] > 2:
                 plt = plt + p9.geom_bar(
                     p9.aes(x=df.columns[2], y=col0.name, fill=df.columns[2]),
-                    stat="identity"
-                    # aes_for_geom_fill,
-                    # x=df.Group,
-                    # y=col0,
-                    # label=paste0(round_(100 * col0 / sum_(col0), 1), "%"),
-                    # show_legend=False,
-                    # position=p9.position_adjust_text(),
+                    stat="identity",
                 )
             else:
                 col0 = factor(col0, levels=rev(unique(as_character(col0))))
                 fills = rev(levels(col0))
                 sums = map(lambda x: sum(col0 == x), fills)
-                print(col0)
-                print(fills)
                 plt = (
                     p9.ggplot(df, p9.aes(x=df.columns[1]))
                     + p9.geom_bar(p9.aes(fill=df.columns[0]))
@@ -292,6 +286,7 @@ class Instance:
 
     def save_plot(self, plt, theme_elems):
         has_theme = False
+        theme_frags = []
         for i, gg in enumerate(self.ggs.split(";")):
             gg = gg.strip()
             if not gg:
@@ -303,14 +298,21 @@ class Instance:
                 exec(ggcode, GGS_ENV)
             except Exception as exc:
                 raise ValueError(f"Invalid ggs expression: {gg}") from exc
+
             ggexpr = GGS_ENV.pop("__gg__")
-            plt = plt + ggexpr
-            if gg.startswith("theme_"):
-                has_theme = True
+            # avoid user theme fragments being overriden by theme_prism
+            if gg.startswith("theme("):
+                theme_frags.append(ggexpr)
+            else:
+                plt = plt + ggexpr
+                if gg.startswith("theme_"):
+                    has_theme = True
 
         if not has_theme:
             plt = plt + p9p.theme_prism(base_size=12, base_family="monospace")
         plt = plt + theme_elems
+        for theme_frag in theme_frags:
+            plt = plt + theme_frag
 
         devpars = (
             Diot(height=1000, width=1000, res=100, format=self.figfmt)

@@ -231,6 +231,11 @@ vcfstats --vcf examples/sample.vcf \
 ```
 ![Depths between sample 1 and 2](examples/depths-between-sample-1-and-2.scatter.png)
 
+
+See more examples:
+
+https://github.com/pwwang/vcfstats/issues/15#issuecomment-1029367903
+
 [1]: https://img.shields.io/pypi/v/vcfstats?style=flat-square
 [2]: https://pypi.org/project/vcfstats/
 [3]: https://img.shields.io/github/v/tag/pwwang/vcfstats?style=flat-square
