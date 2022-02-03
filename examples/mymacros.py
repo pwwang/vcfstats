@@ -21,3 +21,9 @@ def N_MISSING(variant):
     # convert boolean array to int
     # gts012 = True
     return variant.num_unknown
+
+
+@continuous
+def Percent_HETs(variant):
+    """Get % of HETs per locus"""
+    return variant.num_het / float(len(variant.gt_types))
