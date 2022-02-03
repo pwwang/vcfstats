@@ -129,6 +129,7 @@ class Term:
         if passed and variant.FILTER:
             return False
         value = self.term["func"](variant)
+
         if value is False or value is None:
             return False
         # numpy.array
@@ -209,41 +210,48 @@ class Aggr:
         """Run each variant"""
         if self.filter and self.filter.run(variant, passed) is False:
             return
+
         if not self.group:
             raise RuntimeError(
                 "No group specified, don't know how to aggregate."
             )
+
         group = self.group.run(variant, passed)
         if group is False:
             return
-        if len(group) > 1:
+
+        value = self.term.run(variant, passed)
+        if value is False:
+            return
+
+        if len(group) > 1 and len(value) != len(group):
             raise ValueError(
                 "Cannot aggregate on more than one group, "
                 + "make sure you specified sample for sample data."
             )
-        group = group[0]
+        # group = group[0]
 
-        xgroup = False
+        xgroup = None
         if self.xgroup:
             xgroup = self.xgroup.run(variant, passed)
             if xgroup is False:
                 return
-            if len(xgroup) > 1:
+            if len(xgroup) > 1 and len(value) != len(xgroup):
                 raise ValueError(
                     "Cannot aggregate on more than one level of xgroup."
                 )
-            xgroup = xgroup[0]
+            # xgroup = xgroup[0]
 
-        value = self.term.run(variant, passed)
-
-        if value is False:
-            return
-        if xgroup:
-            self.cache.setdefault(xgroup, {}).setdefault(group, []).extend(
-                value
-            )
+        if xgroup is not None:
+            for xgrup, grup, val in zip(xgroup, group, value):
+                self.cache.setdefault(
+                    xgrup, {}
+                ).setdefault(
+                    grup, []
+                ).append(val)
         else:
-            self.cache.setdefault(group, []).extend(value)
+            for grup, val in zip(group, value):
+                self.cache.setdefault(grup, []).append(val)
 
     def dump(self):
         """Dump and calculate the aggregations"""
