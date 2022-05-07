@@ -14,12 +14,11 @@ repository = "https://github.com/pwwang/vcfstats"
 include = ["vcfstats/args.toml"]
 
 [tool.poetry.dependencies]
-python = "^3.7.1"
+python = "^3.8"
 cyvcf2 = "0.*"
-toml = "0.*"
 pyparam = "^0.4"
 rich = "^12"
-lark-parser = "^0.11"
+lark-parser = "^0.12"
 plotnine = "^0.8"
 plotnine-prism = "^0.0"
 python-slugify = "^6"
