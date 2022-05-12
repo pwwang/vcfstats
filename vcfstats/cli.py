@@ -133,8 +133,7 @@ def load_config(config, opts):
     """Load the configurations from file"""
     if not path.isfile(config):
         raise OSError("Config file does not exist: {}".format(config))
-    configs = Config(with_profile=False)
-    configs._load(config)
+    configs = Config.load(config)
     configs = configs.as_dict()
     ones = []
     if "instance" in configs:

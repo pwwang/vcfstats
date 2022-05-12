@@ -1,3 +1,12 @@
+# 0.4.0
+
+- ⬆️ Drop support for python 3.8 (brentp/cyvcf2#181)
+- 🚨 Use python3.9 in Dockerfile
+- ⬆️️ Upgrade pyparam to 0.5
+- ⬆️ Upgrade and pin deps
+- 📝 Add more examples (#15, #17)
+- 👷 Add docker build in CI
+
 # 0.3.0
 
 - Introduce enhancements (pwwang/vcfstats#15)
