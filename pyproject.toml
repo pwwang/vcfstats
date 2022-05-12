@@ -14,7 +14,7 @@ repository = "https://github.com/pwwang/vcfstats"
 include = ["vcfstats/args.toml"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7.1"
 cyvcf2 = "0.*"
 pyparam = "^0.5"
 rich = "^12"

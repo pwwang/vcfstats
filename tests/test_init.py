@@ -146,7 +146,7 @@ def test_main(vcffile, tmp_path):
 from vcfstats.macros import cat
 @cat
 def DEMO(variant):
-	'''Some demo macro'''b
+	'''Some demo macro'''
 	return variant.CHROM
 """
     )
