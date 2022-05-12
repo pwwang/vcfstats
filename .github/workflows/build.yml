@@ -79,6 +79,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags:
-            - justold/vcfstats:latest,
-            - justold/vcfstats:${{ github.ref_name }}
+          tags: justold/vcfstats:latest,justold/vcfstats:${{ github.ref_name }}
