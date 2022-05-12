@@ -138,7 +138,7 @@ def test_load_config(tmp_path):
 def test_main(vcffile, tmp_path):
     # help
     cmd = cmdy.vcfstats(_raise=False)
-    assert "Print help information for this command" in cmd.stdout
+    assert "Print help information for this command" in str(cmd)
 
     macrofile = tmp_path.with_suffix(".macromain.py")
     macrofile.write_text(
@@ -146,7 +146,7 @@ def test_main(vcffile, tmp_path):
 from vcfstats.macros import cat
 @cat
 def DEMO(variant):
-	'''Some demo macro'''
+	'''Some demo macro'''b
 	return variant.CHROM
 """
     )

@@ -131,7 +131,7 @@ dmypy.json
 .vscode/
 
 # poetry
-poetry.lock
+# poetry.lock
 
 # backup file
 *.bak
