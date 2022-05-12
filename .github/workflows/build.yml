@@ -61,9 +61,9 @@ jobs:
         if: success()
 
   docker:
-    needs: build
+    # needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     steps:
       - uses: actions/checkout@v2
       - name: Set up QEMU
