@@ -1,3 +1,8 @@
+# 0.4.1
+
+- 📝 Add more examples regarding #20
+- 🐛 Fix devpars by default a Namespace rather than a dict (#21, #22)
+
 # 0.4.0
 
 - ⬆️ Drop support for python 3.8 (brentp/cyvcf2#181)

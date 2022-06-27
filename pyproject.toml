@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "vcfstats"
-version = "0.4.0"
+version = "0.4.1"
 description = "Powerful statistics for VCF files"
 authors = [ "pwwang <pwwang@pwwang.com>",]
 license = "MIT"
@@ -41,9 +41,9 @@ target-version = ['py37', 'py38', 'py39']
 include = '\.pyi?$'
 
 [tool.pytest.ini_options]
-addopts = "-vv --cov-config=.coveragerc --cov=vcfstats --cov-report xml:.coverage.xml --cov-report term-missing"
+addopts = "-vv -p 'no:asyncio' --cov-config=.coveragerc --cov=vcfstats --cov-report xml:.coverage.xml --cov-report term-missing"
 filterwarnings = [
-    #"error"
+    # "error"
 ]
 console_output_style = "progress"
 junit_family = "xunit1"
