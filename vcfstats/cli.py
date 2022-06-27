@@ -6,7 +6,7 @@ from itertools import chain
 from os import path
 
 from cyvcf2 import VCF
-from pyparam import Params
+from pyparam import Params, Namespace
 from rich.console import Console
 from rich.table import Table
 from simpleconf import Config
@@ -87,6 +87,10 @@ def get_instances(opts, samples):
         ggs = opts["ggs"][i] if i < len(opts["ggs"]) else None
         figtype = opts["figtype"][i] if i < len(opts["figtype"]) else None
         figfmt = opts["figfmt"][i] if i < len(opts["figfmt"]) else None
+
+        if isinstance(devpars[i], Namespace):
+            devpars[i] = vars(devpars[i])
+
         ret.append(
             Instance(
                 formula,
