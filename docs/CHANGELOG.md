@@ -1,3 +1,7 @@
+# 0.4.2
+
+- 🐛 Fix config file not used correctly (#27)
+
 # 0.4.1
 
 - 📝 Add more examples regarding #20

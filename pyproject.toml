@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "vcfstats"
-version = "0.4.1"
+version = "0.4.2"
 description = "Powerful statistics for VCF files"
 authors = [ "pwwang <pwwang@pwwang.com>",]
 license = "MIT"
