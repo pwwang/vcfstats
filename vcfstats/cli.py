@@ -61,7 +61,8 @@ def combine_regions(regions, regfile):
     """Combine all the regions.
     Users have to make sure there is no overlapping between regions"""
     logger.info(
-        "Combining regions, remind that regions should not be overlapping ..."
+        "Combining regions, be reminded that regions should "
+        "NOT be overlapping ..."
     )
     # make sure regions have no overlaps
     ret = regions[:] if regions else []
@@ -157,6 +158,10 @@ def load_config(config, opts):
     else:
         default_devpars = opts["devpars"]
         opts["devpars"] = [opts["devpars"]] * len_fml
+
+    if isinstance(default_devpars, Namespace):
+        default_devpars = default_devpars._to_dict()
+
     for instance in ones:
         if "formula" not in instance:
             raise ValueError(
@@ -186,15 +191,32 @@ def main():
             load_macrofile(sys.argv[sys.argv.index("--macro") + 1])
         list_macros()
 
-    opts = params.parse()
+    opts = params.parse(ignore_errors=True)
+    # title and formula can be optional if config file specified
+    if "formula" in opts or "title" in opts:
+        # raise other errors
+        opts = params.parse()
+    else:
+        opts["formula"] = []
+        opts["title"] = []
+
+    if "ggs" not in opts:
+        opts["ggs"] = []
+
     logger.setLevel(getattr(logging, opts["loglevel"].upper()))
+
     if opts["config"]:
         load_config(opts["config"], opts)
+
     if opts["macro"]:
         load_macrofile(opts["macro"])
+
     vcf, samples = get_vcf_by_regions(
+        # TODO: should write to a different file instead of appending to
+        # opts["Region"]
         opts["vcf"], combine_regions(opts["region"], opts["Region"])
     )
+
     ones = get_instances(opts, samples)
     logger.info("Start reading variants ...")
     with capture_c_msg("cyvcf2"):

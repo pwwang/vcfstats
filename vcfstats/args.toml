@@ -52,7 +52,7 @@ aliases = ['f']
 required = true
 type = 'list'
 desc = '''The formulas for plotting in format of `Y ~ X`,
-where `Y` and `X` should be either an entry or an aggregation.
+where `Y` and `X` should be either an entry or an aggregation. Optional when --config is given.
 '''
 
 [params.macro]
@@ -62,7 +62,7 @@ desc = 'A user-defined macro file.'
 [params.title]
 required = true
 type = 'list'
-desc = 'The title of each figure, will be used to name the output files as well.'
+desc = 'The title of each figure, will be used to name the output files as well. Optional when --config is given.'
 
 [params.ggs]
 default = []

@@ -145,3 +145,5 @@ examples/*.csv
 vcfstats-out/
 docs/index.md
 examples/*.svg
+
+/localtests
