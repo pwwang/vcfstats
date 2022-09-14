@@ -25,3 +25,7 @@ ggs = 'theme_bw()'
 devpars = {width = 2000, height = 2000, res = 300}
 
 ```
+
+When you have a configuration file provided, `--title` and `--formula` are optional.
+
+The instances specified by `--title` and `--formula` will be used together with the ones provided in the configuration file.
