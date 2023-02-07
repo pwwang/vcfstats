@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "vcfstats"
-version = "0.4.2"
+version = "0.4.3"
 description = "Powerful statistics for VCF files"
 authors = [ "pwwang <pwwang@pwwang.com>",]
 license = "MIT"
@@ -15,12 +15,12 @@ include = ["vcfstats/args.toml"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-cyvcf2 = "0.*"
+cyvcf2 = "^0.30"
 pyparam = "^0.5"
 lark-parser = "^0.12"
 plotnine = "^0.10"
 plotnine-prism = "^0.2"
-python-slugify = "^7"
+python-slugify = "^8"
 datar = { version = "^0.11", extras = ["pandas"] }
 py = "^1.10"
 
