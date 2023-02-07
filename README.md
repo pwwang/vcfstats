@@ -271,8 +271,8 @@ See more examples:
 [3]: https://img.shields.io/github/v/tag/pwwang/vcfstats?style=flat-square
 [4]: https://github.com/pwwang/vcfstats
 [5]: https://img.shields.io/pypi/pyversions/vcfstats?style=flat-square
-[6]: https://img.shields.io/github/workflow/status/pwwang/vcfstats/Build%20Docs?label=docs&style=flat-square
-[7]: https://img.shields.io/github/workflow/status/pwwang/vcfstats/Build%20and%20Deploy?style=flat-square
+[6]: https://img.shields.io/github/actions/workflow/status/pwwang/vcfstats/docs.yml?label=docs&style=flat-square
+[7]: https://img.shields.io/github/actions/workflow/status/pwwang/vcfstats/build.yml?style=flat-square
 [9]: https://img.shields.io/codacy/grade/c8c8bfa8c5e9443bbf268a0a7c6f206d?style=flat-square
 [10]: https://app.codacy.com/gh/pwwang/vcfstats/
 [11]: https://img.shields.io/codacy/coverage/c8c8bfa8c5e9443bbf268a0a7c6f206d?style=flat-square
