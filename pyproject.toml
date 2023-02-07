@@ -16,21 +16,18 @@ include = ["vcfstats/args.toml"]
 [tool.poetry.dependencies]
 python = "^3.8"
 cyvcf2 = "0.*"
-pyparam = "^0.5.1"
-rich = "^12"
+pyparam = "^0.5"
 lark-parser = "^0.12"
-plotnine = "^0.8"
-plotnine-prism = "^0.0"
-python-slugify = "^6"
-datar = "^0.9"
+plotnine = "^0.10"
+plotnine-prism = "^0.2"
+python-slugify = "^7"
+datar = { version = "^0.11", extras = ["pandas"] }
 py = "^1.10"
-# https://github.com/brentp/cyvcf2/issues/181
-numpy = "^1.22"
 
 [tool.poetry.dev-dependencies]
 cmdy = "^0.5"
 pytest = "^7"
-pytest-cov = "^3"
+pytest-cov = "^4"
 
 [tool.poetry.scripts]
 vcfstats = "vcfstats.cli:main"
