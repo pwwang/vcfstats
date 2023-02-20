@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.5.0
+
+- ➕ Use argx instead of pyparam
+
 ## 0.4.3
 
 - 🚑 Fix numpy error raised from plotnine (#35)
