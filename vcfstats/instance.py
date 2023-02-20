@@ -113,7 +113,7 @@ def get_plot_type(formula, figtype):
             "Don't know how to plot CONTINUOUS ~ CONTINUOUS "
             "using plots other than scatter"
         )
-    return None
+    return None  # pragma: no cover
 
 
 class Instance:

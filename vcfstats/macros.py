@@ -131,7 +131,7 @@ def DEPTHs(variant):
     """Get the read-depth for each sample as a numpy array."""
     try:
         return [sum(dp) for dp in variant.format("DP")]
-    except (TypeError, ValueError):
+    except (TypeError, ValueError):  # pragma: no cover
         warnings.warn(
             "Failed to fetch sample depth for variant: {}".format(
                 variant

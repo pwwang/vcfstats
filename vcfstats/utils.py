@@ -6,15 +6,18 @@ from os.path import commonprefix
 from pathlib import Path
 
 import py
-from pyparam import defaults
 from rich.logging import RichHandler
-
-defaults.HELP_OPTION_WIDTH = 28
 
 # macro database
 MACROS = {}
 
 VCFSTATS_LOGGER_NAME = "VCFSTATS"
+
+DEVPARS_DEFAULTS = {
+    "width": 1000,
+    "height": 1000,
+    "res": 100,
+}
 
 # where this file is located
 HERE = Path(__file__).parent.resolve()
@@ -53,7 +56,7 @@ logger.addHandler(
 @contextmanager
 def capture_c_msg(
     name, stdout_level="info", stderr_level="warning", prefix=""
-):
+):  # pragma: no cover
     """Capture stdout/err from cyvcf2, which is c-level outputs that
     cannot be captured by redirect_stdout/err"""
     stdout_log = getattr(logger, stdout_level)
@@ -93,7 +96,7 @@ def capture_python_msg(
     stdout_level="info",
     stderr_level="warning",
     prefix="",
-):
+):  # pragma: no cover
     outio = StringIO()
     errio = StringIO()
     stdout_log = getattr(logger, stdout_level)
