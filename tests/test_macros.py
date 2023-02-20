@@ -3,9 +3,25 @@ from pathlib import Path
 import pytest
 from cyvcf2 import VCF
 
-from vcfstats.macros import *
-from vcfstats.macros import _ONE
-from vcfstats.utils import MACROS
+from vcfstats.macros import (
+    _ONE,
+    TITV,
+    VARTYPE,
+    CONTIG,
+    AAF,
+    AFs,
+    COUNT,
+    DEPTHs,
+    FILTER,
+    GTTYPEs,
+    GQs,
+    NALT,
+    QUAL,
+    SUBST,
+    SAMPLES,
+    MEAN,
+    SUM,
+)
 
 HERE = Path(__file__).parent.resolve()
 
@@ -29,7 +45,7 @@ def test_titv(variants):
     assert TITV(variants[0]) == "transversion"
     assert TITV(variants[1]) == "transversion"
     assert TITV(variants[5]) == "transition"
-    assert TITV(variants[3]) == False
+    assert TITV(variants[3]) is False
 
 
 def test_contig(variants):
@@ -81,6 +97,10 @@ def test_afs(variants):
 
 def test_one(variants):
     assert _ONE(None) == 1
+
+
+def test_samples(variants):
+    assert list(SAMPLES(variants[0])) == [0, 1, 2, 3]
 
 
 @pytest.mark.parametrize("entries", ([], [1, 2], [1, 2, 3]))

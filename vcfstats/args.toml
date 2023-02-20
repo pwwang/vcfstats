@@ -1,93 +1,131 @@
-[params.vcf]
-aliases = ['v']
+prog = "vcfstats"
+description = "vcfstats v{version}: Plotting statistics from VCF files"
+
+[[arguments]]
+flags = ["--vcf", "-v"]
 required = true
-type = 'file'
-desc = 'The VCF file.'
+help = "The VCF file."
+type = "path"
 
-[params.loglevel]
-default = 'info'
-desc = 'The logging level.'
+[[arguments]]
+flags = ["--loglevel"]
+default = "info"
+help = "The logging level."
+choices = ["debug", "info", "warning", "error", "critical"]
 
-[params.outdir]
-aliases = ['o']
+[[arguments]]
+flags = ["--outdir", "-o"]
 required = true
-desc = 'The output directory.'
+help = "The output directory."
 
-[params.figtype]
+[[arguments]]
+flags = ["--figtype"]
 default = []
-desc = 'Your preferences for type of plot for each formula.'
+help = "Your preferences for type of plot for each formula."
+nargs = "+"
+action = "extend"
 
-[params.figfmt]
+[[arguments]]
+flags = ["--figfmt"]
 default = []
-desc = 'Your preferences for format of figure for each formula, Any file format supported by matplotlib. Default is png.'
+help = "Your preferences for format of figure for each formula, Any file format supported by matplotlib. Default is png."
+nargs = "+"
+action = "extend"
 
-[params.region]
-aliases = ['r']
+[[arguments]]
+flags = ["--region", "-r"]
 default = []
-desc = 'Regions in format of `CHR` or `CHR:START-END`'
+help = "Regions in format of `CHR` or `CHR:START-END`"
+nargs = "+"
+action = "extend"
 
-[params.Region]
-aliases = ['R']
-desc = 'Regions in a BED file. If both --region/--Region are provided, regions will be merged together.'
+[[arguments]]
+flags = ["--Region"]
+metavar = "BED"
+default = []
+help = "Regions in a BED file. If both --region/--Region are provided, regions will be merged together."
+nargs = "+"
+action = "extend"
 
-[params.passed]
-aliases = ['p']
+[[arguments]]
+flags = ["--pass", "-p"]
 default = false
-desc = '''Only analyze variants that pass all filters.
-This does not work if FILTER entry is in the analysis.
-'''
+dest = "passed"
+help = "Only analyze variants that pass all filters. This does not work if FILTER entry is in the analysis."
+action = "store_true"
 
-[params.list]
-aliases = ['l']
+[[arguments]]
+flags = ["--list", "-l"]
 default = false
-desc = 'List all available macros.'
+help = "List all available macros."
+action = "store_true"
 
-[params.savedata]
-aliases = ['s']
+[[arguments]]
+flags = ["--save", "-s"]
 default = false
-desc = 'Whether save the plotting data for further exploration.'
+dest = "savedata"
+help = "Whether save the plotting data for further exploration."
+action = "store_true"
 
-[params.formula]
-aliases = ['f']
-required = true
-type = 'list'
-desc = '''The formulas for plotting in format of `Y ~ X`,
-where `Y` and `X` should be either an entry or an aggregation. Optional when --config is given.
-'''
-
-[params.macro]
-type = 'file'
-desc = 'A user-defined macro file.'
-
-[params.title]
-required = true
-type = 'list'
-desc = 'The title of each figure, will be used to name the output files as well. Optional when --config is given.'
-
-[params.ggs]
+[[arguments]]
+flags = ["--formula", "-f"]
 default = []
-desc = 'Extra ggplot2 expressions for each plot'
+help = "The formulas for plotting in format of `Y ~ X`, where `Y` and `X` should be either an entry or an aggregation. Optional when --config is given."
+nargs = "+"
+required = true
+action = "extend"
 
-[params.devpars]
-type = 'ns'
-desc = 'The device parameters for plots. To specify devpars for each plot, use a configuration file.'
+[[arguments]]
+flags = ["--macro"]
+type = "path"
+help = "A user-defined macro file."
 
-[params."devpars.width"]
-default = 2000
-argname_shorten = false
-desc = 'The width of the plot'
+[[arguments]]
+flags = ["--title", "-t"]
+default = []
+help = "The title of each figure, will be used to name the output files as well. Optional when --config is given."
+nargs = "+"
+required = true
+action = "extend"
 
-[params."devpars.height"]
-default = 2000
-argname_shorten = false
-desc = 'The height of the plot'
+[[arguments]]
+flags = ["--ggs", "-g"]
+metavar = "EXPR"
+default = []
+help = "Extra ggplot2 expressions for each plot."
+nargs = "+"
+action = "extend"
 
-[params."devpars.res"]
-default = 300
-argname_shorten = false
-desc = 'The resolution of the plot'
+[[namespaces]]
+name = "devpars"
+description = "The device parameters for plots. To specify devpars for each plot, use a configuration file."
+order = 1
 
-[params.config]
-aliases = ['c']
-desc = '''A configuration file defining how to plot in TOML format.
-If this is provided, CLI arguments will be overwritten if defined in this file.'''
+[[arguments]]
+flags = ["--devpars.width"]
+default = []
+help = "The width of the plot."
+type = "int"
+nargs = "+"
+action = "extend"
+
+[[arguments]]
+flags = ["--devpars.height"]
+default = []
+help = "The height of the plot."
+type = "int"
+nargs = "+"
+action = "extend"
+
+[[arguments]]
+flags = ["--devpars.res"]
+default = []
+help = "The resolution of the plot."
+type = "int"
+nargs = "+"
+action = "extend"
+
+[[arguments]]
+flags = ["--config"]
+type = "path"
+help = "A configuration file defining how to plot in TOML format. If this is provided, CLI arguments will be overwritten if defined in this file."

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import cmdy
 import pytest
-from pyparam import Namespace
+from argparse import Namespace
 
 from vcfstats.cli import (
     MACROS,
@@ -11,7 +11,6 @@ from vcfstats.cli import (
     get_instances,
     get_vcf_by_regions,
     list_macros,
-    load_config,
     load_macrofile,
     main,
 )
@@ -54,17 +53,21 @@ def test_combine_regions(tmp_path):
 
 def test_get_ones(tmp_path):
     ones = get_instances(
-        {
-            "devpars": {"width": 1000, "height": 1000, "res": 100},
-            "formula": ["COUNT(1) ~ CHROM", "AAF ~ CHROM"],
-            "title": ["title1", "title2"],
-            "ggs": [],
-            "figtype": [],
-            "passed": False,
-            "outdir": tmp_path,
-            "savedata": False,
-            "figfmt": [],
-        },
+        Namespace(
+            **{
+                "devpars": Namespace(
+                    **{"width": [1000], "height": [1000], "res": [100]}
+                ),
+                "formula": ["COUNT(1) ~ CHROM", "AAF ~ CHROM"],
+                "title": ["title1", "title2"],
+                "ggs": [],
+                "figtype": [],
+                "passed": False,
+                "outdir": tmp_path,
+                "savedata": False,
+                "figfmt": [],
+            }
+        ),
         ["A", "B", "C", "D"],
     )
     assert len(ones) == 2
@@ -95,50 +98,10 @@ def DEMO(variant):
     assert "DEMO" in MACROS
 
 
-def test_load_config(tmp_path):
-    configfile = tmp_path.with_suffix(".config.toml")
-    with pytest.raises(OSError):
-        load_config(configfile, {})
-    configfile.write_text(
-        '[[instance]]\nformula = "VARTYPE ~ CHROM"\ntitle = "title1"\n'
-    )
-    opts = Namespace(
-        **{
-            "formula": [],
-            "figtype": [],
-            "figfmt": [],
-            "ggs": [],
-            "devpars": {},
-            "title": [],
-        }
-    )
-    load_config(configfile, opts)
-    assert opts["formula"] == ["VARTYPE ~ CHROM"]
-    opts = Namespace(
-        **{
-            "formula": ["VARTYPE ~ CHROM"],
-            "figtype": [],
-            "figfmt": [],
-            "ggs": [],
-            "devpars": [{}],
-            "title": ["title1"],
-        }
-    )
-    load_config(configfile, opts)
-    assert opts["devpars"] == [{}, {}]
-
-    configfile.write_text('[[instance]]\ntitle = "title1"\n')
-    with pytest.raises(ValueError):
-        load_config(configfile, opts)
-    configfile.write_text('[[instance]]\nformula = "VARTYPE ~ CHROM"\n')
-    with pytest.raises(ValueError):
-        load_config(configfile, opts)
-
-
 def test_main(vcffile, tmp_path):
     # help
-    cmd = cmdy.vcfstats(_raise=False)
-    assert "Print help information for this command" in str(cmd)
+    cmd = cmdy.vcfstats(_raise=False).stderr
+    assert "the following arguments are required" in str(cmd)
 
     macrofile = tmp_path.with_suffix(".macromain.py")
     macrofile.write_text(
@@ -146,8 +109,8 @@ def test_main(vcffile, tmp_path):
 from vcfstats.macros import cat
 @cat
 def DEMO(variant):
-	'''Some demo macro'''
-	return variant.CHROM
+    '''Some demo macro'''
+    return variant.CHROM
 """
     )
     cmd = cmdy.vcfstats(l=True, macro=macrofile, _raise=False)

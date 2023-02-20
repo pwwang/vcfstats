@@ -1,23 +1,23 @@
 """Powerful VCF statistics"""
 import logging
 import sys
-from functools import partial
 from itertools import chain
 from os import path
 
+from argx import ArgumentParser
+from argparse import Namespace
 from cyvcf2 import VCF
-from pyparam import Params, Namespace
 from rich.console import Console
 from rich.table import Table
 from simpleconf import Config
 
 from .instance import Instance
-from .utils import HERE, MACROS, capture_c_msg, logger
+from .utils import HERE, MACROS, DEVPARS_DEFAULTS, capture_c_msg, logger
 
 
 def _check_len_callback(value, allvalues, name):
     expect_len = len(allvalues.formula)
-    if value and len(value) != expect_len:
+    if value and len(value) != expect_len:  # pragma: no cover
         return ValueError(f"Wrong length of {name}, expect {expect_len}.")
     return value
 
@@ -26,15 +26,10 @@ def get_params():
     """Get the parameter definitions"""
     from . import __version__
 
-    params = Params(
-        prog="vcfstats",
-        desc=f"vcfstats v{__version__}: Powerful VCF statistics.",
+    params = ArgumentParser.from_configs(
+        HERE / "args.toml",
+        version=__version__,
     )
-    params.from_file(HERE / "args.toml")
-    params.get_param("title").callback = partial(
-        _check_len_callback, name="title"
-    )
-    params.get_param("ggs").callback = partial(_check_len_callback, name="ggs")
     return params
 
 
@@ -81,28 +76,62 @@ def get_instances(opts, samples):
     ow many figures we are plotting"""
     logger.info("Getting instances ...")
     ret = []
-    devpars = opts["devpars"]
-    if not isinstance(devpars, list):
-        devpars = [devpars] * len(opts["formula"])
-    for i, formula in enumerate(opts["formula"]):
-        ggs = opts["ggs"][i] if i < len(opts["ggs"]) else None
-        figtype = opts["figtype"][i] if i < len(opts["figtype"]) else None
-        figfmt = opts["figfmt"][i] if i < len(opts["figfmt"]) else None
 
-        if isinstance(devpars[i], Namespace):
-            devpars[i] = vars(devpars[i])
+    # opts.devpars
+    # {"width": [1000, 1000], "height": [1000, 1000], "res": [100, 100]]}
+    # to
+    # [
+    #   {"width": 1000, "height": 1000, "res": 100},
+    #   {"width": 1000, "height": 1000, "res": 100}
+    # ]
+    devpars = opts.devpars
+    n_devpars = max(len(devpars.width), len(devpars.height), len(devpars.res))
+    if n_devpars == 0:
+        devpars = Namespace(
+            **{k: [v] * len(opts.formula) for k, v in DEVPARS_DEFAULTS.items()}
+        )
+    elif n_devpars == 1:
+        assert len(devpars.width) <= 1
+        assert len(devpars.height) <= 1
+        assert len(devpars.res) <= 1
+
+        devpars = Namespace(
+            **{
+                k: (
+                    [DEVPARS_DEFAULTS[k]] * len(opts.formula)
+                    if len(v) == 0
+                    else v * len(opts.formula)
+                    if len(v) == 1
+                    else v
+                )
+                for k, v in vars(opts.devpars).items()
+            }
+        )
+    else:
+        assert len(devpars.width) == len(opts.formula)  # pragma: no cover
+        assert len(devpars.height) == len(opts.formula)  # pragma: no cover
+        assert len(devpars.res) == len(opts.formula)  # pragma: no cover
+
+    for i, formula in enumerate(opts.formula):
+        ggs = opts.ggs[i] if i < len(opts.ggs) else None
+        figtype = opts.figtype[i] if i < len(opts.figtype) else None
+        figfmt = opts.figfmt[i] if i < len(opts.figfmt) else None
 
         ret.append(
             Instance(
                 formula,
-                opts["title"][i],
+                opts.title[i],
                 ggs,
-                devpars[i],
-                opts["outdir"],
+                {
+                    "width": devpars.width[i],
+                    "height": devpars.height[i],
+                    "res": devpars.res[i],
+                },
+                opts.outdir,
                 samples,
                 figtype,
-                opts["passed"],
-                opts["savedata"],
+                opts.passed,
+                opts.savedata,
                 figfmt or "png",
             )
         )
@@ -134,56 +163,8 @@ def load_macrofile(macrofile):
     spec.loader.exec_module(importlib.util.module_from_spec(spec))
 
 
-def load_config(config, opts):
-    """Load the configurations from file"""
-    if not path.isfile(config):
-        raise OSError("Config file does not exist: {}".format(config))
-    configs = Config.load(config)
-    configs = configs.as_dict()
-    ones = []
-    if "instance" in configs:
-        ones = configs["instance"]
-        del configs["instance"]
-    opts |= configs
-    # padding figtype and ggs, and devpars
-    len_fml = len(opts["formula"])
-    opts["figtype"].extend([None] * (len_fml - len(opts["figtype"])))
-    opts["figfmt"].extend([None] * (len_fml - len(opts["figfmt"])))
-    opts["ggs"].extend([None] * (len_fml - len(opts["ggs"])))
-    if isinstance(opts["devpars"], list):
-        default_devpars = opts["devpars"][0]
-        opts["devpars"].extend(
-            [default_devpars] * (len_fml - len(opts["devpars"]))
-        )
-    else:
-        default_devpars = opts["devpars"]
-        opts["devpars"] = [opts["devpars"]] * len_fml
-
-    if isinstance(default_devpars, Namespace):
-        default_devpars = default_devpars._to_dict()
-
-    for instance in ones:
-        if "formula" not in instance:
-            raise ValueError(
-                "Formula not found in instance: {}".format(instance)
-            )
-        if "title" not in instance:
-            raise ValueError(
-                "Title not found in instance: {}".format(instance)
-            )
-        opts["formula"].append(instance["formula"])
-        opts["title"].append(instance["title"])
-        opts["figtype"].append(instance.get("figtype"))
-        opts["figfmt"].append(instance.get("figfmt"))
-        opts["ggs"].append(instance.get("ggs"))
-        def_devpars = default_devpars.copy()
-        def_devpars.update(instance.get("devpars", {}))
-        opts["devpars"].append(def_devpars)
-
-
 def main():
     """Main entrance of the program"""
-    params = get_params()
     # modify sys.argv to see if we have --list or -l option
     # If so, we ignore those required arguments
     if "-l" in sys.argv or "--list" in sys.argv:
@@ -191,32 +172,39 @@ def main():
             load_macrofile(sys.argv[sys.argv.index("--macro") + 1])
         list_macros()
 
-    opts = params.parse(ignore_errors=True)
-    # title and formula can be optional if config file specified
-    if "formula" in opts or "title" in opts:
-        # raise other errors
-        opts = params.parse()
-    else:
-        opts["formula"] = []
-        opts["title"] = []
+    params = get_params()
+    if "--config" in sys.argv:
+        configfile = sys.argv[sys.argv.index("--config") + 1]
+        config = Config.load_one(configfile, loader="toml")
+        instances = config.pop("instance", [])
+        default_devpars = config.pop("devpars", {})
+        for instance in instances:
+            for key, val in instance.items():
+                if key == "devpars":
+                    config.setdefault(key, {})
+                    value = default_devpars.copy()
+                    value.update(DEVPARS_DEFAULTS)
+                    value.update(val)
+                    for k, v in value.items():
+                        config["devpars"].setdefault(k, []).append(v)
+                else:
+                    config.setdefault(key, []).append(val)
 
-    if "ggs" not in opts:
-        opts["ggs"] = []
+        params.set_defaults_from_configs(config)
 
-    logger.setLevel(getattr(logging, opts["loglevel"].upper()))
+    opts = params.parse_args()
+    _check_len_callback(opts.title, opts, name="title")
+    _check_len_callback(opts.ggs, opts, name="ggs")
+    logger.setLevel(getattr(logging, opts.loglevel.upper()))
 
-    if opts["config"]:
-        load_config(opts["config"], opts)
-
-    if opts["macro"]:
-        load_macrofile(opts["macro"])
+    if opts.macro:
+        load_macrofile(opts.macro)
 
     vcf, samples = get_vcf_by_regions(
         # TODO: should write to a different file instead of appending to
-        # opts["Region"]
-        opts["vcf"], combine_regions(opts["region"], opts["Region"])
+        # opts.Region
+        opts.vcf, combine_regions(opts.region, opts.Region)
     )
-
     ones = get_instances(opts, samples)
     logger.info("Start reading variants ...")
     with capture_c_msg("cyvcf2"):
