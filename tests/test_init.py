@@ -69,6 +69,7 @@ def test_get_ones(tmp_path):
             }
         ),
         ["A", "B", "C", "D"],
+        {},
     )
     assert len(ones) == 2
     assert isinstance(ones[0], Instance)
@@ -91,7 +92,7 @@ def test_load_macrofile(tmp_path):
 from vcfstats.macros import cat
 @cat
 def DEMO(variant):
-	return variant.CHROM
+    return variant.CHROM
 """
     )
     load_macrofile(macrofile)

@@ -5,7 +5,6 @@ from itertools import chain
 from os import path
 
 from argx import ArgumentParser
-from argparse import Namespace
 from cyvcf2 import VCF
 from rich.console import Console
 from rich.table import Table
@@ -71,7 +70,7 @@ def combine_regions(regions, regfile):
     return ret
 
 
-def get_instances(opts, samples):
+def get_instances(opts, samples, default_devpars):
     """Get instances/formulas. This will determine h
     ow many figures we are plotting"""
     logger.info("Getting instances ...")
@@ -84,49 +83,27 @@ def get_instances(opts, samples):
     #   {"width": 1000, "height": 1000, "res": 100},
     #   {"width": 1000, "height": 1000, "res": 100}
     # ]
-    devpars = opts.devpars
-    n_devpars = max(len(devpars.width), len(devpars.height), len(devpars.res))
-    if n_devpars == 0:
-        devpars = Namespace(
-            **{k: [v] * len(opts.formula) for k, v in DEVPARS_DEFAULTS.items()}
-        )
-    elif n_devpars == 1:
-        assert len(devpars.width) <= 1
-        assert len(devpars.height) <= 1
-        assert len(devpars.res) <= 1
-
-        devpars = Namespace(
-            **{
-                k: (
-                    [DEVPARS_DEFAULTS[k]] * len(opts.formula)
-                    if len(v) == 0
-                    else v * len(opts.formula)
-                    if len(v) == 1
-                    else v
-                )
-                for k, v in vars(opts.devpars).items()
-            }
-        )
-    else:
-        assert len(devpars.width) == len(opts.formula)  # pragma: no cover
-        assert len(devpars.height) == len(opts.formula)  # pragma: no cover
-        assert len(devpars.res) == len(opts.formula)  # pragma: no cover
+    ddevpars = DEVPARS_DEFAULTS.copy()
+    ddevpars.update(default_devpars)
 
     for i, formula in enumerate(opts.formula):
         ggs = opts.ggs[i] if i < len(opts.ggs) else None
         figtype = opts.figtype[i] if i < len(opts.figtype) else None
         figfmt = opts.figfmt[i] if i < len(opts.figfmt) else None
+        devpars = {
+            k: v[i] if i < len(v) else ddevpars[k]
+            for k, v in vars(opts.devpars).items()
+        }
+        devpars.setdefault("width", ddevpars["width"])
+        devpars.setdefault("height", ddevpars["height"])
+        devpars.setdefault("res", ddevpars["res"])
 
         ret.append(
             Instance(
                 formula,
                 opts.title[i],
                 ggs,
-                {
-                    "width": devpars.width[i],
-                    "height": devpars.height[i],
-                    "res": devpars.res[i],
-                },
+                devpars,
                 opts.outdir,
                 samples,
                 figtype,
@@ -173,6 +150,7 @@ def main():
         list_macros()
 
     params = get_params()
+    default_devpars = {}
     if "--config" in sys.argv:
         configfile = sys.argv[sys.argv.index("--config") + 1]
         config = Config.load_one(configfile, loader="toml")
@@ -182,8 +160,8 @@ def main():
             for key, val in instance.items():
                 if key == "devpars":
                     config.setdefault(key, {})
-                    value = default_devpars.copy()
-                    value.update(DEVPARS_DEFAULTS)
+                    value = DEVPARS_DEFAULTS.copy()
+                    value.update(default_devpars)
                     value.update(val)
                     for k, v in value.items():
                         config["devpars"].setdefault(k, []).append(v)
@@ -205,7 +183,7 @@ def main():
         # opts.Region
         opts.vcf, combine_regions(opts.region, opts.Region)
     )
-    ones = get_instances(opts, samples)
+    ones = get_instances(opts, samples, default_devpars)
     logger.info("Start reading variants ...")
     with capture_c_msg("cyvcf2"):
         for i, variant in enumerate(vcf):

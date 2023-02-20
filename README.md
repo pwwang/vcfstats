@@ -139,7 +139,7 @@ vcfstats --vcf examples/sample.vcf \
     --figtype boxplot
 ```
 
-![Allele frequency on each chromosome](examples/allele-frequency-on-each-chromosome.boxplot.png)
+![Allele frequency on each chromosome](examples/allele-frequency-on-each-chromosome-boxplot.boxplot.png)
 
 #### Using density plot/histogram to investigate the distribution:
 
@@ -154,7 +154,7 @@ vcfstats --vcf examples/sample.vcf \
     --figtype density
 ```
 
-![Allele frequency on chromosome 1,2](examples/allele-frequency-on-chromosome-1-2.density.png)
+![Allele frequency on chromosome 1,2](examples/allele-frequency-on-chromosome-12.density.png)
 
 ### Overall distribution of allele frequency
 

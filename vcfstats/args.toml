@@ -48,7 +48,7 @@ nargs = "+"
 action = "extend"
 
 [[arguments]]
-flags = ["--pass", "-p"]
+flags = ["--passed", "-p"]
 default = false
 dest = "passed"
 help = "Only analyze variants that pass all filters. This does not work if FILTER entry is in the analysis."
