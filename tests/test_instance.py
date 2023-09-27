@@ -105,7 +105,7 @@ def test_one_iterate(tmp_path):
         False,
     )
     with pytest.raises(AttributeError):
-        instance.iterate(None)
+        instance.iterate(None, None)
 
 
 # def test_summarize(instance):

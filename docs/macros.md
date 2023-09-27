@@ -45,6 +45,19 @@ def GTTYPEs(variant)
 
 To get the genotype in sample 1 in formula: `GTTYPEs{0}`. You can also use sample name as well: `GTTYPEs{some sample}`
 
+It's also allowed to pass `vcf` (the instance of `cyvcf.VCF`) as the second argument to the macro. For example:
+
+```python
+from vcf.macros import cont
+
+@cont
+def MIXED_INFO(variant, vcf):
+	...
+```
+
+Check the [API documentation](https://brentp.github.io/cyvcf2/docstrings.html) of `cyvcf2` to see what information we can get from `vcf`.
+
+
 ## Macros with filters
 
 `aggregation`s have different syntax for filters. Here we are discussing about `continuous` and `categorical`.

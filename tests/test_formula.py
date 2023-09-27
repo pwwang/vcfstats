@@ -109,28 +109,28 @@ def test_term_init():
 
 def test_term_run(variants):
     term = Term("FILTER", "PASS")
-    assert term.run(variants[0], passed=True) == False
-    assert term.run(variants[5], passed=True) == ["PASS"]
+    assert term.run(variants[0], None, passed=True) == False
+    assert term.run(variants[5], None, passed=True) == ["PASS"]
 
     term = Term("FILTER2")
-    assert term.run(variants[5], passed=True) == False
+    assert term.run(variants[5], None, passed=True) == False
 
     term = Term("GTTYPEs", None, ["0"])
     term.set_samples(variants[-1])
-    assert term.run(variants[0], passed=False) == ["HOM_REF"]
+    assert term.run(variants[0], None, passed=False) == ["HOM_REF"]
 
     term = Term("AAF", [0.126, None])
     # .125
-    assert term.run(variants[0], passed=False) == False
-    assert term.run(variants[2], passed=False) == [0.25]
+    assert term.run(variants[0], None, passed=False) == False
+    assert term.run(variants[2], None, passed=False) == [0.25]
     term = Term("AAF", [None, 0.24])
     # .25
-    assert term.run(variants[0], passed=False) == [0.125]
-    assert term.run(variants[2], passed=False) == False
+    assert term.run(variants[0], None, passed=False) == [0.125]
+    assert term.run(variants[2], None, passed=False) == False
 
     term = Term("FILTER", "PASS")
-    assert term.run(variants[0], passed=False) == False
-    assert term.run(variants[5], passed=False) == ["PASS"]
+    assert term.run(variants[0], None, passed=False) == False
+    assert term.run(variants[5], None, passed=False) == ["PASS"]
 
 
 def test_aggr_init():
@@ -194,54 +194,54 @@ def test_aggr_run(variants):
     aggr = Aggr(
         "COUNT", One(), filter=Term("FILTER", ["PASS"]), group=Term("VARTYPE")
     )
-    aggr.run(variants[0], passed=True)
+    aggr.run(variants[0], None, passed=True)
     assert len(aggr.cache) == 0
 
     aggr2 = Aggr("COUNT", One(), filter=Term("FILTER", ["PASS"]))
     with pytest.raises(RuntimeError):
-        aggr2.run(variants[5], passed=True)
+        aggr2.run(variants[5], None, passed=True)
 
     aggr3 = Aggr(
         "COUNT", One(), filter=Term("FILTER", ["PASS"]), group=Term("FILTER2")
     )
-    aggr3.run(variants[5], passed=False)
+    aggr3.run(variants[5], None, passed=False)
     assert len(aggr3.cache) == 0
 
     aggr4 = Aggr("COUNT", One(), Term("GTTYPEs"))
     with pytest.raises(ValueError):
-        aggr4.run(variants[0], passed=False)
+        aggr4.run(variants[0], None, passed=False)
 
     aggr5 = Aggr("COUNT", One(), Term("VARTYPE"))
-    aggr5.run(variants[0], passed=False)
+    aggr5.run(variants[0], None, passed=False)
     assert aggr5.cache == {"snp": [1]}
-    aggr5.run(variants[1], passed=False)
+    aggr5.run(variants[1], None, passed=False)
     assert aggr5.cache == {"snp": [1, 1]}
-    aggr5.run(variants[3], passed=False)
+    aggr5.run(variants[3], None, passed=False)
     assert aggr5.cache == {"snp": [1, 1], "indel": [1]}
 
     assert aggr5.dump() == {"snp": 2, "indel": 1}
 
     aggr5.cache.clear()
     aggr5.setxgroup(Term("FILTER", None))
-    aggr5.run(variants[0], passed=False)
+    aggr5.run(variants[0], None, passed=False)
     assert aggr5.cache == {"MinMQ": {"snp": [1]}}
 
     aggr5.cache.clear()
     aggr5.setxgroup(Term("FILTER2", None))
-    aggr5.run(variants[0], passed=False)
+    aggr5.run(variants[0], None, passed=False)
     assert aggr5.cache == {"MinMQ": {"snp": [1]}}
-    aggr5.run(variants[5], passed=False)
+    aggr5.run(variants[5], None, passed=False)
     assert aggr5.cache == {"MinMQ": {"snp": [1]}}
-    aggr5.run(variants[1], passed=False)
+    aggr5.run(variants[1], None, passed=False)
     assert aggr5.cache == {"MinMQ": {"snp": [1, 1]}}
     assert aggr5.dump() == {"MinMQ": [(2, "snp")]}
 
     aggr5.setxgroup(Term("GTTYPEs", ["HOM_REF", "HET"]))
     with pytest.raises(ValueError):
-        aggr5.run(variants[0], passed=False)
+        aggr5.run(variants[0], None, passed=False)
 
     aggr6 = Aggr("MEAN", Term("AAF", [".2", None]), Term("CHROM"))
-    aggr6.run(variants[0], passed=False)  # .125
+    aggr6.run(variants[0], None, passed=False)  # .125
     assert len(aggr6.cache) == 0
 
 
@@ -272,14 +272,14 @@ def test_formula_run(variants):
     data = []
     fmula = Formula("AFs{0,1} ~ GTTYPEs{0-2}", variants[-1], False, "title")
     with pytest.raises(RuntimeError):
-        fmula.run(variants[0], data.append, data.extend)
+        fmula.run(variants[0], None, data.append, data.extend)
 
     fmula = Formula("FILTER2 ~ CHROM", variants[-1], False, "title")
-    fmula.run(variants[5], data.append, data.extend)
+    fmula.run(variants[5], None, data.append, data.extend)
     assert data == []
 
     fmula = Formula("GTTYPEs ~ CHROM", variants[-1], False, "title")
-    fmula.run(variants[0], data.append, data.extend)
+    fmula.run(variants[0], None, data.append, data.extend)
     assert data == [
         ("HOM_REF", "1"),
         ("HOM_REF", "1"),
@@ -289,7 +289,7 @@ def test_formula_run(variants):
 
     data = []
     fmula = Formula("CHROM ~ GTTYPEs", variants[-1], False, "title")
-    fmula.run(variants[0], data.append, data.extend)
+    fmula.run(variants[0], None, data.append, data.extend)
     assert data == [
         ("1", "HOM_REF"),
         ("1", "HOM_REF"),
@@ -304,8 +304,8 @@ def test_formula_run(variants):
         False,
         "title",
     )
-    fmula.run(variants[0], data.append, data.extend)
-    fmula.run(variants[1], data.append, data.extend)
+    fmula.run(variants[0], None, data.append, data.extend)
+    fmula.run(variants[1], None, data.append, data.extend)
     assert data == []
     fmula.done(data.append, data.extend)
     assert data == [(2, 2, "1")]
@@ -317,7 +317,7 @@ def test_formula_run(variants):
         False,
         "title",
     )
-    fmula.run(variants[0], data.append, data.extend)
+    fmula.run(variants[0], None, data.append, data.extend)
     assert data == []
 
     with pytest.raises(ValueError):
@@ -329,8 +329,8 @@ def test_formula_run(variants):
         )
 
     fmula = Formula("COUNT(1) ~ CHROM", variants[-1], False, "title")
-    fmula.run(variants[0], data.append, data.extend)
-    fmula.run(variants[1], data.append, data.extend)
+    fmula.run(variants[0], None, data.append, data.extend)
+    fmula.run(variants[1], None, data.append, data.extend)
     assert data == []
     assert fmula.Y.cache == {"1": [1, 1]}
     fmula.done(data.append, data.extend)
@@ -338,15 +338,15 @@ def test_formula_run(variants):
 
     fmula = Formula("CHROM ~ COUNT(1)", variants[-1], False, "title")
     with pytest.raises(TypeError):
-        fmula.run(variants[0], data.append, data.extend)
+        fmula.run(variants[0], None, data.append, data.extend)
 
     data = []
     fmula = Formula(
         "COUNT(1, group = VARTYPE) ~ CHROM", variants[-1], False, "title"
     )
-    fmula.run(variants[0], data.append, data.extend)
-    fmula.run(variants[1], data.append, data.extend)
-    fmula.run(variants[2], data.append, data.extend)
-    fmula.run(variants[3], data.append, data.extend)
+    fmula.run(variants[0], None, data.append, data.extend)
+    fmula.run(variants[1], None, data.append, data.extend)
+    fmula.run(variants[2], None, data.append, data.extend)
+    fmula.run(variants[3], None, data.append, data.extend)
     fmula.done(data.append, data.extend)
     assert data == [(3, "1", "snp"), (1, "1", "indel")]

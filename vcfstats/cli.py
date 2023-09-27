@@ -189,7 +189,7 @@ def main():
         for i, variant in enumerate(vcf):
             for instance in ones:
                 # save entries, cache aggr
-                instance.iterate(variant)
+                instance.iterate(variant, vcf)
             if i % 10000 == 0:  # pragma: no cover
                 logger.debug("- %s variants read.", i)
     logger.info(

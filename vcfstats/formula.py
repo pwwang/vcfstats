@@ -124,11 +124,14 @@ class Term:
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def run(self, variant, passed):
+    def run(self, variant, vcf, passed):
         """Run the variant"""
         if passed and variant.FILTER:
             return False
-        value = self.term["func"](variant)
+        if self.term["nargs"] == 2:
+            value = self.term["func"](variant, vcf)
+        else:
+            value = self.term["func"](variant)
 
         if value is False or value is None:
             return False
@@ -206,9 +209,9 @@ class Aggr:
         else:
             self.xgroup = xvar
 
-    def run(self, variant, passed):
+    def run(self, variant, vcf, passed):
         """Run each variant"""
-        if self.filter and self.filter.run(variant, passed) is False:
+        if self.filter and self.filter.run(variant, vcf, passed) is False:
             return
 
         if not self.group:
@@ -216,11 +219,11 @@ class Aggr:
                 "No group specified, don't know how to aggregate."
             )
 
-        group = self.group.run(variant, passed)
+        group = self.group.run(variant, vcf, passed)
         if group is False:
             return
 
-        value = self.term.run(variant, passed)
+        value = self.term.run(variant, vcf, passed)
         if value is False:
             return
 
@@ -233,7 +236,7 @@ class Aggr:
 
         xgroup = None
         if self.xgroup:
-            xgroup = self.xgroup.run(variant, passed)
+            xgroup = self.xgroup.run(variant, vcf, passed)
             if xgroup is False:
                 return
             if len(xgroup) > 1 and len(value) != len(xgroup):
@@ -312,12 +315,12 @@ class Formula:
         ):
             self.passed = False
 
-    def run(self, variant, data_append, data_extend):
+    def run(self, variant, vcf, data_append, data_extend):
         """Run each variant"""
         if isinstance(self.Y, Term) and isinstance(self.X, Term):
             yvar, xvar = (
-                self.Y.run(variant, self.passed),
-                self.X.run(variant, self.passed),
+                self.Y.run(variant, vcf, self.passed),
+                self.X.run(variant, vcf, self.passed),
             )
             if yvar is False or xvar is False:
                 return
@@ -336,10 +339,10 @@ class Formula:
 
             data_extend(((yvar[i], rvar) for i, rvar in enumerate(xvar)))
         elif isinstance(self.Y, Aggr) and isinstance(self.X, Aggr):
-            self.Y.run(variant, self.passed)
-            self.X.run(variant, self.passed)
+            self.Y.run(variant, vcf, self.passed)
+            self.X.run(variant, vcf, self.passed)
         elif isinstance(self.Y, Aggr) and isinstance(self.X, Term):
-            self.Y.run(variant, self.passed)
+            self.Y.run(variant, vcf, self.passed)
         else:
             raise TypeError(
                 "Cannot do 'TERM ~ AGGREGATION'. "

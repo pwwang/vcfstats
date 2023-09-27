@@ -4,6 +4,7 @@ import pytest
 from cyvcf2 import VCF
 
 from vcfstats.macros import (
+    cat,
     _ONE,
     TITV,
     VARTYPE,
@@ -26,6 +27,12 @@ from vcfstats.macros import (
 HERE = Path(__file__).parent.resolve()
 
 
+@cat
+def mixedinfo(variant, vcf):
+    """Global position of the variant"""
+    return vcf.raw_header[:6] + variant.CHROM
+
+
 @pytest.fixture(scope="module")
 def variants():
     vcf = VCF(
@@ -33,6 +40,19 @@ def variants():
         gts012=True,
     )
     return list(vcf)
+
+
+@pytest.fixture(scope="module")
+def variants_vcf():
+    vcf = VCF(
+        str(HERE.parent.joinpath("examples", "sample.vcf")),
+        gts012=True,
+    )
+    return list(vcf), vcf
+
+
+def test_variant_vcf(variants_vcf):
+    assert mixedinfo(variants_vcf[0][0], variants_vcf[1]) == "##file1"
 
 
 def test_vartype(variants):
