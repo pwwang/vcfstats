@@ -1,8 +1,14 @@
 """Builtin marcros for vcfstats"""
 import warnings
+from inspect import signature
 from functools import partial
 
 from .utils import MACROS
+
+
+def _nargs(func):
+    """Get the number of arguments of a function"""
+    return len(signature(func).parameters)
 
 
 def categorical(func=None, alias=None, _name=None):
@@ -14,6 +20,7 @@ def categorical(func=None, alias=None, _name=None):
         MACROS[funcname] = {}
         MACROS[funcname]["func"] = MACROS[funcname].get("func", func)
         MACROS[funcname]["type"] = "categorical"
+        MACROS[funcname]["nargs"] = _nargs(func)
     if _name:
         MACROS[_name] = MACROS[funcname]
     return MACROS[funcname]["func"]
@@ -28,6 +35,7 @@ def continuous(func=None, alias=None, _name=None):
         MACROS[funcname] = {}
         MACROS[funcname]["func"] = MACROS[funcname].get("func", func)
         MACROS[funcname]["type"] = "continuous"
+        MACROS[funcname]["nargs"] = _nargs(func)
     if _name:
         MACROS[_name] = MACROS[funcname]
     return MACROS[funcname]["func"]

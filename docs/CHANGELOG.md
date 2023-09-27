@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.6.0
+
+- ✨ Allow passing vcf as 2nd arg to macros (#45)
+- ⬆️ Update dependencies
+
 ## 0.5.0
 
 - ➕ Use argx instead of pyparam

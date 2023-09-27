@@ -175,10 +175,10 @@ class Instance:
     def __del__(self):
         del self.data
 
-    def iterate(self, variant):
+    def iterate(self, variant, vcf):
         """Iterate over each variant"""
         # Y
-        self.formula.run(variant, self.data.append, self.data.extend)
+        self.formula.run(variant, vcf, self.data.append, self.data.extend)
 
     def summarize(self):
         """Calculate the aggregations"""
