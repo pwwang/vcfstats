@@ -22,7 +22,7 @@ python-slugify = "^8"
 datar = { version = "^0.13", extras = ["pandas"] }
 py = "^1.10"
 argx = "^0.2"
-rich = "^13"
+rich = "^12"
 
 [tool.poetry.dev-dependencies]
 cmdy = "^0.5"
