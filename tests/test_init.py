@@ -24,11 +24,11 @@ def vcffile(tmp_path):
     run(
         [
             "bgzip",
+            "-c",
             str(ovcf),
-            "-o",
-            str(nvcf),
         ],
         check=True,
+        stdout=nvcf.open("wb"),
     )
     run(
         [
