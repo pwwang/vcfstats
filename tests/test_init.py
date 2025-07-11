@@ -1,7 +1,6 @@
-from pathlib import Path
-
-import cmdy
 import pytest
+from pathlib import Path
+from subprocess import run, PIPE
 from argparse import Namespace
 
 from vcfstats.cli import (
@@ -12,7 +11,7 @@ from vcfstats.cli import (
     get_vcf_by_regions,
     list_macros,
     load_macrofile,
-    main,
+    # main,
 )
 
 HERE = Path(__file__).parent.resolve()
@@ -22,8 +21,25 @@ HERE = Path(__file__).parent.resolve()
 def vcffile(tmp_path):
     ovcf = HERE.parent.joinpath("examples", "sample.vcf")
     nvcf = tmp_path.with_suffix(".vcf.gz")
-    c = cmdy.bgzip(ovcf, c=True).r > nvcf
-    cmdy.tabix(p="vcf", _=nvcf).fg
+    run(
+        [
+            "bgzip",
+            str(ovcf),
+            "-o",
+            str(nvcf),
+        ],
+        check=True,
+    )
+    run(
+        [
+            "tabix",
+            "-p",
+            "vcf",
+            str(nvcf),
+        ],
+        check=True,
+    )
+
     return nvcf
 
 
@@ -101,8 +117,8 @@ def DEMO(variant):
 
 def test_main(vcffile, tmp_path):
     # help
-    cmd = cmdy.vcfstats(_raise=False).stderr
-    assert "the following arguments are required" in str(cmd)
+    cmd = run(["python", "-m", "vcfstats"], stdout=PIPE, stderr=PIPE, text=True)
+    assert "the following arguments are required" in str(cmd.stderr)
 
     macrofile = tmp_path.with_suffix(".macromain.py")
     macrofile.write_text(
@@ -114,17 +130,34 @@ def DEMO(variant):
     return variant.CHROM
 """
     )
-    cmd = cmdy.vcfstats(l=True, macro=macrofile, _raise=False)
+
+    cmd = run(
+        ["python", "-m", "vcfstats", "-l", "--macro", str(macrofile)],
+        stdout=PIPE,
+        stderr=PIPE,
+        text=True,
+    )
     assert "Return 1 for a variant" in cmd.stdout
     assert "Some demo macro" in cmd.stdout
 
-    cmd = cmdy.vcfstats(
-        vcf=vcffile,
-        outdir=tmp_path,
-        formula="COUNT(1) ~ CONTIG",
-        title="Variants on each chromosome",
-        config=HERE.parent.joinpath("examples", "config.toml"),
-        _raise=False,
+    cmd = run(
+        [
+            "python", "-m",
+            "vcfstats",
+            "--vcf",
+            str(vcffile),
+            "--outdir",
+            str(tmp_path),
+            "--formula",
+            "COUNT(1) ~ CONTIG",
+            "--title",
+            "Variants on each chromosome",
+            "--config",
+            str(HERE.parent.joinpath("examples", "config.toml")),
+        ],
+        stdout=PIPE,
+        stderr=PIPE,
+        text=True,
     )
-    print(cmd.stderr, cmd.strcmd)
-    assert cmd.rc == 0
+    print(cmd.stderr, cmd.stdout)
+    assert cmd.returncode == 0

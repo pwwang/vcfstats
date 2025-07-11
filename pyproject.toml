@@ -14,27 +14,26 @@ repository = "https://github.com/pwwang/vcfstats"
 include = ["vcfstats/args.toml"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 cyvcf2 = "^0.30"
-lark-parser = "^0.12"
+lark = "^1.2"
 plotnine-prism = "^0.3"
 python-slugify = "^8"
-datar = { version = "^0.13", extras = ["pandas"] }
-py = "^1.10"
-argx = "^0.2"
+datar = { version = "^0.15", extras = ["pandas"] }
+py = "^1.11"
+argx = "^0.3"
 rich = "^13"
 
-[tool.poetry.dev-dependencies]
-cmdy = "^0.5"
-pytest = "^7"
-pytest-cov = "^4"
+[tool.poetry.group.dev.dependencies]
+pytest = "^8"
+pytest-cov = "^6"
 
 [tool.poetry.scripts]
 vcfstats = "vcfstats.cli:main"
 
 [tool.black]
-line-length = 79
-target-version = ['py37', 'py38', 'py39']
+line-length = 87
+target-version = ['py39', 'py310', 'py311', 'py312']
 include = '\.pyi?$'
 
 [tool.pytest.ini_options]

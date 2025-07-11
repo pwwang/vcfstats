@@ -1,4 +1,4 @@
-from io import StringIO
+# from io import StringIO
 from pathlib import Path
 
 import pytest
@@ -60,7 +60,9 @@ def test_parse_subsets(subsets, expected):
 # 	('a|b\\|c|(\\)|)', "|", True, ["a", "b\\|c", "(\\)|)"]),
 # 	('a|b\\|c|(\\)\\\'|)', "|", True, ["a", "b\\|c", "(\\)\\'|)"]),
 # 	('a|b\\|c |(\\)\\\'|)', "|", False, ["a", "b\\|c ", "(\\)\\'|)"]),
-# 	('outdir:dir:{{i.pattern | lambda x: __import__("glob").glob(x)[0] | fn }}_etc', ':', True, ["outdir", "dir", "{{i.pattern | lambda x: __import__(\"glob\").glob(x)[0] | fn }}_etc"]),
+# 	('outdir:dir:{{i.pattern | lambda x: __import__("glob").glob(x)[0] | fn }}_etc',
+#    ':', True, ["outdir", "dir", "{{i.pattern |
+#    lambda x: __import__(\"glob\").glob(x)[0] | fn }}_etc"]),
 # ])
 # def test_safe_split(string, delimit, trim, expect):
 # 	assert safe_split(string, delimit, trim) == expect
@@ -70,8 +72,8 @@ def test_term_init():
     term = Term("AAF", None)
     assert term.name == "AAF"
     assert term.term == MACROS["AAF"]
-    assert term.samples == None
-    assert term.subsets == None
+    assert term.samples is None
+    assert term.subsets is None
 
     term = Term("AAF", items=[".05", ".95"])
     assert term.subsets == [0.05, 0.95]
@@ -109,11 +111,11 @@ def test_term_init():
 
 def test_term_run(variants):
     term = Term("FILTER", "PASS")
-    assert term.run(variants[0], None, passed=True) == False
+    assert term.run(variants[0], None, passed=True) is False
     assert term.run(variants[5], None, passed=True) == ["PASS"]
 
     term = Term("FILTER2")
-    assert term.run(variants[5], None, passed=True) == False
+    assert term.run(variants[5], None, passed=True) is False
 
     term = Term("GTTYPEs", None, ["0"])
     term.set_samples(variants[-1])
@@ -121,15 +123,15 @@ def test_term_run(variants):
 
     term = Term("AAF", [0.126, None])
     # .125
-    assert term.run(variants[0], None, passed=False) == False
+    assert term.run(variants[0], None, passed=False) is False
     assert term.run(variants[2], None, passed=False) == [0.25]
     term = Term("AAF", [None, 0.24])
     # .25
     assert term.run(variants[0], None, passed=False) == [0.125]
-    assert term.run(variants[2], None, passed=False) == False
+    assert term.run(variants[2], None, passed=False) is False
 
     term = Term("FILTER", "PASS")
-    assert term.run(variants[0], None, passed=False) == False
+    assert term.run(variants[0], None, passed=False) is False
     assert term.run(variants[5], None, passed=False) == ["PASS"]
 
 
@@ -158,18 +160,16 @@ def test_aggr_init():
     assert aggr.group == Term("VARTYPE", None)
     assert aggr.xgroup is None
 
-    aggr = Aggr(
-        "COUNT", One(), filter=Term("FILTER", ["PASS"]), group=Term("VARTYPE")
-    )
+    aggr = Aggr("COUNT", One(), filter=Term("FILTER", ["PASS"]), group=Term("VARTYPE"))
     assert aggr.term == One()
     assert aggr.filter == Term("FILTER", ["PASS"])
     assert aggr.group == Term("VARTYPE", None)
     assert aggr.xgroup is None
     aggr.setxgroup(Term("GTTYPEs", ["A"]))
     assert aggr.xgroup == Term("GTTYPEs", ["A"])
-    assert (
-        repr(aggr)
-        == "<Aggr COUNT(<Term _ONE()>, filter=<Term FILTER(subsets=['PASS'])>, group=<Term VARTYPE()>)>"
+    assert repr(aggr) == (
+        "<Aggr COUNT(<Term _ONE()>, filter=<Term FILTER(subsets=['PASS'])>, "
+        "group=<Term VARTYPE()>)>"
     )
     assert aggr.has_filter()
 
@@ -181,7 +181,7 @@ def test_aggr_init():
     aggr = Aggr("COUNT", One(), filter=Term("GTTYPEs"))
     assert aggr.term == One()
     assert aggr.filter == Term("GTTYPEs", None)
-    assert aggr.group == None
+    assert aggr.group is None
 
     with pytest.raises(ValueError):
         Aggr("Nosuchaggr", 1)
@@ -191,9 +191,7 @@ def test_aggr_init():
 
 
 def test_aggr_run(variants):
-    aggr = Aggr(
-        "COUNT", One(), filter=Term("FILTER", ["PASS"]), group=Term("VARTYPE")
-    )
+    aggr = Aggr("COUNT", One(), filter=Term("FILTER", ["PASS"]), group=Term("VARTYPE"))
     aggr.run(variants[0], None, passed=True)
     assert len(aggr.cache) == 0
 
@@ -322,7 +320,8 @@ def test_formula_run(variants):
 
     with pytest.raises(ValueError):
         Formula(
-            "COUNT(1, filter=VARTYPE, group=GTTYPEs{0}) ~ COUNT(1, filter=GTTYPEs, group=CHROM)",
+            "COUNT(1, filter=VARTYPE, group=GTTYPEs{0}) ~ "
+            "COUNT(1, filter=GTTYPEs, group=CHROM)",
             ["A", "B", "C", "D"],
             False,
             "title",
@@ -341,9 +340,7 @@ def test_formula_run(variants):
         fmula.run(variants[0], None, data.append, data.extend)
 
     data = []
-    fmula = Formula(
-        "COUNT(1, group = VARTYPE) ~ CHROM", variants[-1], False, "title"
-    )
+    fmula = Formula("COUNT(1, group = VARTYPE) ~ CHROM", variants[-1], False, "title")
     fmula.run(variants[0], None, data.append, data.extend)
     fmula.run(variants[1], None, data.append, data.extend)
     fmula.run(variants[2], None, data.append, data.extend)
