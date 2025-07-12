@@ -1,4 +1,4 @@
-FROM python:3.9.12-slim-buster
+FROM python:3.12.11-slim
 
 RUN pip install -U cython poetry
 

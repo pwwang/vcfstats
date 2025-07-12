@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.7.0
+
+- BREAKING: drop support for python3.8
+- ci: use latest actions
+- ci: update dependencies installation step to include tabix
+- fix(tests): support bgzip < 1.20 (without -o option)
+
 ## 0.6.0
 
 - ✨ Allow passing vcf as 2nd arg to macros (#45)
