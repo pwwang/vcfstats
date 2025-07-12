@@ -1,0 +1,780 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../formulas/">
+      
+      
+        <link rel="next" href="../CHANGELOG/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>Macros - vcfstats</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:300,300i,400,400i,700,700i%7CUbuntu+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Ubuntu";--md-code-font:"Ubuntu Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../style.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#macros" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="vcfstats" class="md-header__button md-logo" aria-label="vcfstats" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            vcfstats
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Macros
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pwwang/vcfstats" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pwwang/vcfstats
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="vcfstats" class="md-nav__button md-logo" aria-label="vcfstats" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    vcfstats
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pwwang/vcfstats" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pwwang/vcfstats
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cliargs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Command-line arguments
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configfile/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configuration file
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formulas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Formulas
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Macros
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Macros
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#macros" class="md-nav__link">
+    <span class="md-ellipsis">
+      Macros
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Macros">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shortcuts-for-macro-decorators" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shortcuts for macro decorators
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#macros-other-than-aggregations-with-sample-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Macros other than aggregations with sample data
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#macros-with-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Macros with filters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aggregations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Aggregations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#built-in-macros" class="md-nav__link">
+    <span class="md-ellipsis">
+      Built-in macros
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CHANGELOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Change log
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#macros" class="md-nav__link">
+    <span class="md-ellipsis">
+      Macros
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Macros">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shortcuts-for-macro-decorators" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shortcuts for macro decorators
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#macros-other-than-aggregations-with-sample-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Macros other than aggregations with sample data
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#macros-with-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Macros with filters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aggregations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Aggregations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#built-in-macros" class="md-nav__link">
+    <span class="md-ellipsis">
+      Built-in macros
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+  <h1>Macros</h1>
+
+<h2 id="macros">Macros</h2>
+<p>Macros are used to gather some information from variants. They are nothing but just python function with our decorators.</p>
+<p>To define a macro:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">vcfstats.macros</span><span class="w"> </span><span class="kn">import</span> <span class="n">continuous</span>
+
+<span class="nd">@continuous</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">QUAL</span><span class="p">(</span><span class="n">variant</span><span class="p">):</span>
+	<span class="k">return</span> <span class="n">variant</span><span class="o">.</span><span class="n">QUAL</span>
+</code></pre></div>
+<p>We are using <code>cyvcf2</code> to get variant information, please refer to its <a href="https://brentp.github.io/cyvcf2/docstrings.html">API documentation</a> to explore what kind of metrics we can get from a variant.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>vcf</code> is initialized with <code>gts012 = True</code>, which is not the default value of <code>cyvcf2</code>. \
+<code>gts012 = True</code> indicates that genotype 2 as <code>HOM_ALT</code> and 3 as <code>UNKNOWN</code>.</p>
+</div>
+<h3 id="shortcuts-for-macro-decorators">Shortcuts for macro decorators</h3>
+<table>
+<thead>
+<tr>
+<th>decrator</th>
+<th>shortcut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>continuous</td>
+<td>cont</td>
+</tr>
+<tr>
+<td>categorical</td>
+<td>cat</td>
+</tr>
+<tr>
+<td>aggregation</td>
+<td>aggr</td>
+</tr>
+</tbody>
+</table>
+<h3 id="macros-other-than-aggregations-with-sample-data">Macros other than aggregations with sample data</h3>
+<p>If a macro returns sample data, we need to return a list or <code>numpy.array</code> with data for each sample. In the formula, we have to use brackets to get the information of certain sample. For example:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">vcf.macros</span><span class="w"> </span><span class="kn">import</span> <span class="n">cat</span>
+
+<span class="nd">@cat</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">GTTYPEs</span><span class="p">(</span><span class="n">variant</span><span class="p">)</span>
+	<span class="n">gttypes</span> <span class="o">=</span> <span class="n">variant</span><span class="o">.</span><span class="n">gt_types</span>
+	<span class="k">return</span> <span class="p">[</span><span class="s1">&#39;HOM_REF&#39;</span><span class="k">if</span> <span class="n">gttype</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> \
+			<span class="s1">&#39;HET&#39;</span> <span class="k">if</span> <span class="n">gttype</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> \
+			<span class="s1">&#39;HOM_ALT&#39;</span> <span class="k">if</span> <span class="n">gttype</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="s1">&#39;UNKNOWN&#39;</span> <span class="k">for</span> <span class="n">gttype</span> <span class="ow">in</span> <span class="n">gttypes</span><span class="p">]</span>
+</code></pre></div>
+<p>To get the genotype in sample 1 in formula: <code>GTTYPEs{0}</code>. You can also use sample name as well: <code>GTTYPEs{some sample}</code></p>
+<p>It's also allowed to pass <code>vcf</code> (the instance of <code>cyvcf.VCF</code>) as the second argument to the macro. For example:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">vcf.macros</span><span class="w"> </span><span class="kn">import</span> <span class="n">cont</span>
+
+<span class="nd">@cont</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">MIXED_INFO</span><span class="p">(</span><span class="n">variant</span><span class="p">,</span> <span class="n">vcf</span><span class="p">):</span>
+	<span class="o">...</span>
+</code></pre></div>
+<p>Check the <a href="https://brentp.github.io/cyvcf2/docstrings.html">API documentation</a> of <code>cyvcf2</code> to see what information we can get from <code>vcf</code>.</p>
+<h3 id="macros-with-filters">Macros with filters</h3>
+<p><code>aggregation</code>s have different syntax for filters. Here we are discussing about <code>continuous</code> and <code>categorical</code>.</p>
+<p>For <code>continuous</code> macros, we can use an upper and lower bound to filter. For example: <code>AAF[0.05, 0.95]</code> will take only variants with alternate allele frequency within <code>[0.05, 0.95]</code>, including <code>0.05</code> and <code>0.95</code>. We don't have a lower/upper bound exclusive syntax, so to exclude <code>0.05</code>, we can specify some value less than and close to it, say <code>0.0499</code>.</p>
+<p>For <code>categorical</code> macros, we can specify the categories that we want to keep in the plotting. For example: <code>CHROM[chr1, chr2, chr3]</code>. More conveniently, we can use hyphen to include a range of categories. For example, <code>CHROM[chr1-chr22, chrX, chrY]</code> will include all human chromosomes.</p>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>With both filters and sample subscribes, it doesn't matter which one you put it first. That means you can do both <code>GTTYPEs{0}[HET]</code> and <code>GTTYPEs[HET]{0}</code>. They are the same.</p>
+</div>
+<h3 id="aggregations">Aggregations</h3>
+<p>When you define aggregations, you just define who to aggregate the values. For example:
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">vcfstats.macros</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggr</span>
+<span class="nd">@aggr</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">SUM</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+	<span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+</code></pre></div>
+While when you use it, you can specify macros as filter and group for it. For example: <code>SUM(DEPTHs{0}, filter=FILTER[PASS], group=CHROM)</code>. This means to sum up the depth of variants pass all filters on each chromosome for the first sample.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Generally, we have to specify <code>group</code> for an aggregation. There are 2 situations that you don't have to:</p>
+<ol>
+<li>
+<p>when an aggregation is used as <code>Y</code>, left part of the formula, and <code>X</code> is a categorical macro. Then the categorical values will be used as <code>group</code> for the aggregation.</p>
+</li>
+<li>
+<p>both <code>X</code> and <code>Y</code> are aggregations and one of them can have no <code>group</code> and will use the <code>group</code> from the other one.</p>
+</li>
+</ol>
+</div>
+<h3 id="built-in-macros">Built-in macros</h3>
+<div class="highlight"><pre><span></span><code><span class="nd">@categorical</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">VARTYPE</span><span class="p">(</span><span class="n">variant</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Variant type, one of deletion, indel, snp or sv&quot;&quot;&quot;</span>
+	<span class="k">return</span> 	<span class="n">variant</span><span class="o">.</span><span class="n">var_type</span>
+
+<span class="nd">@categorical</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">TITV</span><span class="p">(</span><span class="n">variant</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Tell if a variant is a transition or transversion. The variant has to be an snp first.&quot;&quot;&quot;</span>
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">variant</span><span class="o">.</span><span class="n">is_snp</span><span class="p">:</span>
+		<span class="k">return</span> <span class="kc">False</span>
+	<span class="k">return</span> <span class="s1">&#39;transition&#39;</span> <span class="k">if</span> <span class="n">variant</span><span class="o">.</span><span class="n">is_transition</span> <span class="k">else</span> <span class="s1">&#39;transversion&#39;</span>
+
+<span class="nd">@categorical</span><span class="p">(</span><span class="n">alias</span> <span class="o">=</span> <span class="s1">&#39;CHROM&#39;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">CONTIG</span><span class="p">(</span><span class="n">variant</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Get the config/chromosome of a variant. Alias: CHROM&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="n">variant</span><span class="o">.</span><span class="n">CHROM</span>
+
+<span class="nd">@categorical</span><span class="p">(</span><span class="n">alias</span> <span class="o">=</span> <span class="s1">&#39;GT_TYPEs&#39;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">GTTYPEs</span><span class="p">(</span><span class="n">variant</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Get the genotypes(HOM_REF,HET,HOM_ALT,UNKNOWN) of a variant for each sample&quot;&quot;&quot;</span>
+	<span class="n">gttypes</span> <span class="o">=</span> <span class="n">variant</span><span class="o">.</span><span class="n">gt_types</span>
+	<span class="k">return</span> <span class="p">[</span><span class="s1">&#39;HOM_REF&#39;</span><span class="k">if</span> <span class="n">gttype</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> \
+			<span class="s1">&#39;HET&#39;</span> <span class="k">if</span> <span class="n">gttype</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> \
+			<span class="s1">&#39;HOM_ALT&#39;</span> <span class="k">if</span> <span class="n">gttype</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="s1">&#39;UNKNOWN&#39;</span> <span class="k">for</span> <span class="n">gttype</span> <span class="ow">in</span> <span class="n">gttypes</span><span class="p">]</span>
+
+<span class="nd">@categorical</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">FILTER</span><span class="p">(</span><span class="n">variant</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Get the FILTER of a variant.&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="n">variant</span><span class="o">.</span><span class="n">FILTER</span> <span class="ow">or</span> <span class="s1">&#39;PASS&#39;</span>
+
+<span class="nd">@categorical</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">SUBST</span><span class="p">(</span><span class="n">variant</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Substitution of the variant, including all types of varinat&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&gt;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">variant</span><span class="o">.</span><span class="n">REF</span><span class="p">,</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">variant</span><span class="o">.</span><span class="n">ALT</span><span class="p">))</span>
+
+<span class="nd">@continuous</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">NALT</span><span class="p">(</span><span class="n">variant</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Number of alternative alleles&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">variant</span><span class="o">.</span><span class="n">ALT</span><span class="p">)</span>
+
+<span class="nd">@continuous</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">GQs</span><span class="p">(</span><span class="n">variant</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;get the GQ for each sample as a numpy array.&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="n">variant</span><span class="o">.</span><span class="n">gt_quals</span>
+
+<span class="nd">@continuous</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">QUAL</span><span class="p">(</span><span class="n">variant</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Variant quality from QUAL field.&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="n">variant</span><span class="o">.</span><span class="n">QUAL</span>
+
+<span class="nd">@continuous</span><span class="p">(</span><span class="n">alias</span> <span class="o">=</span> <span class="s1">&#39;DPs&#39;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">DEPTHs</span><span class="p">(</span><span class="n">variant</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Get the read-depth for each sample as a numpy array.&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span> <span class="k">for</span> <span class="n">dp</span> <span class="ow">in</span> <span class="n">variant</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;DP&#39;</span><span class="p">)]</span>
+
+<span class="nd">@continuous</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">AAF</span><span class="p">(</span><span class="n">variant</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Alternate allele frequency across samples in this VCF.&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="n">variant</span><span class="o">.</span><span class="n">aaf</span>
+
+<span class="nd">@continuous</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">AFs</span><span class="p">(</span><span class="n">variant</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;get the freq of alternate reads as a numpy array.&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="n">variant</span><span class="o">.</span><span class="n">gt_alt_freqs</span>
+
+<span class="nd">@continuous</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_ONE</span><span class="p">(</span><span class="n">variant</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Return 1 for a variant, usually used in aggregation, or indication of a distribution plot&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="mi">1</span>
+
+<span class="nd">@aggregation</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">COUNT</span><span class="p">(</span><span class="n">entries</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Count the variants in groups&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span>
+
+<span class="nd">@aggregation</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">SUM</span><span class="p">(</span><span class="n">entries</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Sum up the values in groups&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span>
+
+<span class="nd">@aggregation</span><span class="p">(</span><span class="n">alias</span> <span class="o">=</span> <span class="s1">&#39;AVG&#39;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">MEAN</span><span class="p">(</span><span class="n">entries</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Get the mean of the values&quot;&quot;&quot;</span>
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">entries</span><span class="p">:</span>
+		<span class="k">return</span> <span class="mf">0.0</span>
+	<span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+    
+  </body>
+</html>
