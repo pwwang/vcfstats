@@ -185,15 +185,17 @@ def main():
     )
     ones = get_instances(opts, samples, default_devpars)
     logger.info("Start reading variants ...")
+    xi = 0
     with capture_c_msg("cyvcf2"):
         for i, variant in enumerate(vcf):
+            xi = i
             for instance in ones:
                 # save entries, cache aggr
                 instance.iterate(variant, vcf)
             if i % 10000 == 0:  # pragma: no cover
                 logger.debug("- %s variants read.", i)
     logger.info(
-        "%s variants read.", i
+        "%s variants read.", xi
     )
     for i, instance in enumerate(ones):
         # save aggr
