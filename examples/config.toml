@@ -1,0 +1,2 @@
+# generate smaller figures for demonstration
+devpars = { width = 600, height = 600, res = 100}
