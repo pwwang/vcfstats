@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.7.1
+
+- fix: correctly track the number of variants read (#50)
+- chore: update dependencies
+
 ## 0.7.0
 
 - BREAKING: drop support for python3.8
